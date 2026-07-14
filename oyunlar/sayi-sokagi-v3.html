@@ -1,0 +1,1048 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sayı Sokağı v3 - Sokak Taşları</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; user-select: none; }
+  body {
+    display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(135deg, #2a1f4a 0%, #1a1530 100%);
+    min-height: 100vh; padding: 20px;
+  }
+  .device {
+    width: 390px; height: 780px; max-height: 95vh;
+    background: linear-gradient(180deg, #f0ecf9 0%, #d8d0f0 100%);
+    border-radius: 36px; overflow: hidden; position: relative;
+    box-shadow: 0 25px 60px rgba(0,0,0,0.4);
+  }
+  .hud {
+    position: absolute; top: 0; left: 0; right: 0; height: 60px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 16px; z-index: 100;
+    background: rgba(255,255,255,0.4); backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255,255,255,0.5);
+  }
+  .hud-btn {
+    width: 40px; height: 40px; border-radius: 50%; border: none; cursor: pointer;
+    background: rgba(255,255,255,0.7); backdrop-filter: blur(8px);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; color: #4a3870; transition: transform 0.15s;
+  }
+  .hud-btn:active { transform: scale(0.92); }
+  .hud-score {
+    font-weight: 700; color: #4a3870; font-size: 16px;
+    background: rgba(255,255,255,0.7); padding: 8px 16px; border-radius: 20px;
+  }
+  .hud-trophy { font-size: 22px; }
+  .screen {
+    position: absolute; top: 60px; left: 0; right: 0; bottom: 0;
+    overflow-y: auto; overflow-x: hidden; display: none; flex-direction: column;
+  }
+  .screen.active { display: flex; }
+  .menu-screen { padding: 24px 20px; }
+  .menu-title { font-size: 28px; font-weight: 800; color: #4a3870; text-align: center; margin-bottom: 8px; }
+  .menu-subtitle { font-size: 14px; color: #6b5a8a; text-align: center; margin-bottom: 24px; }
+  .game-card {
+    background: white; border-radius: 24px; padding: 24px;
+    box-shadow: 0 8px 24px rgba(74, 56, 112, 0.15);
+    border: 3px solid #9078dc; cursor: pointer; transition: transform 0.2s;
+  }
+  .game-card:active { transform: scale(0.97); }
+  .game-card-emoji { font-size: 56px; text-align: center; margin-bottom: 12px; }
+  .game-card-title { font-size: 22px; font-weight: 700; color: #4a3870; text-align: center; margin-bottom: 6px; }
+  .game-card-desc { font-size: 13px; color: #6b5a8a; text-align: center; margin-bottom: 16px; }
+  .progress-bar { height: 10px; background: #e5dff5; border-radius: 5px; overflow: hidden; margin-bottom: 8px; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, #9078dc, #b8a4f0); border-radius: 5px; transition: width 0.5s; }
+  .progress-text { font-size: 12px; color: #6b5a8a; text-align: center; }
+  .play-cta {
+    margin-top: 20px; padding: 14px; background: #9078dc; color: white;
+    border: none; border-radius: 16px; font-size: 16px; font-weight: 700;
+    width: 100%; cursor: pointer;
+  }
+  .play-cta:active { transform: scale(0.97); }
+  .round-intro {
+    padding: 40px 24px; text-align: center;
+    display: flex; flex-direction: column; justify-content: center; height: 100%;
+  }
+  .round-intro-num { font-size: 14px; color: #9078dc; font-weight: 700; letter-spacing: 2px; }
+  .round-intro-title { font-size: 30px; font-weight: 800; color: #4a3870; margin: 8px 0 20px; }
+  .round-intro-emoji { font-size: 100px; margin: 24px 0; animation: bounce 1.2s ease-in-out infinite; }
+  .round-intro-desc { font-size: 16px; color: #4a3870; margin-bottom: 32px; line-height: 1.5; padding: 0 12px; }
+  .round-intro-btn {
+    padding: 16px 40px; background: #9078dc; color: white; border: none;
+    border-radius: 20px; font-size: 18px; font-weight: 700; cursor: pointer;
+    box-shadow: 0 6px 20px rgba(144, 120, 220, 0.4);
+  }
+  .round-intro-btn:active { transform: scale(0.96); }
+
+  /* Round 1 (same as v2) */
+  .r1-screen { padding: 14px; }
+  .r1-instruction {
+    font-size: 13px; font-weight: 700; color: #4a3870;
+    background: white; padding: 10px 14px; border-radius: 12px;
+    margin-bottom: 10px; line-height: 1.4; text-align: center;
+  }
+  .r1-counter {
+    background: #9078dc; color: white; padding: 8px 14px; border-radius: 14px;
+    font-weight: 700; font-size: 13px; margin-bottom: 12px;
+    display: flex; justify-content: space-between; align-items: center; gap: 10px;
+  }
+  .r1-counter.fast { background: linear-gradient(90deg, #ff6b6b, #ff9966); }
+  .r1-timer-bar { flex: 1; height: 8px; background: rgba(255,255,255,0.3); border-radius: 4px; overflow: hidden; min-width: 60px; }
+  .r1-timer-fill { height: 100%; background: white; transition: width 0.1s linear; }
+  .houses { display: flex; gap: 12px; justify-content: center; margin-bottom: 16px; }
+  .house {
+    flex: 1; aspect-ratio: 0.95; border-radius: 18px;
+    display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
+    padding: 12px; position: relative; overflow: hidden;
+    transition: transform 0.15s; cursor: pointer;
+  }
+  .house.tek { background: linear-gradient(180deg, #4a90e2 0%, #2d6cb8 100%); box-shadow: 0 6px 16px rgba(74, 144, 226, 0.35); }
+  .house.cift { background: linear-gradient(180deg, #5cc77f 0%, #3a9d5c 100%); box-shadow: 0 6px 16px rgba(92, 199, 127, 0.35); }
+  .house.drag-over { transform: scale(1.06); }
+  .house.flash-red { animation: flashRed 0.4s; }
+  .house.flash-green { animation: flashGreen 0.4s; }
+  .house-roof { position: absolute; top: -2px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 80px solid transparent; border-right: 80px solid transparent; }
+  .house.tek .house-roof { border-bottom: 40px solid #1e4a82; }
+  .house.cift .house-roof { border-bottom: 40px solid #2a6e44; }
+  .house-windows { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 36px; margin-bottom: 8px; width: 70%; }
+  .window { aspect-ratio: 1; background: rgba(255,255,255,0.3); border-radius: 4px; border: 2px solid rgba(255,255,255,0.6); transition: background 0.3s; }
+  .window.lit { background: #ffd966; box-shadow: 0 0 12px #ffd966; }
+  .house-door { width: 36%; height: 28%; background: rgba(255,255,255,0.85); border-radius: 8px 8px 0 0; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 16px; color: #4a3870; }
+  .house-label { position: absolute; top: 44px; left: 0; right: 0; text-align: center; color: white; font-weight: 800; font-size: 14px; text-shadow: 0 1px 2px rgba(0,0,0,0.3); letter-spacing: 1px; }
+  .r1-card-area { display: flex; align-items: center; justify-content: center; padding: 24px 16px; min-height: 180px; }
+  .r1-current-card {
+    width: 110px; height: 140px; background: white; border-radius: 20px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 52px; font-weight: 800; color: #4a3870;
+    box-shadow: 0 8px 24px rgba(74, 56, 112, 0.25);
+    border: 3px solid #9078dc; cursor: grab; touch-action: none;
+    transition: transform 0.3s, opacity 0.3s, box-shadow 0.3s;
+  }
+  .r1-current-card.dragging { opacity: 0.9; cursor: grabbing; }
+  .r1-current-card.fly-tek { transform: translate(-100px, -180px) scale(0.3); opacity: 0; }
+  .r1-current-card.fly-cift { transform: translate(100px, -180px) scale(0.3); opacity: 0; }
+  .r1-current-card.shake { animation: shake 0.5s; }
+  .r1-current-card.flash-red { border-color: #e57373; box-shadow: 0 0 30px #e57373; }
+  .phase-overlay {
+    position: absolute; inset: 0; z-index: 180;
+    background: rgba(42, 31, 74, 0.92); backdrop-filter: blur(12px);
+    display: none; flex-direction: column; align-items: center; justify-content: center;
+    color: white; padding: 24px;
+  }
+  .phase-overlay.active { display: flex; }
+  .phase-emoji { font-size: 90px; margin-bottom: 16px; animation: bounce 0.8s infinite; }
+  .phase-title { font-size: 28px; font-weight: 800; margin-bottom: 8px; text-align: center; }
+  .phase-sub { font-size: 16px; opacity: 0.85; text-align: center; margin-bottom: 28px; }
+  .phase-countdown { font-size: 90px; font-weight: 800; color: #ffd966; text-shadow: 0 0 24px rgba(255,217,102,0.6); animation: countPulse 0.7s ease-in-out; }
+
+  /* Round 2 - Sokak Taşları */
+  .r2-screen { padding: 14px; }
+  .r2-stage-info {
+    background: white; padding: 10px 14px; border-radius: 14px; margin-bottom: 8px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .r2-stage-title { font-size: 12px; font-weight: 700; color: #9078dc; }
+  .r2-counter { background: #9078dc; color: white; padding: 6px 12px; border-radius: 12px; font-weight: 700; font-size: 12px; }
+  .r2-rule-card {
+    border-radius: 14px; padding: 14px 16px; margin-bottom: 12px;
+    text-align: center; color: white; font-weight: 700; font-size: 15px;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+  }
+  .r2-rule-card.tek { background: linear-gradient(135deg, #4a90e2, #2d6cb8); }
+  .r2-rule-card.cift { background: linear-gradient(135deg, #5cc77f, #3a9d5c); }
+  .r2-rule-card .rule-emoji { font-size: 24px; }
+  .r2-rule-card .rule-keyword {
+    background: rgba(255,255,255,0.25); padding: 2px 10px; border-radius: 8px;
+    margin: 0 4px; font-size: 18px; letter-spacing: 1px;
+  }
+
+  /* Street scene */
+  .street-scene {
+    background: linear-gradient(180deg, #b3e5fc 0%, #e1f5fe 40%, #fff8e1 80%);
+    border-radius: 18px; padding: 16px 12px; margin-bottom: 12px;
+    position: relative; overflow: hidden;
+    box-shadow: inset 0 0 16px rgba(74, 144, 226, 0.15);
+    min-height: 280px;
+  }
+  /* Cloud decorations */
+  .street-scene::before {
+    content: '☁️'; position: absolute; top: 12px; left: 16px;
+    font-size: 22px; opacity: 0.7;
+  }
+  .street-scene::after {
+    content: '☁️'; position: absolute; top: 22px; right: 24px;
+    font-size: 18px; opacity: 0.6;
+  }
+
+  .frog-track {
+    position: relative; height: 130px; margin-top: 30px;
+  }
+  .frog {
+    position: absolute; bottom: 50px; left: 0;
+    font-size: 36px; z-index: 10;
+    transition: left 0.55s cubic-bezier(0.4, 0, 0.2, 1.2);
+    filter: drop-shadow(0 3px 4px rgba(0,0,0,0.2));
+  }
+  .frog.jumping { animation: frogJump 0.55s ease-out; }
+  .frog.sad { animation: frogSad 0.5s; }
+
+  .target {
+    position: absolute; bottom: 50px; right: 0;
+    font-size: 40px;
+    transition: transform 0.4s;
+    filter: drop-shadow(0 3px 4px rgba(0,0,0,0.2));
+  }
+  .target.celebrate { animation: targetBounce 0.6s; }
+
+  .stones-row {
+    position: absolute; bottom: 0; left: 8%; right: 8%;
+    display: flex; justify-content: space-between; align-items: flex-end;
+  }
+  .stone {
+    width: 40px; height: 36px;
+    background: linear-gradient(180deg, #b8a78a 0%, #8a7a5e 100%);
+    border-radius: 50% 50% 30% 30% / 60% 60% 40% 40%;
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-weight: 800; font-size: 15px;
+    cursor: pointer;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.2), inset 0 -3px 4px rgba(0,0,0,0.15);
+    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    transition: transform 0.15s, filter 0.3s;
+    position: relative;
+  }
+  .stone:active { transform: scale(0.92); }
+  .stone.used { filter: grayscale(0.7) brightness(0.75); cursor: default; }
+  .stone.current {
+    background: linear-gradient(180deg, #d4c39a 0%, #a8946d 100%);
+  }
+  .stone.shake { animation: shake 0.4s; }
+  .stone.flash-red { animation: stoneFlashRed 0.5s; }
+  .stone.flash-yellow { animation: stoneFlashYellow 0.4s; }
+  .stone.tutorial-pulse { animation: tutorialPulse 1.4s infinite; }
+  .stone.hint-pulse { animation: hintPulse 1.4s infinite; }
+
+  .splash {
+    position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%);
+    font-size: 18px; opacity: 0; pointer-events: none;
+  }
+  .splash.show { animation: splashAnim 0.6s; }
+
+  .progress-bar-r2 {
+    height: 8px; background: white; border-radius: 4px; overflow: hidden;
+    margin: 6px 0;
+  }
+  .progress-fill-r2 {
+    height: 100%; background: linear-gradient(90deg, #5cc77f, #ffd966);
+    transition: width 0.5s;
+  }
+  .progress-label {
+    font-size: 11px; color: #6b5a8a; text-align: center; font-weight: 600;
+  }
+
+  .badge-overlay {
+    position: absolute; inset: 0; z-index: 200;
+    background: rgba(42, 31, 74, 0.85); backdrop-filter: blur(8px);
+    display: none; flex-direction: column; align-items: center; justify-content: center;
+    padding: 24px;
+  }
+  .badge-overlay.active { display: flex; }
+  .badge-emoji {
+    font-size: 110px; animation: badgeBounce 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+    margin-bottom: 16px; filter: drop-shadow(0 8px 20px rgba(255,217,102,0.5));
+  }
+  .badge-name { font-size: 26px; font-weight: 800; color: white; margin-bottom: 8px; text-align: center; }
+  .badge-message { font-size: 15px; color: #d8d0f0; margin-bottom: 28px; text-align: center; line-height: 1.5; padding: 0 12px; }
+  .badge-btn {
+    padding: 14px 36px; background: #9078dc; color: white; border: none;
+    border-radius: 18px; font-size: 16px; font-weight: 700; cursor: pointer;
+    display: flex; align-items: center; gap: 8px;
+    box-shadow: 0 6px 20px rgba(144, 120, 220, 0.5);
+  }
+  .badge-btn:active { transform: scale(0.96); }
+  .confetti { position: absolute; width: 8px; height: 8px; pointer-events: none; z-index: 199; }
+
+  .sheet-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.4); z-index: 150; display: none; }
+  .sheet-overlay.active { display: block; }
+  .bottom-sheet {
+    position: absolute; bottom: 0; left: 0; right: 0; max-height: 70%;
+    background: white; border-radius: 24px 24px 0 0; padding: 20px;
+    z-index: 151; transform: translateY(100%); transition: transform 0.3s;
+    overflow-y: auto;
+  }
+  .bottom-sheet.active { transform: translateY(0); }
+  .sheet-handle { width: 40px; height: 4px; background: #d8d0f0; border-radius: 2px; margin: 0 auto 16px; }
+  .sheet-title { font-size: 18px; font-weight: 800; color: #4a3870; margin-bottom: 12px; }
+  .sheet-progress { background: #f5f1fb; border-radius: 12px; padding: 12px; margin-bottom: 16px; }
+  .sheet-progress-text { font-size: 13px; font-weight: 700; color: #6b5a8a; margin-bottom: 6px; }
+  .sheet-section-title { font-size: 14px; font-weight: 700; color: #4a3870; margin: 12px 0 8px; }
+  .sheet-badges { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .sheet-badge { aspect-ratio: 1; background: #f5f1fb; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 28px; padding: 4px; }
+  .sheet-badge.locked { filter: grayscale(1); opacity: 0.5; border: 2px dashed #b8a4d0; background: white; }
+  .sheet-badge .badge-label { font-size: 9px; color: #6b5a8a; margin-top: 4px; text-align: center; font-weight: 700; line-height: 1.1; }
+
+  /* Animations */
+  @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+  @keyframes flashRed { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(1.4) hue-rotate(-30deg); } }
+  @keyframes flashGreen { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(1.3) saturate(1.5); } }
+  @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+  @keyframes badgeBounce { 0% { transform: scale(0) rotate(-180deg); } 60% { transform: scale(1.2) rotate(20deg); } 100% { transform: scale(1) rotate(0deg); } }
+  @keyframes confettiFall { 0% { transform: translateY(0) rotate(0); opacity: 1; } 100% { transform: translateY(600px) rotate(720deg); opacity: 0; } }
+  @keyframes countPulse { 0% { transform: scale(0.5); opacity: 0; } 50% { transform: scale(1.2); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
+
+  @keyframes frogJump {
+    0% { transform: translateY(0) rotate(0); }
+    35% { transform: translateY(-50px) rotate(-15deg); }
+    70% { transform: translateY(-30px) rotate(10deg); }
+    100% { transform: translateY(0) rotate(0); }
+  }
+  @keyframes frogSad {
+    0%, 100% { transform: rotate(0); }
+    25% { transform: rotate(-8deg) translateY(2px); }
+    75% { transform: rotate(8deg) translateY(2px); }
+  }
+  @keyframes targetBounce {
+    0%, 100% { transform: scale(1); }
+    30% { transform: scale(1.4) rotate(-10deg); }
+    60% { transform: scale(1.2) rotate(8deg); }
+  }
+  @keyframes stoneFlashRed {
+    0%, 100% { background: linear-gradient(180deg, #b8a78a 0%, #8a7a5e 100%); }
+    50% { background: linear-gradient(180deg, #ff8a8a 0%, #c44 100%); }
+  }
+  @keyframes stoneFlashYellow {
+    0%, 100% { background: linear-gradient(180deg, #b8a78a 0%, #8a7a5e 100%); }
+    50% { background: linear-gradient(180deg, #ffd966 0%, #c89a30 100%); }
+  }
+  @keyframes tutorialPulse {
+    0%, 100% { box-shadow: 0 3px 6px rgba(0,0,0,0.2), inset 0 -3px 4px rgba(0,0,0,0.15), 0 0 0 0 rgba(74, 144, 226, 0.7); }
+    50% { box-shadow: 0 3px 6px rgba(0,0,0,0.2), inset 0 -3px 4px rgba(0,0,0,0.15), 0 0 0 8px rgba(74, 144, 226, 0); }
+  }
+  @keyframes hintPulse {
+    0%, 100% { box-shadow: 0 3px 6px rgba(0,0,0,0.2), inset 0 -3px 4px rgba(0,0,0,0.15), 0 0 0 0 rgba(92, 199, 127, 0.7); }
+    50% { box-shadow: 0 3px 6px rgba(0,0,0,0.2), inset 0 -3px 4px rgba(0,0,0,0.15), 0 0 0 10px rgba(92, 199, 127, 0); }
+  }
+  @keyframes splashAnim {
+    0% { opacity: 0; transform: translateX(-50%) translateY(0) scale(0.5); }
+    50% { opacity: 1; transform: translateX(-50%) translateY(-12px) scale(1.2); }
+    100% { opacity: 0; transform: translateX(-50%) translateY(-22px) scale(0.8); }
+  }
+
+  .toast {
+    position: absolute; top: 80px; left: 20px; right: 20px;
+    background: rgba(74, 56, 112, 0.95); color: white; padding: 12px 16px;
+    border-radius: 12px; text-align: center; font-weight: 600; font-size: 14px;
+    z-index: 110; opacity: 0; transition: opacity 0.3s; pointer-events: none;
+  }
+  .toast.active { opacity: 1; }
+</style>
+</head>
+<body>
+
+<div class="device" id="device">
+  <div class="hud" id="hud">
+    <button class="hud-btn" id="backBtn">←</button>
+    <div class="hud-score" id="hudScore">Skor: 0</div>
+    <button class="hud-btn hud-trophy" id="trophyBtn">🏆</button>
+  </div>
+  <div class="toast" id="toast"></div>
+
+  <div class="screen menu-screen active" id="menuScreen">
+    <div class="menu-title">🛣️ Sayı Sokağı</div>
+    <div class="menu-subtitle">3. Sınıf Matematik · Tek-Çift Sayılar</div>
+    <div class="game-card" id="gameCard">
+      <div class="game-card-emoji">🐸</div>
+      <div class="game-card-title">Sayı Sokağı</div>
+      <div class="game-card-desc">Karbur'a yardım et, sokağın numaralarını çöz!</div>
+      <div class="progress-bar"><div class="progress-fill" id="menuProgress" style="width: 0%"></div></div>
+      <div class="progress-text" id="menuProgressText">0 / 8 rozet</div>
+      <button class="play-cta" id="playBtn">▶ Oyna</button>
+    </div>
+  </div>
+
+  <div class="screen" id="introScreen">
+    <div class="round-intro">
+      <div class="round-intro-num" id="introNum">ROUND 1</div>
+      <div class="round-intro-title" id="introTitle">Sokakta Hız Tutturanlar</div>
+      <div class="round-intro-emoji" id="introEmoji">🏘️</div>
+      <div class="round-intro-desc" id="introDesc">Önce sakin bir tur, sonra hızlı tur. Tekleri mavi, çiftleri yeşil eve at!</div>
+      <button class="round-intro-btn" id="introBtn">Başla! ▶</button>
+    </div>
+  </div>
+
+  <div class="screen r1-screen" id="r1Screen">
+    <div class="r1-instruction" id="r1Instruction">Tek sayıları mavi eve, çift sayıları yeşil eve yerleştir!</div>
+    <div class="r1-counter" id="r1Counter"><span id="r1CounterText">Soru 1 / 10</span></div>
+    <div class="houses">
+      <div class="house tek" data-type="tek" id="houseTek">
+        <div class="house-roof"></div><div class="house-label">TEK</div>
+        <div class="house-windows"><div class="window"></div><div class="window"></div><div class="window"></div><div class="window"></div></div>
+        <div class="house-door">1</div>
+      </div>
+      <div class="house cift" data-type="cift" id="houseCift">
+        <div class="house-roof"></div><div class="house-label">ÇİFT</div>
+        <div class="house-windows"><div class="window"></div><div class="window"></div><div class="window"></div><div class="window"></div></div>
+        <div class="house-door">2</div>
+      </div>
+    </div>
+    <div class="r1-card-area"><div class="r1-current-card" id="r1Card">?</div></div>
+  </div>
+
+  <div class="phase-overlay" id="phaseOverlay">
+    <div class="phase-emoji">⚡</div>
+    <div class="phase-title">Hızlanma Zamanı!</div>
+    <div class="phase-sub">30 saniyede olabildiğince çok sayı yerleştir!</div>
+    <div class="phase-countdown" id="phaseCountdown">3</div>
+  </div>
+
+  <!-- Round 2 - Sokak Taşları -->
+  <div class="screen r2-screen" id="r2Screen">
+    <div class="r2-stage-info">
+      <div class="r2-stage-title" id="r2StageTitle">AŞAMA 1 / 5</div>
+      <div class="r2-counter" id="r2Counter">0 / 4 zıplama</div>
+    </div>
+    <div class="r2-rule-card tek" id="r2RuleCard">
+      <span class="rule-emoji">🐸</span>
+      <span>Karbur sadece</span>
+      <span class="rule-keyword">TEK</span>
+      <span>sayılara bassın!</span>
+    </div>
+    <div class="street-scene">
+      <div class="frog-track">
+        <div class="frog" id="frog">🐸</div>
+        <div class="target" id="target">🏠</div>
+        <div class="stones-row" id="stonesRow"></div>
+      </div>
+    </div>
+    <div class="progress-bar-r2"><div class="progress-fill-r2" id="r2Progress" style="width: 0%"></div></div>
+    <div class="progress-label" id="r2ProgressLabel">Karbur sokağın başında</div>
+  </div>
+
+  <div class="badge-overlay" id="badgeOverlay">
+    <div class="badge-emoji" id="badgeEmoji">🏘️</div>
+    <div class="badge-name" id="badgeName">Mahalle Rehberi</div>
+    <div class="badge-message" id="badgeMessage">Harika!</div>
+    <button class="badge-btn" id="badgeBtn">▶ Devam Et</button>
+  </div>
+
+  <div class="sheet-overlay" id="sheetOverlay"></div>
+  <div class="bottom-sheet" id="bottomSheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">🏆 Rozet Koleksiyonu</div>
+    <div class="sheet-progress">
+      <div class="sheet-progress-text" id="sheetProgressText">0 / 8 rozet</div>
+      <div class="progress-bar"><div class="progress-fill" id="sheetProgress" style="width: 0%"></div></div>
+    </div>
+    <div class="sheet-section-title">Kazandıkların</div>
+    <div class="sheet-badges" id="sheetEarned"></div>
+    <div class="sheet-section-title">Keşfedilmemiş</div>
+    <div class="sheet-badges" id="sheetLocked"></div>
+  </div>
+</div>
+
+<script>
+const state = {
+  currentScreen: 'menu',
+  earnedBadges: new Set(),
+  totalScore: 0,
+  pendingRoundStart: null,
+  r1: { phase: 'A', questionIndex: 0, totalA: 10, correctB: 0, timeLeft: 30, timer: null, currentNum: null, queueA: [], locked: false },
+  r2: { stage: 0, frogIndex: 0, requiredJumps: 0, completedJumps: 0, wrongAttempts: 0, hintShown: false, locked: false, tutorialShown: false }
+};
+
+const ALL_BADGES = [
+  { id: 'acemi_postaci', emoji: '📬', name: 'Acemi Postacı', desc: 'Bayrağı aldın! İlk turunu tamamladın.', round: 1 },
+  { id: 'cevik_postaci', emoji: '📦', name: 'Çevik Postacı', desc: 'İyi gidiyorsun! Sayıları hızlıca ayırdın.', round: 1 },
+  { id: 'yildirim_postaci', emoji: '🚴', name: 'Yıldırım Postacı', desc: 'İnanılmaz! Sokağın en hızlı postacısısın.', round: 1 },
+  { id: 'ev_yolcusu', emoji: '🏠', name: 'Ev Yolcusu', desc: 'Karbur evine vardı! Tek sayıları seçtin.', round: 2 },
+  { id: 'market_ustasi', emoji: '🏪', name: 'Market Ustası', desc: 'Karbur alışverişe gitti! Çiftleri buldun.', round: 2 },
+  { id: 'golet_kasifi', emoji: '🌊', name: 'Gölet Kâşifi', desc: 'Karbur serinledi! Büyük tek sayılarla baş ettin.', round: 2 },
+  { id: 'okul_kahramani', emoji: '🏫', name: 'Okul Kahramanı', desc: 'Karbur okula yetişti! İki basamaklı çiftleri çözdün.', round: 2 },
+  { id: 'sokak_sampiyonu', emoji: '🌳', name: 'Sokak Şampiyonu', desc: 'Karbur en büyük yolculuğu tamamladı!', round: 2 }
+];
+
+const R2_STAGES = [
+  { rule: 'tek', target: '🏠', targetName: 'evine', stones: [1, 4, 3, 5, 7, 8, 9, 2], badge: 'ev_yolcusu' },
+  { rule: 'cift', target: '🏪', targetName: 'markete', stones: [2, 5, 6, 7, 4, 3, 8, 1], badge: 'market_ustasi' },
+  { rule: 'tek', target: '🌊', targetName: 'gölete', stones: [11, 14, 13, 16, 15, 18, 17, 12], badge: 'golet_kasifi' },
+  { rule: 'cift', target: '🏫', targetName: 'okula', stones: [22, 25, 28, 31, 24, 27, 30, 21], badge: 'okul_kahramani' },
+  { rule: 'cift', target: '🌳', targetName: 'büyük yolculukta', stones: [47, 52, 39, 64, 35, 78, 23, 90], badge: 'sokak_sampiyonu' }
+];
+
+const $ = id => document.getElementById(id);
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  $(`${name}Screen`).classList.add('active');
+  state.currentScreen = name;
+}
+function isOdd(n) { return n % 2 !== 0; }
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+function showToast(msg, ms = 1800) {
+  const t = $('toast'); t.textContent = msg; t.classList.add('active');
+  setTimeout(() => t.classList.remove('active'), ms);
+}
+function playSound(type) {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const o = ctx.createOscillator(); const g = ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    if (type === 'ding') {
+      o.frequency.value = 880; o.type = 'sine';
+      g.gain.setValueAtTime(0.15, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
+      o.start(); o.stop(ctx.currentTime + 0.2);
+    } else if (type === 'buzz') {
+      o.frequency.value = 180; o.type = 'sawtooth';
+      g.gain.setValueAtTime(0.1, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.18);
+      o.start(); o.stop(ctx.currentTime + 0.18);
+    } else if (type === 'plop') {
+      o.frequency.setValueAtTime(440, ctx.currentTime);
+      o.frequency.exponentialRampToValueAtTime(220, ctx.currentTime + 0.15);
+      o.type = 'sine';
+      g.gain.setValueAtTime(0.12, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
+      o.start(); o.stop(ctx.currentTime + 0.2);
+    } else if (type === 'badge') {
+      o.frequency.setValueAtTime(523, ctx.currentTime);
+      o.frequency.setValueAtTime(659, ctx.currentTime + 0.1);
+      o.frequency.setValueAtTime(784, ctx.currentTime + 0.2);
+      o.type = 'triangle';
+      g.gain.setValueAtTime(0.15, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+      o.start(); o.stop(ctx.currentTime + 0.5);
+    } else if (type === 'count') {
+      o.frequency.value = 660; o.type = 'square';
+      g.gain.setValueAtTime(0.08, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.15);
+      o.start(); o.stop(ctx.currentTime + 0.15);
+    }
+  } catch (e) {}
+}
+function spawnConfetti() {
+  const colors = ['#9078dc', '#ffd966', '#5cc77f', '#4a90e2', '#ff8a8a'];
+  const overlay = $('badgeOverlay');
+  for (let i = 0; i < 40; i++) {
+    const c = document.createElement('div');
+    c.className = 'confetti';
+    c.style.background = colors[Math.floor(Math.random() * colors.length)];
+    c.style.left = Math.random() * 100 + '%';
+    c.style.top = '-20px';
+    c.style.animation = `confettiFall ${1 + Math.random() * 1.5}s ease-out forwards`;
+    c.style.animationDelay = Math.random() * 0.3 + 's';
+    overlay.appendChild(c);
+    setTimeout(() => c.remove(), 2500);
+  }
+}
+
+function updateMenu() {
+  const earned = state.earnedBadges.size;
+  const total = ALL_BADGES.length;
+  $('menuProgress').style.width = (earned / total * 100) + '%';
+  $('menuProgressText').textContent = `${earned} / ${total} rozet`;
+}
+$('playBtn').addEventListener('click', () => {
+  const r1Done = ['acemi_postaci', 'cevik_postaci', 'yildirim_postaci'].some(b => state.earnedBadges.has(b));
+  if (!r1Done) {
+    showRoundIntro(1);
+  } else {
+    const nextStage = R2_STAGES.findIndex(s => !state.earnedBadges.has(s.badge));
+    if (nextStage >= 0) { state.r2.stage = nextStage; showRoundIntro(2); }
+    else { showToast('Tüm rozetleri kazandın! 🎉'); }
+  }
+});
+$('gameCard').addEventListener('click', e => { if (e.target.id !== 'playBtn') $('playBtn').click(); });
+
+$('backBtn').addEventListener('click', () => {
+  if (state.r1.timer) { clearInterval(state.r1.timer); state.r1.timer = null; }
+  showScreen('menu'); updateMenu();
+});
+$('trophyBtn').addEventListener('click', () => {
+  renderBottomSheet();
+  $('sheetOverlay').classList.add('active');
+  $('bottomSheet').classList.add('active');
+});
+$('sheetOverlay').addEventListener('click', () => {
+  $('sheetOverlay').classList.remove('active');
+  $('bottomSheet').classList.remove('active');
+});
+function renderBottomSheet() {
+  const earned = ALL_BADGES.filter(b => state.earnedBadges.has(b.id));
+  const locked = ALL_BADGES.filter(b => !state.earnedBadges.has(b.id));
+  $('sheetProgress').style.width = (earned.length / ALL_BADGES.length * 100) + '%';
+  $('sheetProgressText').textContent = `${earned.length} / ${ALL_BADGES.length} rozet`;
+  $('sheetEarned').innerHTML = earned.length
+    ? earned.map(b => `<div class="sheet-badge"><div>${b.emoji}</div><div class="badge-label">${b.name}</div></div>`).join('')
+    : '<div style="grid-column: 1/-1; color: #8a7aa6; font-size: 13px; padding: 8px;">Henüz rozet yok. Oyna ve kazan!</div>';
+  $('sheetLocked').innerHTML = locked.length
+    ? locked.map(b => `<div class="sheet-badge locked"><div>🔒</div><div class="badge-label">${b.name}</div></div>`).join('')
+    : '<div style="grid-column: 1/-1; color: #5cc77f; font-size: 13px; padding: 8px; font-weight: 700;">Tamamlandı! 🎉</div>';
+}
+
+function showRoundIntro(roundNum) {
+  state.pendingRoundStart = roundNum;
+  const intros = {
+    1: { num: 'ROUND 1', title: 'Sokakta Hız Tutturanlar', emoji: '🏘️',
+         desc: 'Önce sakin bir tur, sonra hızlı tur! Tekleri mavi, çiftleri yeşil eve at.' },
+    2: { num: 'ROUND 2', title: 'Sokak Taşları', emoji: '🐸',
+         desc: 'Kurbağa Karbur sokak taşlarına basarak ilerlemeli. Her aşamada bir kural var, ona uy!' }
+  };
+  const info = intros[roundNum];
+  $('introNum').textContent = info.num;
+  $('introTitle').textContent = info.title;
+  $('introEmoji').textContent = info.emoji;
+  $('introDesc').textContent = info.desc;
+  showScreen('intro');
+}
+$('introBtn').addEventListener('click', () => {
+  const r = state.pendingRoundStart;
+  if (r === 1) startR1();
+  else if (r === 2) startR2();
+});
+
+// ========== ROUND 1 (same as v2) ==========
+function startR1() {
+  state.r1.phase = 'A';
+  state.r1.questionIndex = 0;
+  state.r1.correctB = 0;
+  state.r1.locked = false;
+  state.r1.queueA = shuffle([
+    ...shuffle([1,3,5,7,9,11,13,15,17,19,21,23,25,27,29,31,33,35,37,39,41,43,45,47,49]).slice(0,5),
+    ...shuffle([2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40,42,44,46,48,50]).slice(0,5)
+  ]);
+  document.querySelectorAll('.window').forEach(w => w.classList.remove('lit'));
+  $('r1Counter').classList.remove('fast');
+  $('r1Counter').innerHTML = `<span id="r1CounterText">Soru 1 / 10</span>`;
+  $('r1Instruction').textContent = 'Tek sayıları mavi eve, çift sayıları yeşil eve yerleştir!';
+  state.totalScore = 0;
+  $('hudScore').textContent = 'Skor: 0';
+  showScreen('r1');
+  drawR1Card();
+}
+function drawR1Card() {
+  const card = $('r1Card');
+  card.classList.remove('fly-tek', 'fly-cift', 'shake', 'flash-red');
+  card.style.opacity = ''; card.style.transform = '';
+  state.r1.locked = false;
+  if (state.r1.phase === 'A') {
+    if (state.r1.questionIndex >= state.r1.totalA) { startPhaseTransition(); return; }
+    state.r1.currentNum = state.r1.queueA[state.r1.questionIndex];
+    card.textContent = state.r1.currentNum;
+    if ($('r1CounterText')) $('r1CounterText').textContent = `Soru ${state.r1.questionIndex + 1} / ${state.r1.totalA}`;
+  } else {
+    state.r1.currentNum = Math.floor(Math.random() * 100) + 1;
+    card.textContent = state.r1.currentNum;
+  }
+}
+function startPhaseTransition() {
+  $('phaseOverlay').classList.add('active');
+  let count = 3;
+  $('phaseCountdown').textContent = count;
+  playSound('count');
+  const interval = setInterval(() => {
+    count--;
+    if (count > 0) {
+      $('phaseCountdown').textContent = count;
+      $('phaseCountdown').style.animation = 'none';
+      void $('phaseCountdown').offsetWidth;
+      $('phaseCountdown').style.animation = '';
+      playSound('count');
+    } else {
+      $('phaseCountdown').textContent = 'BAŞLA!';
+      $('phaseCountdown').style.animation = 'none';
+      void $('phaseCountdown').offsetWidth;
+      $('phaseCountdown').style.animation = '';
+      playSound('ding');
+      clearInterval(interval);
+      setTimeout(() => { $('phaseOverlay').classList.remove('active'); beginPhaseB(); }, 700);
+    }
+  }, 800);
+}
+function beginPhaseB() {
+  state.r1.phase = 'B';
+  state.r1.timeLeft = 30;
+  state.r1.correctB = 0;
+  $('r1Instruction').textContent = '⚡ Hızlı ol! Süre dolmadan olabildiğince çok yerleştir!';
+  $('r1Counter').classList.add('fast');
+  $('r1Counter').innerHTML = `
+    <span>✅ <span id="r1CorrectCount">0</span></span>
+    <span style="margin-left: 8px;">⏱ <span id="r1TimeLeft">30</span>s</span>
+    <div class="r1-timer-bar"><div class="r1-timer-fill" id="r1TimerFill" style="width: 100%"></div></div>
+  `;
+  drawR1Card();
+  state.r1.timer = setInterval(r1Tick, 100);
+}
+function r1Tick() {
+  state.r1.timeLeft -= 0.1;
+  if (state.r1.timeLeft <= 0) {
+    clearInterval(state.r1.timer);
+    state.r1.timer = null;
+    finishR1();
+    return;
+  }
+  if ($('r1TimeLeft')) $('r1TimeLeft').textContent = Math.ceil(state.r1.timeLeft);
+  if ($('r1TimerFill')) $('r1TimerFill').style.width = (state.r1.timeLeft / 30 * 100) + '%';
+}
+function finishR1() {
+  state.r1.locked = true;
+  let badgeId;
+  if (state.r1.correctB >= 20) badgeId = 'yildirim_postaci';
+  else if (state.r1.correctB >= 10) badgeId = 'cevik_postaci';
+  else badgeId = 'acemi_postaci';
+  awardBadge(badgeId, () => { state.r2.stage = 0; showRoundIntro(2); });
+}
+function r1Answer(houseType) {
+  if (state.r1.locked) return;
+  const num = state.r1.currentNum;
+  const correct = (houseType === 'tek' && isOdd(num)) || (houseType === 'cift' && !isOdd(num));
+  const card = $('r1Card');
+  const house = houseType === 'tek' ? $('houseTek') : $('houseCift');
+  if (correct) {
+    state.r1.locked = true;
+    playSound('ding');
+    card.classList.add(houseType === 'tek' ? 'fly-tek' : 'fly-cift');
+    house.classList.add('flash-green');
+    setTimeout(() => house.classList.remove('flash-green'), 400);
+    const dimWindows = house.querySelectorAll('.window:not(.lit)');
+    if (dimWindows.length) dimWindows[0].classList.add('lit');
+    state.totalScore++;
+    $('hudScore').textContent = `Skor: ${state.totalScore}`;
+    if (state.r1.phase === 'B') {
+      state.r1.correctB++;
+      if ($('r1CorrectCount')) $('r1CorrectCount').textContent = state.r1.correctB;
+    } else {
+      state.r1.questionIndex++;
+    }
+    setTimeout(() => drawR1Card(), 350);
+  } else {
+    playSound('buzz');
+    card.classList.add('shake', 'flash-red');
+    house.classList.add('flash-red');
+    setTimeout(() => {
+      card.classList.remove('shake', 'flash-red');
+      house.classList.remove('flash-red');
+    }, 500);
+  }
+}
+$('houseTek').addEventListener('click', () => r1Answer('tek'));
+$('houseCift').addEventListener('click', () => r1Answer('cift'));
+
+(function setupCardDrag() {
+  const card = $('r1Card');
+  let dragging = false; let startX, startY, origLeft, origTop; let dragGhost = null;
+  const onStart = (e) => {
+    if (state.r1.locked) return;
+    if (state.currentScreen !== 'r1') return;
+    e.preventDefault();
+    const point = e.touches ? e.touches[0] : e;
+    startX = point.clientX; startY = point.clientY;
+    const rect = card.getBoundingClientRect();
+    origLeft = rect.left; origTop = rect.top;
+    dragGhost = card.cloneNode(true);
+    dragGhost.classList.add('dragging');
+    dragGhost.style.position = 'fixed';
+    dragGhost.style.left = rect.left + 'px';
+    dragGhost.style.top = rect.top + 'px';
+    dragGhost.style.width = rect.width + 'px';
+    dragGhost.style.height = rect.height + 'px';
+    dragGhost.style.pointerEvents = 'none';
+    dragGhost.style.zIndex = '200';
+    document.body.appendChild(dragGhost);
+    card.style.opacity = '0.3';
+    dragging = true;
+  };
+  const onMove = (e) => {
+    if (!dragging || !dragGhost) return;
+    e.preventDefault();
+    const point = e.touches ? e.touches[0] : e;
+    const dx = point.clientX - startX;
+    const dy = point.clientY - startY;
+    dragGhost.style.left = (origLeft + dx) + 'px';
+    dragGhost.style.top = (origTop + dy) + 'px';
+    const elBelow = document.elementFromPoint(point.clientX, point.clientY);
+    document.querySelectorAll('.house').forEach(h => h.classList.remove('drag-over'));
+    if (elBelow) {
+      const house = elBelow.closest('.house');
+      if (house) house.classList.add('drag-over');
+    }
+  };
+  const onEnd = (e) => {
+    if (!dragging) return;
+    dragging = false;
+    const point = e.changedTouches ? e.changedTouches[0] : e;
+    const elBelow = document.elementFromPoint(point.clientX, point.clientY);
+    const house = elBelow ? elBelow.closest('.house') : null;
+    document.querySelectorAll('.house').forEach(h => h.classList.remove('drag-over'));
+    if (dragGhost) { dragGhost.remove(); dragGhost = null; }
+    card.style.opacity = '';
+    if (house) r1Answer(house.dataset.type);
+  };
+  card.addEventListener('touchstart', onStart, { passive: false });
+  card.addEventListener('touchmove', onMove, { passive: false });
+  card.addEventListener('touchend', onEnd);
+  card.addEventListener('mousedown', onStart);
+  document.addEventListener('mousemove', onMove);
+  document.addEventListener('mouseup', onEnd);
+})();
+
+// ========== ROUND 2 - SOKAK TAŞLARI ==========
+function startR2() {
+  state.r2.locked = false;
+  loadR2Stage(state.r2.stage);
+  showScreen('r2');
+}
+
+function loadR2Stage(idx) {
+  const stage = R2_STAGES[idx];
+  state.r2.frogIndex = -1; // before any stone
+  state.r2.completedJumps = 0;
+  state.r2.wrongAttempts = 0;
+  state.r2.hintShown = false;
+  state.r2.locked = false;
+
+  // Count stones matching the rule (these are the required jumps)
+  const matching = stage.stones.filter(n => (stage.rule === 'tek' ? isOdd(n) : !isOdd(n)));
+  state.r2.requiredJumps = matching.length;
+
+  // Update header
+  $('r2StageTitle').textContent = `AŞAMA ${idx + 1} / 5 — Karbur ${stage.targetName} gidiyor`;
+  $('r2Counter').textContent = `0 / ${state.r2.requiredJumps} zıplama`;
+
+  // Rule card
+  const rc = $('r2RuleCard');
+  rc.classList.remove('tek', 'cift');
+  rc.classList.add(stage.rule);
+  rc.innerHTML = `
+    <span class="rule-emoji">🐸</span>
+    <span>Karbur sadece</span>
+    <span class="rule-keyword">${stage.rule === 'tek' ? 'TEK' : 'ÇİFT'}</span>
+    <span>sayılara bassın!</span>
+  `;
+
+  // Target
+  $('target').textContent = stage.target;
+
+  // Render stones
+  const row = $('stonesRow');
+  row.innerHTML = '';
+  stage.stones.forEach((n, i) => {
+    const stone = document.createElement('div');
+    stone.className = 'stone';
+    stone.textContent = n;
+    stone.dataset.index = i;
+    stone.dataset.value = n;
+    stone.addEventListener('click', () => onStoneClick(i));
+    row.appendChild(stone);
+  });
+
+  // Reset frog position
+  $('frog').style.left = '0px';
+  $('frog').classList.remove('jumping', 'sad');
+  $('target').classList.remove('celebrate');
+  $('r2Progress').style.width = '0%';
+  $('r2ProgressLabel').textContent = 'Karbur sokağın başında';
+
+  // Tutorial pulse for first 2 valid stones (only stage 1)
+  if (idx === 0 && !state.r2.tutorialShown) {
+    state.r2.tutorialShown = true;
+    setTimeout(() => {
+      const validIndices = [];
+      for (let i = 0; i < stage.stones.length; i++) {
+        const s = stage.stones[i];
+        if ((stage.rule === 'tek' && isOdd(s)) || (stage.rule === 'cift' && !isOdd(s))) {
+          validIndices.push(i);
+          if (validIndices.length === 2) break;
+        }
+      }
+      validIndices.forEach(idx => {
+        const st = row.children[idx];
+        if (st) st.classList.add('tutorial-pulse');
+      });
+      setTimeout(() => {
+        validIndices.forEach(idx => {
+          const st = row.children[idx];
+          if (st) st.classList.remove('tutorial-pulse');
+        });
+      }, 4500);
+    }, 600);
+  }
+}
+
+function getStoneCenterX(idx) {
+  const row = $('stonesRow');
+  if (!row.children[idx]) return 0;
+  const stone = row.children[idx];
+  const rowRect = row.getBoundingClientRect();
+  const stoneRect = stone.getBoundingClientRect();
+  // Position relative to frog-track parent (which has left:0 baseline)
+  const trackLeft = $('frog').parentElement.getBoundingClientRect().left;
+  return (stoneRect.left - trackLeft) + (stoneRect.width / 2) - 18; // 18 = half frog font-size approx
+}
+
+function onStoneClick(idx) {
+  if (state.r2.locked) return;
+  const stage = R2_STAGES[state.r2.stage];
+  const row = $('stonesRow');
+  const stone = row.children[idx];
+  const value = parseInt(stone.dataset.value);
+
+  // Already used (frog already passed) → ignore
+  if (idx <= state.r2.frogIndex) {
+    stone.classList.add('flash-yellow');
+    setTimeout(() => stone.classList.remove('flash-yellow'), 400);
+    return;
+  }
+
+  // Check rule
+  const ruleOk = (stage.rule === 'tek' && isOdd(value)) || (stage.rule === 'cift' && !isOdd(value));
+  if (!ruleOk) {
+    // Wrong rule
+    playSound('buzz');
+    stone.classList.add('shake', 'flash-red');
+    $('frog').classList.add('sad');
+    setTimeout(() => {
+      stone.classList.remove('shake', 'flash-red');
+      $('frog').classList.remove('sad');
+    }, 500);
+    state.r2.wrongAttempts++;
+    // After 3 wrong, hint pulses next valid stone
+    if (state.r2.wrongAttempts >= 3 && !state.r2.hintShown) {
+      state.r2.hintShown = true;
+      // Find next valid stone after frog
+      for (let i = state.r2.frogIndex + 1; i < stage.stones.length; i++) {
+        const v = stage.stones[i];
+        if ((stage.rule === 'tek' && isOdd(v)) || (stage.rule === 'cift' && !isOdd(v))) {
+          const st = row.children[i];
+          st.classList.add('hint-pulse');
+          setTimeout(() => st.classList.remove('hint-pulse'), 4500);
+          break;
+        }
+      }
+    }
+    return;
+  }
+
+  // Valid! Frog jumps
+  state.r2.locked = true;
+  playSound('plop');
+
+  // Mark previous stone as used (if any)
+  if (state.r2.frogIndex >= 0) {
+    const prev = row.children[state.r2.frogIndex];
+    if (prev) {
+      prev.classList.remove('current');
+      prev.classList.add('used');
+    }
+  }
+  state.r2.frogIndex = idx;
+  stone.classList.add('current');
+
+  // Add splash to target stone
+  const splash = document.createElement('div');
+  splash.className = 'splash show';
+  splash.textContent = '💧';
+  stone.appendChild(splash);
+  setTimeout(() => splash.remove(), 700);
+
+  // Animate frog jump
+  const frog = $('frog');
+  const newX = getStoneCenterX(idx);
+  frog.classList.add('jumping');
+  // Slight delay for jump arc to play, then settle into new pos
+  setTimeout(() => { frog.style.left = newX + 'px'; }, 50);
+  setTimeout(() => { frog.classList.remove('jumping'); }, 600);
+
+  state.r2.completedJumps++;
+  $('r2Counter').textContent = `${state.r2.completedJumps} / ${state.r2.requiredJumps} zıplama`;
+  $('r2Progress').style.width = (state.r2.completedJumps / state.r2.requiredJumps * 100) + '%';
+  $('r2ProgressLabel').textContent = `${state.r2.completedJumps} taşa zıpladı`;
+  state.totalScore++;
+  $('hudScore').textContent = `Skor: ${state.totalScore}`;
+
+  // Check if completed (all required matching stones done)
+  setTimeout(() => {
+    state.r2.locked = false;
+    if (state.r2.completedJumps >= state.r2.requiredJumps) {
+      // Final hop to target
+      finishStage();
+    }
+  }, 650);
+}
+
+function finishStage() {
+  state.r2.locked = true;
+  const stage = R2_STAGES[state.r2.stage];
+  const target = $('target');
+  const frog = $('frog');
+  const row = $('stonesRow');
+
+  // Mark final stone as used
+  if (state.r2.frogIndex >= 0) {
+    const prev = row.children[state.r2.frogIndex];
+    if (prev) { prev.classList.remove('current'); prev.classList.add('used'); }
+  }
+
+  // Final jump to target
+  const trackEl = frog.parentElement;
+  const trackRect = trackEl.getBoundingClientRect();
+  const targetRect = target.getBoundingClientRect();
+  const finalX = (targetRect.left - trackRect.left) + (targetRect.width / 2) - 18;
+
+  setTimeout(() => {
+    frog.classList.add('jumping');
+    setTimeout(() => { frog.style.left = finalX + 'px'; }, 50);
+    setTimeout(() => { frog.classList.remove('jumping'); }, 600);
+    target.classList.add('celebrate');
+    playSound('ding');
+  }, 350);
+
+  setTimeout(() => {
+    awardBadge(stage.badge, () => {
+      state.r2.stage++;
+      if (state.r2.stage < R2_STAGES.length) {
+        loadR2Stage(state.r2.stage);
+      } else {
+        showScreen('menu');
+        updateMenu();
+      }
+    });
+  }, 1500);
+}
+
+// ========== BADGE OVERLAY ==========
+let badgeContinueCallback = null;
+function awardBadge(id, onContinue) {
+  const b = ALL_BADGES.find(x => x.id === id);
+  if (!b) return;
+  state.earnedBadges.add(id);
+  $('badgeEmoji').textContent = b.emoji;
+  $('badgeName').textContent = b.name;
+  $('badgeMessage').textContent = b.desc;
+  badgeContinueCallback = onContinue;
+  $('badgeOverlay').classList.add('active');
+  playSound('badge');
+  spawnConfetti();
+}
+$('badgeBtn').addEventListener('click', () => {
+  $('badgeOverlay').classList.remove('active');
+  const cb = badgeContinueCallback;
+  badgeContinueCallback = null;
+  if (cb) cb();
+});
+
+updateMenu();
+</script>
+
+</body>
+</html>

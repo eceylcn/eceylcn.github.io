@@ -1,0 +1,1356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Job Quest</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; user-select: none; }
+  body {
+    display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(135deg, #1a3a5c 0%, #0a1a2e 100%);
+    min-height: 100vh; padding: 20px;
+  }
+  .device {
+    width: 390px; height: 780px; max-height: 95vh;
+    background: linear-gradient(180deg, #e8f4fb 0%, #c8e4f5 100%);
+    border-radius: 36px; overflow: hidden; position: relative;
+    box-shadow: 0 25px 60px rgba(0,0,0,0.4);
+  }
+  .hud {
+    position: absolute; top: 0; left: 0; right: 0; height: 60px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 16px; z-index: 100;
+    background: rgba(255,255,255,0.5); backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255,255,255,0.5);
+  }
+  .hud-btn {
+    width: 40px; height: 40px; border-radius: 50%; border: none; cursor: pointer;
+    background: rgba(255,255,255,0.8);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; color: #1a3a5c; transition: transform 0.15s;
+  }
+  .hud-btn:active { transform: scale(0.92); }
+  .hud-score {
+    font-weight: 700; color: #1a3a5c; font-size: 16px;
+    background: rgba(255,255,255,0.8); padding: 8px 16px; border-radius: 20px;
+  }
+  .hud-trophy { font-size: 22px; }
+  .screen {
+    position: absolute; top: 60px; left: 0; right: 0; bottom: 0;
+    overflow-y: auto; overflow-x: hidden; display: none; flex-direction: column;
+  }
+  .screen.active { display: flex; }
+  .menu-screen { padding: 24px 20px; }
+  .menu-screen.active { justify-content: center; }
+  .game-card {
+    background: white; border-radius: 24px; padding: 24px;
+    box-shadow: 0 8px 24px rgba(26, 58, 92, 0.15);
+    border: 3px solid #3a8fc7; cursor: pointer; transition: transform 0.2s;
+  }
+  .game-card:active { transform: scale(0.97); }
+  .game-card-emoji { font-size: 56px; text-align: center; margin-bottom: 12px; }
+  .game-card-title { font-size: 22px; font-weight: 700; color: #1a3a5c; text-align: center; margin-bottom: 6px; }
+  .game-card-desc { font-size: 13px; color: #4a6e8a; text-align: center; margin-bottom: 16px; }
+  .progress-bar { height: 10px; background: #d0e4f0; border-radius: 5px; overflow: hidden; margin-bottom: 8px; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, #3a8fc7, #5fb3e0); border-radius: 5px; transition: width 0.5s; }
+  .progress-text { font-size: 12px; color: #4a6e8a; text-align: center; }
+  .play-cta {
+    margin-top: 20px; padding: 14px; background: #3a8fc7; color: white;
+    border: none; border-radius: 16px; font-size: 16px; font-weight: 700;
+    width: 100%; cursor: pointer;
+  }
+  .play-cta:active { transform: scale(0.97); }
+
+  .round-intro {
+    padding: 40px 24px; text-align: center;
+    display: flex; flex-direction: column; justify-content: center; height: 100%;
+  }
+  .round-intro-num { font-size: 14px; color: #3a8fc7; font-weight: 700; letter-spacing: 2px; }
+  .round-intro-title { font-size: 30px; font-weight: 800; color: #1a3a5c; margin: 8px 0 20px; }
+  .round-intro-emoji { font-size: 100px; margin: 24px 0; animation: bounce 1.2s ease-in-out infinite; }
+  .round-intro-desc { font-size: 16px; color: #1a3a5c; margin-bottom: 32px; line-height: 1.5; padding: 0 12px; }
+  .round-intro-btn {
+    padding: 16px 40px; background: #3a8fc7; color: white; border: none;
+    border-radius: 20px; font-size: 18px; font-weight: 700; cursor: pointer;
+    box-shadow: 0 6px 20px rgba(58, 143, 199, 0.4);
+  }
+  .round-intro-btn:active { transform: scale(0.96); }
+
+  /* Stage info */
+  .stage-info {
+    background: white; padding: 10px 14px; border-radius: 14px; margin-bottom: 10px;
+    display: flex; justify-content: center; align-items: center;
+  }
+  .stage-counter { background: #3a8fc7; color: white; padding: 6px 16px; border-radius: 12px; font-weight: 700; font-size: 13px; }
+  .instruction {
+    background: linear-gradient(135deg, #ffd966, #ffb84d);
+    color: #1a3a5c; padding: 10px 14px; border-radius: 12px; margin-bottom: 12px;
+    font-size: 14px; font-weight: 700; text-align: center;
+  }
+
+  /* ====== ROUND 1 - MEET THE JOBS ====== */
+  .job-card {
+    background: white; border-radius: 22px; padding: 16px;
+    box-shadow: 0 8px 20px rgba(26,58,92,0.12);
+    margin-bottom: 14px; text-align: center;
+    border: 3px solid #3a8fc7;
+    transition: transform 0.3s;
+  }
+  .job-card.bounce { animation: cardBounce 0.5s; }
+  .job-svg-wrap {
+    display: flex; justify-content: center; align-items: center;
+    height: 170px;
+  }
+  .job-svg-wrap svg { width: 140px; height: 140px; }
+  .result-text {
+    font-size: 14px; color: #4a6e8a; margin-top: 6px; font-weight: 700;
+    opacity: 0; transition: opacity 0.4s; min-height: 18px;
+  }
+  .result-text.visible { opacity: 1; }
+  .result-text.correct { color: #3a9d5c; }
+  .result-text.wrong { color: #c44; }
+
+  .options-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+  }
+  .opt-btn {
+    background: white; border: 2px solid transparent;
+    border-radius: 14px; padding: 14px 8px; cursor: pointer;
+    font-size: 16px; font-weight: 700; color: #1a3a5c;
+    box-shadow: 0 4px 12px rgba(26,58,92,0.1);
+    transition: transform 0.15s, box-shadow 0.3s;
+    line-height: 1.3;
+  }
+  .opt-btn:active:not(:disabled) { transform: scale(0.96); }
+  .opt-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .opt-btn.flash-correct { box-shadow: 0 0 20px #5cc77f; border-color: #5cc77f; background: #d4edd9; }
+  .opt-btn.flash-wrong { box-shadow: 0 0 20px #e57373; border-color: #e57373; animation: shake 0.5s; background: #ffd0d0; }
+
+  /* ====== ROUND 2 - SPELL THE JOB ====== */
+  .spell-card {
+    background: white; border-radius: 22px; padding: 12px;
+    box-shadow: 0 8px 20px rgba(26,58,92,0.12);
+    margin-bottom: 14px; text-align: center;
+    border: 3px solid #3a8fc7;
+  }
+  .spell-svg-wrap {
+    display: flex; justify-content: center; align-items: center;
+    height: 140px;
+  }
+  .spell-svg-wrap svg { width: 120px; height: 120px; }
+  .spell-hint { font-size: 13px; color: #4a6e8a; font-weight: 600; margin-top: 4px; }
+  .answer-slots {
+    display: flex; gap: 4px; justify-content: center; margin-bottom: 14px;
+    flex-wrap: nowrap;
+  }
+  .slot {
+    width: 36px; height: 44px;
+    background: white; border: 2px dashed #3a8fc7; border-radius: 7px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; font-weight: 800; color: #1a3a5c;
+    transition: background 0.2s, border 0.2s;
+    flex-shrink: 0;
+  }
+  .slot.filled { cursor: pointer; background: #ffd966; border: 2px solid #c89a30; }
+  .slot.correct { background: #c8f0d4; border: 2px solid #5cc77f; color: #3a9d5c; animation: slotPop 0.4s; }
+  .slot.wrong { background: #ffc8c8; border: 2px solid #e57373; color: #c44; animation: shake 0.4s; }
+
+  .letter-pool {
+    display: flex; gap: 6px; justify-content: center; flex-wrap: nowrap;
+    margin-bottom: 8px; padding: 10px;
+    background: rgba(255,255,255,0.6); border-radius: 16px;
+    min-height: 56px;
+  }
+  .letter-bubble {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: white; color: #1a3a5c;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; font-weight: 800;
+    box-shadow: 0 3px 8px rgba(26,58,92,0.15);
+    cursor: pointer; transition: transform 0.15s, opacity 0.3s;
+    border: 2px solid #3a8fc7;
+    flex-shrink: 0;
+  }
+  .letter-bubble:active { transform: scale(0.92); }
+
+  .success-banner {
+    position: absolute; top: 22%; left: 50%; transform: translateX(-50%) translateY(-20px) scale(0.8);
+    background: linear-gradient(135deg, #5cc77f, #3a9d5c);
+    color: white; padding: 14px 26px; border-radius: 18px;
+    font-size: 20px; font-weight: 800;
+    box-shadow: 0 10px 30px rgba(92,199,127,0.45);
+    opacity: 0; pointer-events: none; transition: opacity 0.4s, transform 0.4s;
+    z-index: 50; white-space: nowrap;
+  }
+  .success-banner.visible { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+
+  /* ====== ROUND 3 - WHAT DO YOU DO? ====== */
+  .speaker-area {
+    background: white; border-radius: 22px; padding: 16px;
+    box-shadow: 0 8px 20px rgba(26,58,92,0.12);
+    margin-bottom: 14px;
+    display: flex; align-items: center; gap: 12px;
+    min-height: 140px;
+    border: 3px solid #3a8fc7;
+  }
+  .speaker {
+    width: 80px; height: 80px; flex-shrink: 0;
+    background: linear-gradient(180deg, #fff8e0, #ffd966);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgba(255,184,77,0.3);
+  }
+  .speaker svg { width: 72px; height: 72px; }
+  .bubbles-stack { flex: 1; display: flex; flex-direction: column; gap: 6px; }
+  .bubble {
+    background: #f0f8ff; border-radius: 16px;
+    padding: 10px 14px; position: relative;
+    border: 2px solid #b0d4ec;
+    font-size: 15px; font-weight: 700; color: #1a3a5c;
+  }
+  .bubble::before {
+    content: ''; position: absolute; left: -10px; top: 14px;
+    width: 0; height: 0;
+    border-top: 8px solid transparent;
+    border-bottom: 8px solid transparent;
+    border-right: 10px solid #b0d4ec;
+  }
+  .bubble.response { background: #fff8e0; border-color: #ffd966; }
+  .bubble.response::before { border-right-color: #ffd966; }
+  .bubble.empty { background: #f5f5f5; border: 2px dashed #b0b0b0; color: #888; font-style: italic; min-height: 22px; display: flex; align-items: center; }
+  .bubble.empty.drag-over { background: #fff0d0; border: 2px solid #ffd966; transform: scale(1.03); }
+
+  .response-pool {
+    display: flex; flex-direction: column; gap: 10px;
+    background: rgba(255,255,255,0.6); padding: 12px; border-radius: 16px;
+  }
+  .response-card {
+    background: white; padding: 12px 16px; border-radius: 14px;
+    font-size: 15px; font-weight: 700; color: #1a3a5c;
+    box-shadow: 0 4px 10px rgba(26,58,92,0.12);
+    cursor: grab; touch-action: none;
+    border: 2px solid #ffd966;
+    transition: transform 0.3s, opacity 0.3s, box-shadow 0.3s;
+  }
+  .response-card:active { cursor: grabbing; }
+  .response-card.dragging { opacity: 0.85; box-shadow: 0 12px 24px rgba(26,58,92,0.25); }
+  .response-card.shake { animation: shake 0.5s; border-color: #e57373; }
+  .response-card.flash-correct { border-color: #5cc77f; background: #d4edd9; }
+  .response-card.fly-out { transform: translateY(-30px) scale(0.4); opacity: 0; }
+
+  /* ====== BADGE & SHEET ====== */
+  .badge-overlay {
+    position: absolute; inset: 0; z-index: 200;
+    background: rgba(10,26,46,0.85); backdrop-filter: blur(8px);
+    display: none; flex-direction: column; align-items: center; justify-content: center;
+    padding: 24px;
+  }
+  .badge-overlay.active { display: flex; }
+  .badge-emoji {
+    font-size: 110px; animation: badgeBounce 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+    margin-bottom: 16px; filter: drop-shadow(0 8px 20px rgba(255,217,102,0.5));
+  }
+  .badge-name { font-size: 26px; font-weight: 800; color: white; margin-bottom: 8px; text-align: center; }
+  .badge-message { font-size: 15px; color: #c8e4f5; margin-bottom: 28px; text-align: center; line-height: 1.5; padding: 0 12px; }
+  .badge-btn {
+    padding: 14px 36px; background: #3a8fc7; color: white; border: none;
+    border-radius: 18px; font-size: 16px; font-weight: 700; cursor: pointer;
+    box-shadow: 0 6px 20px rgba(58,143,199,0.5);
+  }
+  .badge-btn:active { transform: scale(0.96); }
+  .confetti { position: absolute; width: 8px; height: 8px; pointer-events: none; z-index: 199; }
+
+  .sheet-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.4); z-index: 150; display: none; }
+  .sheet-overlay.active { display: block; }
+  .bottom-sheet {
+    position: absolute; bottom: 0; left: 0; right: 0; max-height: 70%;
+    background: white; border-radius: 24px 24px 0 0; padding: 20px;
+    z-index: 151; transform: translateY(100%); transition: transform 0.3s;
+    overflow-y: auto;
+  }
+  .bottom-sheet.active { transform: translateY(0); }
+  .sheet-handle { width: 40px; height: 4px; background: #d0e4f0; border-radius: 2px; margin: 0 auto 16px; }
+  .sheet-title { font-size: 18px; font-weight: 800; color: #1a3a5c; margin-bottom: 12px; }
+  .sheet-progress { background: #e8f4fb; border-radius: 12px; padding: 12px; margin-bottom: 16px; }
+  .sheet-progress-text { font-size: 13px; font-weight: 700; color: #4a6e8a; margin-bottom: 6px; }
+  .sheet-section-title { font-size: 14px; font-weight: 700; color: #1a3a5c; margin: 12px 0 8px; }
+  .sheet-badges { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .sheet-badge { aspect-ratio: 1; background: #e8f4fb; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 28px; padding: 4px; }
+  .sheet-badge.locked { filter: grayscale(1); opacity: 0.5; border: 2px dashed #80a8c0; background: white; }
+  .sheet-badge .badge-label { font-size: 9px; color: #4a6e8a; margin-top: 4px; text-align: center; font-weight: 700; line-height: 1.1; }
+
+  .toast {
+    position: absolute; top: 80px; left: 20px; right: 20px;
+    background: rgba(26,58,92,0.95); color: white; padding: 12px 16px;
+    border-radius: 12px; text-align: center; font-weight: 600; font-size: 14px;
+    z-index: 110; opacity: 0; transition: opacity 0.3s; pointer-events: none;
+  }
+  .toast.active { opacity: 1; }
+
+  .game-screen { padding: 14px; }
+
+  @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+  @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+  @keyframes badgeBounce { 0% { transform: scale(0) rotate(-180deg); } 60% { transform: scale(1.2) rotate(20deg); } 100% { transform: scale(1) rotate(0deg); } }
+  @keyframes confettiFall { 0% { transform: translateY(0) rotate(0); opacity: 1; } 100% { transform: translateY(600px) rotate(720deg); opacity: 0; } }
+  @keyframes cardBounce { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.04); } }
+  @keyframes slotPop { 0% { transform: scale(1); } 50% { transform: scale(1.18); } 100% { transform: scale(1); } }
+</style>
+</head>
+<body>
+
+<div class="device" id="device">
+  <div class="hud" id="hud">
+    <button class="hud-btn" id="backBtn">←</button>
+    <div class="hud-score" id="hudScore">Score: 0</div>
+    <button class="hud-btn hud-trophy" id="trophyBtn">🏆</button>
+  </div>
+  <div class="toast" id="toast"></div>
+
+  <!-- Menu -->
+  <div class="screen menu-screen active" id="menuScreen">
+    <div class="game-card" id="gameCard">
+      <div class="game-card-emoji">💼</div>
+      <div class="game-card-title">Job Quest</div>
+      <div class="game-card-desc">Meet the jobs, spell them, answer the questions!</div>
+      <div class="progress-bar"><div class="progress-fill" id="menuProgress" style="width: 0%"></div></div>
+      <div class="progress-text" id="menuProgressText">0 / 3 badges</div>
+      <button class="play-cta" id="playBtn">▶ Play</button>
+    </div>
+  </div>
+
+  <!-- Round Intro -->
+  <div class="screen" id="introScreen">
+    <div class="round-intro">
+      <div class="round-intro-num" id="introNum">ROUND 1</div>
+      <div class="round-intro-title" id="introTitle">Meet the Jobs</div>
+      <div class="round-intro-emoji" id="introEmoji">👋</div>
+      <div class="round-intro-desc" id="introDesc">Look at the picture. Pick the right job!</div>
+      <button class="round-intro-btn" id="introBtn">Start! ▶</button>
+    </div>
+  </div>
+
+  <!-- Round 1 -->
+  <div class="screen game-screen" id="r1Screen">
+    <div class="stage-info"><div class="stage-counter" id="r1Counter">1 / 10</div></div>
+    <div class="instruction">Who is this? Pick the right job!</div>
+    <div class="job-card" id="r1Card">
+      <div class="job-svg-wrap" id="r1JobSvg"></div>
+      <div class="result-text" id="r1Result"></div>
+    </div>
+    <div class="options-grid" id="r1Options"></div>
+  </div>
+
+  <!-- Round 2 -->
+  <div class="screen game-screen" id="r2Screen">
+    <div class="stage-info"><div class="stage-counter" id="r2Counter">STAGE 1 / 5</div></div>
+    <div class="instruction">Look at the picture. Put the letters in order!</div>
+    <div class="spell-card">
+      <div class="spell-svg-wrap" id="r2JobSvg"></div>
+      <div class="spell-hint">Who is this?</div>
+    </div>
+    <div class="answer-slots" id="answerSlots"></div>
+    <div class="letter-pool" id="letterPool"></div>
+  </div>
+  <div class="success-banner" id="successBanner">Great! ✨</div>
+
+  <!-- Round 3 -->
+  <div class="screen game-screen" id="r3Screen">
+    <div class="stage-info"><div class="stage-counter" id="r3Counter">1 / 8</div></div>
+    <div class="instruction">Read the question. Drag the right answer!</div>
+    <div class="speaker-area">
+      <div class="speaker" id="r3Speaker"></div>
+      <div class="bubbles-stack">
+        <div class="bubble" id="r3Question"></div>
+        <div class="bubble empty" id="r3Answer">drag here</div>
+      </div>
+    </div>
+    <div class="response-pool" id="r3Pool"></div>
+  </div>
+
+  <!-- Badge -->
+  <div class="badge-overlay" id="badgeOverlay">
+    <div class="badge-emoji" id="badgeEmoji">👋</div>
+    <div class="badge-name" id="badgeName">Job Spotter</div>
+    <div class="badge-message" id="badgeMessage">Great!</div>
+    <button class="badge-btn" id="badgeBtn">▶ Continue</button>
+  </div>
+
+  <!-- Sheet -->
+  <div class="sheet-overlay" id="sheetOverlay"></div>
+  <div class="bottom-sheet" id="bottomSheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">🏆 Badge Collection</div>
+    <div class="sheet-progress">
+      <div class="sheet-progress-text" id="sheetProgressText">0 / 3 badges</div>
+      <div class="progress-bar"><div class="progress-fill" id="sheetProgress" style="width: 0%"></div></div>
+    </div>
+    <div class="sheet-section-title">Earned</div>
+    <div class="sheet-badges" id="sheetEarned"></div>
+    <div class="sheet-section-title">Locked</div>
+    <div class="sheet-badges" id="sheetLocked"></div>
+  </div>
+</div>
+
+<script>
+const state = {
+  currentScreen: 'menu',
+  earnedBadges: new Set(),
+  totalScore: 0,
+  pendingRoundStart: null,
+  r1: { qIndex: 0, locked: false, questions: [], wrongTimer: null },
+  r2: { stage: 0, currentWord: '', usedIndices: new Set(), filledLetters: [], letterOrder: [], locked: false, stages: [] },
+  r3: { qIndex: 0, locked: false, questions: [] }
+};
+
+const ALL_BADGES = [
+  { id: 'job_spotter',     emoji: '👋', name: 'Job Spotter',     desc: "You know all the jobs! Great work!" },
+  { id: 'word_builder',    emoji: '✏️', name: 'Word Builder',    desc: "You spelled them all! Amazing!" },
+  { id: 'question_master', emoji: '💬', name: 'Question Master', desc: "You answer like a pro! Great job!" }
+];
+
+// ============ JOB SVGs (hand-drawn cartoon style) ============
+const JOBS_SVG = {
+  chef: `<svg viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg">
+    <!-- Chef hat -->
+    <ellipse cx="70" cy="32" rx="22" ry="12" fill="white" stroke="#1a1a1a" stroke-width="2.5"/>
+    <rect x="52" y="32" width="36" height="18" fill="white" stroke="#1a1a1a" stroke-width="2.5"/>
+    <ellipse cx="60" cy="28" rx="8" ry="9" fill="white" stroke="#1a1a1a" stroke-width="2"/>
+    <ellipse cx="80" cy="28" rx="8" ry="9" fill="white" stroke="#1a1a1a" stroke-width="2"/>
+    <!-- Face -->
+    <circle cx="70" cy="62" r="18" fill="#fff8e0" stroke="#1a1a1a" stroke-width="2.5"/>
+    <circle cx="63" cy="60" r="1.8" fill="#1a1a1a"/>
+    <circle cx="77" cy="60" r="1.8" fill="#1a1a1a"/>
+    <path d="M 63 68 Q 70 73 77 68" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+    <!-- Body / apron -->
+    <path d="M 50 80 L 50 120 L 90 120 L 90 80 Z" fill="white" stroke="#1a1a1a" stroke-width="2.5"/>
+    <!-- Apron knot -->
+    <rect x="62" y="80" width="16" height="6" fill="#1a1a1a"/>
+    <!-- Spoon -->
+    <ellipse cx="105" cy="78" rx="6" ry="10" fill="#c87a3e" stroke="#1a1a1a" stroke-width="2" transform="rotate(35 105 78)"/>
+    <rect x="100" y="80" width="3" height="28" fill="#c87a3e" stroke="#1a1a1a" stroke-width="1.5" transform="rotate(35 100 90)"/>
+  </svg>`,
+
+  doctor: `<svg viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg">
+    <!-- Hair -->
+    <path d="M 52 48 Q 50 38 70 36 Q 90 38 88 48" fill="#5a3a1a" stroke="#1a1a1a" stroke-width="2"/>
+    <!-- Face -->
+    <circle cx="70" cy="55" r="18" fill="#fff8e0" stroke="#1a1a1a" stroke-width="2.5"/>
+    <circle cx="63" cy="53" r="1.8" fill="#1a1a1a"/>
+    <circle cx="77" cy="53" r="1.8" fill="#1a1a1a"/>
+    <path d="M 64 62 Q 70 66 76 62" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+    <!-- White coat -->
+    <path d="M 48 75 L 48 125 L 92 125 L 92 75 Z" fill="white" stroke="#1a1a1a" stroke-width="2.5"/>
+    <line x1="70" y1="75" x2="70" y2="125" stroke="#1a1a1a" stroke-width="2"/>
+    <!-- Buttons -->
+    <circle cx="74" cy="88" r="1.5" fill="#1a1a1a"/>
+    <circle cx="74" cy="100" r="1.5" fill="#1a1a1a"/>
+    <circle cx="74" cy="112" r="1.5" fill="#1a1a1a"/>
+    <!-- Stethoscope -->
+    <path d="M 58 80 Q 55 95 65 100 Q 75 95 72 80" fill="none" stroke="#1a1a1a" stroke-width="2.5"/>
+    <circle cx="65" cy="103" r="4" fill="#3a3a3a" stroke="#1a1a1a" stroke-width="1.5"/>
+  </svg>`,
+
+  teacher: `<svg viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg">
+    <!-- Blackboard behind -->
+    <rect x="6" y="20" width="44" height="40" fill="#3a5a3a" stroke="#1a1a1a" stroke-width="2"/>
+    <rect x="4" y="18" width="48" height="44" fill="none" stroke="#8b5a2b" stroke-width="3"/>
+    <line x1="12" y1="30" x2="44" y2="30" stroke="white" stroke-width="0.8" opacity="0.7"/>
+    <line x1="12" y1="38" x2="36" y2="38" stroke="white" stroke-width="0.8" opacity="0.7"/>
+    <text x="14" y="52" font-size="9" fill="white" font-weight="bold">ABC</text>
+    <!-- Hair -->
+    <ellipse cx="80" cy="42" rx="22" ry="10" fill="#3a2a1a" stroke="#1a1a1a" stroke-width="2"/>
+    <!-- Face -->
+    <circle cx="80" cy="55" r="18" fill="#fff8e0" stroke="#1a1a1a" stroke-width="2.5"/>
+    <!-- Glasses -->
+    <circle cx="72" cy="55" r="5" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+    <circle cx="88" cy="55" r="5" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+    <line x1="77" y1="55" x2="83" y2="55" stroke="#1a1a1a" stroke-width="1.5"/>
+    <circle cx="72" cy="55" r="1.5" fill="#1a1a1a"/>
+    <circle cx="88" cy="55" r="1.5" fill="#1a1a1a"/>
+    <path d="M 74 63 Q 80 67 86 63" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+    <!-- Body -->
+    <path d="M 60 75 L 60 125 L 100 125 L 100 75 Z" fill="#9078dc" stroke="#1a1a1a" stroke-width="2.5"/>
+    <!-- Arm holding apple -->
+    <line x1="100" y1="90" x2="118" y2="98" stroke="#9078dc" stroke-width="8" stroke-linecap="round"/>
+    <line x1="100" y1="90" x2="118" y2="98" stroke="#1a1a1a" stroke-width="2" fill="none"/>
+    <!-- Apple -->
+    <circle cx="122" cy="100" r="8" fill="#e57373" stroke="#1a1a1a" stroke-width="2"/>
+    <path d="M 122 92 Q 124 88 126 90" fill="none" stroke="#3a5a3a" stroke-width="2"/>
+    <ellipse cx="125" cy="91" rx="2.5" ry="1.5" fill="#5cc77f" stroke="#3a5a3a" stroke-width="1"/>
+  </svg>`,
+
+  fireman: `<svg viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg">
+    <!-- Helmet -->
+    <path d="M 48 50 Q 48 32 70 30 Q 92 32 92 50 L 95 56 L 45 56 Z" fill="#e57373" stroke="#1a1a1a" stroke-width="2.5"/>
+    <rect x="60" y="38" width="20" height="10" fill="#ffd966" stroke="#1a1a1a" stroke-width="2"/>
+    <!-- Face -->
+    <circle cx="70" cy="65" r="14" fill="#fff8e0" stroke="#1a1a1a" stroke-width="2.5"/>
+    <circle cx="64" cy="63" r="1.5" fill="#1a1a1a"/>
+    <circle cx="76" cy="63" r="1.5" fill="#1a1a1a"/>
+    <path d="M 65 70 Q 70 73 75 70" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+    <!-- Body (red uniform) -->
+    <path d="M 50 80 L 50 125 L 90 125 L 90 80 Z" fill="#e57373" stroke="#1a1a1a" stroke-width="2.5"/>
+    <!-- Yellow stripes -->
+    <rect x="50" y="100" width="40" height="5" fill="#ffd966"/>
+    <!-- Hose -->
+    <path d="M 30 110 Q 40 100 50 105 L 50 125 L 30 125 Z" fill="#5b9bd5" stroke="#1a1a1a" stroke-width="2"/>
+  </svg>`,
+
+  pilot: `<svg viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg">
+    <!-- Pilot hat -->
+    <rect x="48" y="38" width="44" height="14" rx="3" fill="#2a3f5c" stroke="#1a1a1a" stroke-width="2.5"/>
+    <ellipse cx="70" cy="38" rx="22" ry="6" fill="#3a5275" stroke="#1a1a1a" stroke-width="2"/>
+    <!-- Hat badge -->
+    <circle cx="70" cy="45" r="4" fill="#ffd966" stroke="#c89a30" stroke-width="1.5"/>
+    <text x="70" y="48" font-size="6" text-anchor="middle" fill="#1a1a1a" font-weight="bold">★</text>
+    <!-- Face -->
+    <circle cx="70" cy="65" r="14" fill="#fff8e0" stroke="#1a1a1a" stroke-width="2.5"/>
+    <circle cx="64" cy="63" r="1.5" fill="#1a1a1a"/>
+    <circle cx="76" cy="63" r="1.5" fill="#1a1a1a"/>
+    <path d="M 64 70 Q 70 74 76 70" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+    <!-- Uniform (blue) -->
+    <path d="M 50 80 L 50 125 L 90 125 L 90 80 Z" fill="#2a3f5c" stroke="#1a1a1a" stroke-width="2.5"/>
+    <!-- Tie -->
+    <polygon points="68,80 72,80 73,95 70,105 67,95" fill="#1a1a1a"/>
+    <!-- Wings badge -->
+    <path d="M 56 92 L 64 92 L 60 95 Z M 56 92 L 50 88 M 64 92 L 70 88" stroke="#ffd966" stroke-width="1.5" fill="#ffd966"/>
+  </svg>`,
+
+  farmer: `<svg viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg">
+    <!-- Straw hat -->
+    <ellipse cx="70" cy="42" rx="30" ry="6" fill="#d4a85c" stroke="#1a1a1a" stroke-width="2.5"/>
+    <ellipse cx="70" cy="32" rx="14" ry="10" fill="#d4a85c" stroke="#1a1a1a" stroke-width="2.5"/>
+    <line x1="55" y1="42" x2="60" y2="35" stroke="#a8862e" stroke-width="1"/>
+    <line x1="85" y1="42" x2="80" y2="35" stroke="#a8862e" stroke-width="1"/>
+    <!-- Face -->
+    <circle cx="70" cy="58" r="14" fill="#fff8e0" stroke="#1a1a1a" stroke-width="2.5"/>
+    <circle cx="64" cy="56" r="1.5" fill="#1a1a1a"/>
+    <circle cx="76" cy="56" r="1.5" fill="#1a1a1a"/>
+    <path d="M 64 63 Q 70 67 76 63" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+    <!-- Overalls -->
+    <path d="M 50 75 L 50 125 L 90 125 L 90 75 Z" fill="#5b9bd5" stroke="#1a1a1a" stroke-width="2.5"/>
+    <!-- Strap -->
+    <rect x="58" y="75" width="6" height="20" fill="#3a6e8a"/>
+    <rect x="76" y="75" width="6" height="20" fill="#3a6e8a"/>
+    <!-- Pitchfork handle -->
+    <line x1="105" y1="70" x2="115" y2="125" stroke="#8b5a2b" stroke-width="3"/>
+    <!-- Pitchfork prongs -->
+    <line x1="102" y1="70" x2="100" y2="55" stroke="#1a1a1a" stroke-width="2"/>
+    <line x1="106" y1="70" x2="106" y2="55" stroke="#1a1a1a" stroke-width="2"/>
+    <line x1="110" y1="70" x2="113" y2="55" stroke="#1a1a1a" stroke-width="2"/>
+  </svg>`,
+
+  police: `<svg viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg">
+    <!-- Police cap with visor -->
+    <ellipse cx="70" cy="52" rx="28" ry="4" fill="#1a2a40" stroke="#1a1a1a" stroke-width="2"/>
+    <rect x="48" y="38" width="44" height="14" rx="2" fill="#2a3f5c" stroke="#1a1a1a" stroke-width="2.5"/>
+    <ellipse cx="70" cy="38" rx="22" ry="6" fill="#3a5275" stroke="#1a1a1a" stroke-width="2"/>
+    <!-- Cap front: big yellow star badge -->
+    <polygon points="70,40 72,45 77,45 73,48 75,53 70,50 65,53 67,48 63,45 68,45" fill="#ffd966" stroke="#1a1a1a" stroke-width="1.5"/>
+    <!-- Face -->
+    <circle cx="70" cy="68" r="14" fill="#fff8e0" stroke="#1a1a1a" stroke-width="2.5"/>
+    <circle cx="64" cy="66" r="1.5" fill="#1a1a1a"/>
+    <circle cx="76" cy="66" r="1.5" fill="#1a1a1a"/>
+    <path d="M 64 73 Q 70 77 76 73" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+    <!-- Dark blue uniform -->
+    <path d="M 50 82 L 50 125 L 90 125 L 90 82 Z" fill="#2a3f5c" stroke="#1a1a1a" stroke-width="2.5"/>
+    <!-- Big shield badge on chest -->
+    <path d="M 60 92 L 70 88 L 80 92 L 80 102 Q 70 110 60 102 Z" fill="#ffd966" stroke="#1a1a1a" stroke-width="2"/>
+    <text x="70" y="102" font-size="8" text-anchor="middle" fill="#1a1a1a" font-weight="bold">POL</text>
+    <!-- Walkie talkie on shoulder -->
+    <rect x="48" y="86" width="6" height="10" fill="#1a1a1a"/>
+    <line x1="51" y1="84" x2="51" y2="80" stroke="#1a1a1a" stroke-width="1.5"/>
+  </svg>`,
+
+  dentist: `<svg viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg">
+    <!-- Hair -->
+    <ellipse cx="70" cy="42" rx="20" ry="10" fill="#5a3a1a" stroke="#1a1a1a" stroke-width="2"/>
+    <!-- Face -->
+    <circle cx="70" cy="55" r="18" fill="#fff8e0" stroke="#1a1a1a" stroke-width="2.5"/>
+    <circle cx="63" cy="52" r="1.8" fill="#1a1a1a"/>
+    <circle cx="77" cy="52" r="1.8" fill="#1a1a1a"/>
+    <!-- Mask -->
+    <path d="M 53 58 L 53 70 Q 70 76 87 70 L 87 58 Z" fill="#5fb3e0" stroke="#1a1a1a" stroke-width="2"/>
+    <line x1="53" y1="62" x2="87" y2="62" stroke="#3a8fc7" stroke-width="1"/>
+    <line x1="53" y1="66" x2="87" y2="66" stroke="#3a8fc7" stroke-width="1"/>
+    <!-- White coat -->
+    <path d="M 48 75 L 48 125 L 92 125 L 92 75 Z" fill="white" stroke="#1a1a1a" stroke-width="2.5"/>
+    <!-- Dental tool -->
+    <line x1="100" y1="80" x2="108" y2="100" stroke="#999" stroke-width="3"/>
+    <circle cx="100" cy="80" r="3" fill="#ddd" stroke="#1a1a1a" stroke-width="1.5"/>
+    <!-- Tooth icon on coat -->
+    <path d="M 64 90 Q 64 86 68 86 Q 72 86 72 90 L 72 97 Q 70 95 68 97 L 68 90 Q 64 94 64 90 Z"
+          fill="white" stroke="#1a1a1a" stroke-width="1.5"/>
+    <!-- Tooth emojis around -->
+    <text x="6" y="60" font-size="20">🦷</text>
+    <text x="115" y="115" font-size="18">🦷</text>
+  </svg>`,
+
+  nurse: `<svg viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg">
+    <!-- Nurse cap -->
+    <rect x="58" y="36" width="24" height="14" fill="white" stroke="#1a1a1a" stroke-width="2.5"/>
+    <rect x="68" y="40" width="4" height="6" fill="#e57373"/>
+    <rect x="64" y="42" width="12" height="2" fill="#e57373"/>
+    <!-- Hair -->
+    <path d="M 52 50 Q 52 45 70 45 Q 88 45 88 50" fill="#5a3a1a" stroke="#1a1a1a" stroke-width="1.5"/>
+    <!-- Face -->
+    <circle cx="70" cy="60" r="16" fill="#fff8e0" stroke="#1a1a1a" stroke-width="2.5"/>
+    <circle cx="64" cy="58" r="1.8" fill="#1a1a1a"/>
+    <circle cx="76" cy="58" r="1.8" fill="#1a1a1a"/>
+    <path d="M 64 66 Q 70 70 76 66" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+    <!-- White uniform with red cross -->
+    <path d="M 50 78 L 50 125 L 90 125 L 90 78 Z" fill="white" stroke="#1a1a1a" stroke-width="2.5"/>
+    <!-- Red cross -->
+    <rect x="66" y="92" width="8" height="20" fill="#e57373"/>
+    <rect x="60" y="98" width="20" height="8" fill="#e57373"/>
+  </svg>`,
+
+  singer: `<svg viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg">
+    <!-- Hair -->
+    <path d="M 50 50 Q 48 38 70 35 Q 92 38 90 50 L 88 55 Q 80 50 70 50 Q 60 50 52 55 Z" fill="#3a2a1a" stroke="#1a1a1a" stroke-width="2"/>
+    <!-- Face -->
+    <circle cx="70" cy="60" r="16" fill="#fff8e0" stroke="#1a1a1a" stroke-width="2.5"/>
+    <circle cx="64" cy="58" r="1.8" fill="#1a1a1a"/>
+    <circle cx="76" cy="58" r="1.8" fill="#1a1a1a"/>
+    <!-- Open mouth singing -->
+    <ellipse cx="70" cy="68" rx="4" ry="5" fill="#1a1a1a"/>
+    <!-- Body -->
+    <path d="M 50 78 L 50 125 L 90 125 L 90 78 Z" fill="#9078dc" stroke="#1a1a1a" stroke-width="2.5"/>
+    <!-- Microphone -->
+    <ellipse cx="98" cy="65" rx="6" ry="9" fill="#3a3a3a" stroke="#1a1a1a" stroke-width="2"/>
+    <line x1="98" y1="74" x2="105" y2="95" stroke="#666" stroke-width="3"/>
+    <!-- Music notes -->
+    <text x="20" y="55" font-size="20" fill="#9078dc">♪</text>
+    <text x="115" y="40" font-size="16" fill="#ff8a65">♫</text>
+  </svg>`,
+
+  dancer: `<svg viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg">
+    <!-- Hair (loose ponytail) -->
+    <ellipse cx="70" cy="38" rx="14" ry="9" fill="#3a2a1a" stroke="#1a1a1a" stroke-width="2"/>
+    <path d="M 80 38 Q 90 45 88 55" fill="none" stroke="#3a2a1a" stroke-width="5" stroke-linecap="round"/>
+    <!-- Face -->
+    <circle cx="70" cy="50" r="13" fill="#fff8e0" stroke="#1a1a1a" stroke-width="2.5"/>
+    <circle cx="65" cy="48" r="1.5" fill="#1a1a1a"/>
+    <circle cx="75" cy="48" r="1.5" fill="#1a1a1a"/>
+    <path d="M 65 55 Q 70 58 75 55" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+    <!-- Body in motion (red dress, V-shape) -->
+    <path d="M 60 65 L 50 95 L 90 95 L 80 65 Z" fill="#e57373" stroke="#1a1a1a" stroke-width="2.5"/>
+    <!-- Flowy skirt -->
+    <path d="M 50 95 Q 45 110 55 120 L 85 120 Q 95 110 90 95 Z" fill="#ff8ab0" stroke="#1a1a1a" stroke-width="2.5"/>
+    <!-- One arm up, one out (dance pose) -->
+    <line x1="62" y1="70" x2="42" y2="50" stroke="#fff8e0" stroke-width="6" stroke-linecap="round"/>
+    <line x1="62" y1="70" x2="42" y2="50" stroke="#1a1a1a" stroke-width="2" fill="none"/>
+    <line x1="78" y1="70" x2="100" y2="85" stroke="#fff8e0" stroke-width="6" stroke-linecap="round"/>
+    <line x1="78" y1="70" x2="100" y2="85" stroke="#1a1a1a" stroke-width="2" fill="none"/>
+    <!-- Legs (one extended) -->
+    <line x1="68" y1="120" x2="60" y2="135" stroke="#fff8e0" stroke-width="5" stroke-linecap="round"/>
+    <line x1="76" y1="120" x2="88" y2="132" stroke="#fff8e0" stroke-width="5" stroke-linecap="round"/>
+    <!-- Dance emojis around -->
+    <text x="6" y="80" font-size="20">💃</text>
+    <text x="110" y="50" font-size="18">♪</text>
+    <text x="115" y="120" font-size="16">♫</text>
+  </svg>`,
+
+  waiter: `<svg viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg">
+    <!-- Hair -->
+    <path d="M 52 48 Q 52 36 70 34 Q 88 36 88 48" fill="#3a2a1a" stroke="#1a1a1a" stroke-width="2"/>
+    <!-- Face -->
+    <circle cx="70" cy="58" r="16" fill="#fff8e0" stroke="#1a1a1a" stroke-width="2.5"/>
+    <circle cx="64" cy="56" r="1.8" fill="#1a1a1a"/>
+    <circle cx="76" cy="56" r="1.8" fill="#1a1a1a"/>
+    <path d="M 64 64 Q 70 67 76 64" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+    <!-- Bow tie -->
+    <polygon points="65,76 75,76 73,80 67,80" fill="#1a1a1a"/>
+    <!-- White shirt -->
+    <path d="M 50 80 L 50 125 L 90 125 L 90 80 Z" fill="white" stroke="#1a1a1a" stroke-width="2.5"/>
+    <!-- Vest (dark) -->
+    <path d="M 58 80 L 58 125 L 82 125 L 82 80 L 76 90 L 70 80 L 64 90 Z" fill="#1a1a1a" opacity="0.85"/>
+    <!-- Tray -->
+    <ellipse cx="108" cy="68" rx="14" ry="3" fill="#999" stroke="#1a1a1a" stroke-width="2"/>
+    <!-- Cup on tray -->
+    <rect x="103" y="60" width="10" height="8" fill="#ffd966" stroke="#1a1a1a" stroke-width="1.5"/>
+    <!-- Arm holding tray -->
+    <line x1="95" y1="80" x2="108" y2="68" stroke="white" stroke-width="6" stroke-linecap="round"/>
+    <line x1="95" y1="80" x2="108" y2="68" stroke="#1a1a1a" stroke-width="2" fill="none"/>
+  </svg>`,
+
+  engineer: `<svg viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg">
+    <!-- Hard hat (yellow) -->
+    <path d="M 48 50 Q 48 30 70 28 Q 92 30 92 50 L 95 55 L 45 55 Z" fill="#ffd966" stroke="#1a1a1a" stroke-width="2.5"/>
+    <line x1="55" y1="42" x2="85" y2="42" stroke="#c89a30" stroke-width="2"/>
+    <!-- Face -->
+    <circle cx="70" cy="65" r="14" fill="#fff8e0" stroke="#1a1a1a" stroke-width="2.5"/>
+    <circle cx="64" cy="63" r="1.5" fill="#1a1a1a"/>
+    <circle cx="76" cy="63" r="1.5" fill="#1a1a1a"/>
+    <path d="M 64 70 Q 70 73 76 70" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+    <!-- Body with orange vest -->
+    <path d="M 50 80 L 50 125 L 90 125 L 90 80 Z" fill="white" stroke="#1a1a1a" stroke-width="2.5"/>
+    <path d="M 50 80 L 50 100 L 90 100 L 90 80 Z" fill="#ff8a65" stroke="#1a1a1a" stroke-width="2"/>
+    <rect x="50" y="93" width="40" height="3" fill="#ffd966"/>
+    <!-- Laptop (left side, in front) -->
+    <rect x="6" y="100" width="28" height="20" fill="#666" stroke="#1a1a1a" stroke-width="2" rx="2"/>
+    <rect x="8" y="102" width="24" height="14" fill="#5fb3e0"/>
+    <rect x="4" y="118" width="32" height="4" fill="#3a3a3a" stroke="#1a1a1a" stroke-width="1.5" rx="1"/>
+    <!-- Code lines on laptop -->
+    <line x1="11" y1="106" x2="22" y2="106" stroke="white" stroke-width="1"/>
+    <line x1="11" y1="110" x2="28" y2="110" stroke="white" stroke-width="1"/>
+    <line x1="11" y1="113" x2="20" y2="113" stroke="white" stroke-width="1"/>
+    <!-- Ruler (top right corner) -->
+    <rect x="100" y="68" width="30" height="6" fill="#ffd966" stroke="#1a1a1a" stroke-width="1.5" transform="rotate(-15 115 71)"/>
+    <line x1="103" y1="72" x2="103" y2="76" stroke="#1a1a1a" stroke-width="1" transform="rotate(-15 115 71)"/>
+    <line x1="109" y1="72" x2="109" y2="76" stroke="#1a1a1a" stroke-width="1" transform="rotate(-15 115 71)"/>
+    <line x1="115" y1="72" x2="115" y2="76" stroke="#1a1a1a" stroke-width="1" transform="rotate(-15 115 71)"/>
+    <line x1="121" y1="72" x2="121" y2="76" stroke="#1a1a1a" stroke-width="1" transform="rotate(-15 115 71)"/>
+    <line x1="127" y1="72" x2="127" y2="76" stroke="#1a1a1a" stroke-width="1" transform="rotate(-15 115 71)"/>
+  </svg>`,
+
+  vet: `<svg viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg">
+    <!-- Hair -->
+    <path d="M 52 48 Q 52 36 70 34 Q 88 36 88 48" fill="#5a3a1a" stroke="#1a1a1a" stroke-width="2"/>
+    <!-- Face -->
+    <circle cx="70" cy="55" r="16" fill="#fff8e0" stroke="#1a1a1a" stroke-width="2.5"/>
+    <circle cx="64" cy="53" r="1.8" fill="#1a1a1a"/>
+    <circle cx="76" cy="53" r="1.8" fill="#1a1a1a"/>
+    <path d="M 64 61 Q 70 65 76 61" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+    <!-- White coat -->
+    <path d="M 48 73 L 48 125 L 92 125 L 92 73 Z" fill="white" stroke="#1a1a1a" stroke-width="2.5"/>
+    <line x1="70" y1="73" x2="70" y2="125" stroke="#1a1a1a" stroke-width="2"/>
+    <!-- Paw print on coat -->
+    <g transform="translate(60 90)">
+      <circle cx="0" cy="3" r="3" fill="#5cc77f"/>
+      <circle cx="-4" cy="-1" r="1.8" fill="#5cc77f"/>
+      <circle cx="4" cy="-1" r="1.8" fill="#5cc77f"/>
+      <circle cx="-6" cy="3" r="1.5" fill="#5cc77f"/>
+      <circle cx="6" cy="3" r="1.5" fill="#5cc77f"/>
+    </g>
+    <!-- Cat in arms (small, cradled) -->
+    <ellipse cx="100" cy="100" rx="13" ry="10" fill="#ff8a65" stroke="#1a1a1a" stroke-width="2"/>
+    <!-- Cat ears -->
+    <polygon points="92,93 95,86 98,93" fill="#ff8a65" stroke="#1a1a1a" stroke-width="1.5"/>
+    <polygon points="102,93 105,86 108,93" fill="#ff8a65" stroke="#1a1a1a" stroke-width="1.5"/>
+    <!-- Cat face -->
+    <circle cx="96" cy="98" r="1" fill="#1a1a1a"/>
+    <circle cx="104" cy="98" r="1" fill="#1a1a1a"/>
+    <path d="M 99 102 Q 100 104 101 102" fill="none" stroke="#1a1a1a" stroke-width="1"/>
+    <!-- Stethoscope -->
+    <path d="M 60 78 Q 56 92 64 96" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+    <circle cx="64" cy="99" r="3" fill="#3a3a3a" stroke="#1a1a1a" stroke-width="1.2"/>
+    <!-- Paw emojis around -->
+    <text x="6" y="60" font-size="18">🐾</text>
+    <text x="6" y="115" font-size="16">🐾</text>
+  </svg>`,
+
+  actor: `<svg viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg">
+    <!-- Hair -->
+    <path d="M 52 48 Q 50 38 70 36 Q 90 38 88 48" fill="#1a1a1a" stroke="#1a1a1a" stroke-width="2"/>
+    <!-- Face -->
+    <circle cx="70" cy="58" r="16" fill="#fff8e0" stroke="#1a1a1a" stroke-width="2.5"/>
+    <circle cx="64" cy="56" r="1.8" fill="#1a1a1a"/>
+    <circle cx="76" cy="56" r="1.8" fill="#1a1a1a"/>
+    <!-- Big confident smile -->
+    <path d="M 62 64 Q 70 70 78 64" fill="none" stroke="#1a1a1a" stroke-width="2.5"/>
+    <!-- Bow tie -->
+    <polygon points="64,76 76,76 73,82 67,82" fill="#e57373"/>
+    <circle cx="70" cy="79" r="1.5" fill="#1a1a1a"/>
+    <!-- Black tuxedo -->
+    <path d="M 50 80 L 50 125 L 90 125 L 90 80 Z" fill="#1a1a1a" stroke="#1a1a1a" stroke-width="2.5"/>
+    <!-- White shirt v -->
+    <polygon points="60,80 70,98 80,80 80,90 70,100 60,90" fill="white"/>
+    <!-- Theatre masks behind -->
+    <g transform="translate(15 45)">
+      <ellipse cx="0" cy="0" rx="9" ry="11" fill="#ffd966" stroke="#1a1a1a" stroke-width="1.5"/>
+      <circle cx="-3" cy="-2" r="1" fill="#1a1a1a"/>
+      <circle cx="3" cy="-2" r="1" fill="#1a1a1a"/>
+      <path d="M -3 4 Q 0 8 3 4" fill="none" stroke="#1a1a1a" stroke-width="1.5"/>
+    </g>
+    <!-- Film emojis -->
+    <text x="110" y="48" font-size="18">🎬</text>
+    <text x="6" y="115" font-size="18">🎥</text>
+    <text x="115" y="115" font-size="14" fill="#ffd966">★</text>
+  </svg>`,
+
+  actress: `<svg viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg">
+    <!-- Long hair -->
+    <path d="M 48 48 Q 46 36 70 34 Q 94 36 92 48 L 90 78 L 50 78 Z" fill="#9078dc" stroke="#1a1a1a" stroke-width="2"/>
+    <!-- Face -->
+    <circle cx="70" cy="58" r="15" fill="#fff8e0" stroke="#1a1a1a" stroke-width="2.5"/>
+    <!-- Eyelashes/eyes -->
+    <path d="M 62 55 Q 64 53 66 55" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+    <path d="M 74 55 Q 76 53 78 55" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+    <circle cx="64" cy="56" r="1.5" fill="#1a1a1a"/>
+    <circle cx="76" cy="56" r="1.5" fill="#1a1a1a"/>
+    <!-- Lipstick smile -->
+    <path d="M 64 65 Q 70 71 76 65" fill="#e57373" stroke="#c44" stroke-width="1.5"/>
+    <!-- Earrings -->
+    <circle cx="55" cy="63" r="2" fill="#ffd966" stroke="#1a1a1a" stroke-width="1"/>
+    <circle cx="85" cy="63" r="2" fill="#ffd966" stroke="#1a1a1a" stroke-width="1"/>
+    <!-- Red dress -->
+    <path d="M 52 78 L 48 125 L 92 125 L 88 78 Z" fill="#e57373" stroke="#1a1a1a" stroke-width="2.5"/>
+    <!-- Star on dress -->
+    <polygon points="70,98 73,104 80,104 75,108 77,115 70,111 63,115 65,108 60,104 67,104" fill="#ffd966" stroke="#c89a30" stroke-width="1.2"/>
+    <!-- Film emojis around -->
+    <text x="6" y="60" font-size="18">🎬</text>
+    <text x="108" y="55" font-size="18">🎥</text>
+    <text x="115" y="115" font-size="14" fill="#ffd966">✨</text>
+  </svg>`,
+
+  waitress: `<svg viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg">
+    <!-- Hair (long brown) -->
+    <path d="M 50 50 Q 48 38 70 36 Q 92 38 90 50 L 88 75 L 52 75 Z" fill="#8b5a2b" stroke="#1a1a1a" stroke-width="2"/>
+    <!-- Face -->
+    <circle cx="70" cy="58" r="15" fill="#fff8e0" stroke="#1a1a1a" stroke-width="2.5"/>
+    <circle cx="64" cy="56" r="1.8" fill="#1a1a1a"/>
+    <circle cx="76" cy="56" r="1.8" fill="#1a1a1a"/>
+    <path d="M 64 64 Q 70 68 76 64" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+    <!-- White blouse + apron -->
+    <path d="M 50 78 L 50 125 L 90 125 L 90 78 Z" fill="white" stroke="#1a1a1a" stroke-width="2.5"/>
+    <!-- Apron strap -->
+    <rect x="60" y="78" width="20" height="4" fill="#1a1a1a"/>
+    <!-- Apron body (dark) -->
+    <path d="M 58 82 L 56 125 L 84 125 L 82 82 Z" fill="#3a3a3a" stroke="#1a1a1a" stroke-width="2"/>
+    <!-- Tray with cup -->
+    <ellipse cx="108" cy="68" rx="14" ry="3" fill="#999" stroke="#1a1a1a" stroke-width="2"/>
+    <rect x="103" y="60" width="10" height="8" fill="#ffd966" stroke="#1a1a1a" stroke-width="1.5"/>
+    <!-- Steam -->
+    <path d="M 108 60 Q 106 56 108 52" fill="none" stroke="#aaa" stroke-width="1.5"/>
+    <!-- Arm holding tray -->
+    <line x1="92" y1="82" x2="108" y2="68" stroke="white" stroke-width="6" stroke-linecap="round"/>
+    <line x1="92" y1="82" x2="108" y2="68" stroke="#1a1a1a" stroke-width="2" fill="none"/>
+  </svg>`,
+};
+
+// ============ ROUND 1 QUESTIONS ============
+const R1_QUESTIONS = [
+  { svg: 'chef',     answer: 'chef',           distractors: ['doctor', 'teacher', 'waiter'] },
+  { svg: 'doctor',   answer: 'doctor',         distractors: ['vet', 'teacher', 'engineer'] },
+  { svg: 'teacher',  answer: 'teacher',        distractors: ['doctor', 'singer', 'engineer'] },
+  { svg: 'vet',      answer: 'vet',            distractors: ['doctor', 'farmer', 'dancer'] },
+  { svg: 'pilot',    answer: 'pilot',          distractors: ['waiter', 'engineer', 'singer'] },
+  { svg: 'farmer',   answer: 'farmer',         distractors: ['vet', 'engineer', 'chef'] },
+  { svg: 'police',   answer: 'police officer', distractors: ['engineer', 'waiter', 'actor'] },
+  { svg: 'dentist',  answer: 'dentist',        distractors: ['vet', 'teacher', 'engineer'] },
+  { svg: 'actor',    answer: 'actor',          distractors: ['singer', 'waiter', 'doctor'] },
+  { svg: 'actress',  answer: 'actress',        distractors: ['dancer', 'waitress', 'singer'] }
+];
+
+// ============ ROUND 2 STAGES (anagram) ============
+const R2_STAGES = [
+  { word: 'NURSE',    svg: 'nurse' },
+  { word: 'DANCER',   svg: 'dancer' },
+  { word: 'SINGER',   svg: 'singer' },
+  { word: 'WAITER',   svg: 'waiter' },
+  { word: 'ENGINEER', svg: 'engineer' }
+];
+
+// ============ ROUND 3 QUESTIONS ============
+const R3_QUESTIONS = [
+  { svg: 'doctor',   question: "What's your job?",   answer: "I'm a doctor.",        distractors: ["I'm a chef.", "I'm a teacher."] },
+  { svg: 'chef',     question: "What do you do?",    answer: "I'm a chef.",          distractors: ["I'm a singer.", "I'm a waiter."] },
+  { svg: 'pilot',    question: "What does he do?",   answer: "He is a pilot.",       distractors: ["He is a farmer.", "He is an actor."] },
+  { svg: 'dentist',  question: "What does she do?",  answer: "She is a dentist.",    distractors: ["She is a waitress.", "She is a teacher."] },
+  { svg: 'singer',   question: "What's your job?",   answer: "I'm a singer.",        distractors: ["I'm a dancer.", "I'm an engineer."] },
+  { svg: 'teacher',  question: "What does she do?",  answer: "She is a teacher.",    distractors: ["She is a chef.", "She is a vet."] },
+  { svg: 'waitress', question: "What does she do?",  answer: "She is a waitress.",   distractors: ["She is a dancer.", "She is an actress."] },
+  { svg: 'actor',    question: "What does he do?",   answer: "He is an actor.",      distractors: ["He is a singer.", "He is a waiter."] }
+];
+
+// ============ UTILS ============
+const $ = id => document.getElementById(id);
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  $(`${name}Screen`).classList.add('active');
+  state.currentScreen = name;
+}
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+function showToast(msg, ms = 1800) {
+  const t = $('toast'); t.textContent = msg; t.classList.add('active');
+  setTimeout(() => t.classList.remove('active'), ms);
+}
+function playSound(type) {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const o = ctx.createOscillator(); const g = ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    if (type === 'ding') {
+      o.frequency.value = 880; o.type = 'sine';
+      g.gain.setValueAtTime(0.15, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
+      o.start(); o.stop(ctx.currentTime + 0.2);
+    } else if (type === 'buzz') {
+      o.frequency.value = 180; o.type = 'sawtooth';
+      g.gain.setValueAtTime(0.1, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.18);
+      o.start(); o.stop(ctx.currentTime + 0.18);
+    } else if (type === 'pop') {
+      o.frequency.setValueAtTime(660, ctx.currentTime);
+      o.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.08);
+      o.type = 'sine';
+      g.gain.setValueAtTime(0.1, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.12);
+      o.start(); o.stop(ctx.currentTime + 0.12);
+    } else if (type === 'badge') {
+      o.frequency.setValueAtTime(523, ctx.currentTime);
+      o.frequency.setValueAtTime(659, ctx.currentTime + 0.1);
+      o.frequency.setValueAtTime(784, ctx.currentTime + 0.2);
+      o.type = 'triangle';
+      g.gain.setValueAtTime(0.15, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+      o.start(); o.stop(ctx.currentTime + 0.5);
+    }
+  } catch (e) {}
+}
+function spawnConfetti() {
+  const colors = ['#3a8fc7', '#ffd966', '#5cc77f', '#ff8a65', '#9078dc'];
+  const overlay = $('badgeOverlay');
+  for (let i = 0; i < 40; i++) {
+    const c = document.createElement('div');
+    c.className = 'confetti';
+    c.style.background = colors[Math.floor(Math.random() * colors.length)];
+    c.style.left = Math.random() * 100 + '%';
+    c.style.top = '-20px';
+    c.style.animation = `confettiFall ${1 + Math.random() * 1.5}s ease-out forwards`;
+    c.style.animationDelay = Math.random() * 0.3 + 's';
+    overlay.appendChild(c);
+    setTimeout(() => c.remove(), 2500);
+  }
+}
+
+function updateMenu() {
+  const earned = state.earnedBadges.size;
+  $('menuProgress').style.width = (earned / ALL_BADGES.length * 100) + '%';
+  $('menuProgressText').textContent = `${earned} / ${ALL_BADGES.length} badges`;
+}
+
+$('playBtn').addEventListener('click', () => {
+  if (state.earnedBadges.size === ALL_BADGES.length) {
+    state.earnedBadges.clear();
+    state.totalScore = 0;
+    $('hudScore').textContent = 'Score: 0';
+    updateMenu();
+  }
+  if (!state.earnedBadges.has('job_spotter')) showRoundIntro(1);
+  else if (!state.earnedBadges.has('word_builder')) showRoundIntro(2);
+  else if (!state.earnedBadges.has('question_master')) showRoundIntro(3);
+});
+$('gameCard').addEventListener('click', e => { if (e.target.id !== 'playBtn') $('playBtn').click(); });
+
+$('backBtn').addEventListener('click', () => { showScreen('menu'); updateMenu(); });
+$('trophyBtn').addEventListener('click', () => {
+  renderBottomSheet();
+  $('sheetOverlay').classList.add('active');
+  $('bottomSheet').classList.add('active');
+});
+$('sheetOverlay').addEventListener('click', () => {
+  $('sheetOverlay').classList.remove('active');
+  $('bottomSheet').classList.remove('active');
+});
+function renderBottomSheet() {
+  const earned = ALL_BADGES.filter(b => state.earnedBadges.has(b.id));
+  const locked = ALL_BADGES.filter(b => !state.earnedBadges.has(b.id));
+  $('sheetProgress').style.width = (earned.length / ALL_BADGES.length * 100) + '%';
+  $('sheetProgressText').textContent = `${earned.length} / ${ALL_BADGES.length} badges`;
+  $('sheetEarned').innerHTML = earned.length
+    ? earned.map(b => `<div class="sheet-badge"><div>${b.emoji}</div><div class="badge-label">${b.name}</div></div>`).join('')
+    : '<div style="grid-column: 1/-1; color: #4a6e8a; font-size: 13px; padding: 8px;">No badges yet. Play!</div>';
+  $('sheetLocked').innerHTML = locked.length
+    ? locked.map(b => `<div class="sheet-badge locked"><div>🔒</div><div class="badge-label">${b.name}</div></div>`).join('')
+    : '<div style="grid-column: 1/-1; color: #5cc77f; font-size: 13px; padding: 8px; font-weight: 700;">Complete! 🎉</div>';
+}
+
+function showRoundIntro(roundNum) {
+  state.pendingRoundStart = roundNum;
+  const intros = {
+    1: { num: 'ROUND 1', title: 'Meet the Jobs', emoji: '👋',
+         desc: 'Look at the picture. Pick the right job!' },
+    2: { num: 'ROUND 2', title: 'Spell the Job', emoji: '✏️',
+         desc: 'Put the letters in order to spell the job!' },
+    3: { num: 'ROUND 3', title: 'What Do You Do?', emoji: '💬',
+         desc: 'Read the question. Drag the right answer!' }
+  };
+  const info = intros[roundNum];
+  $('introNum').textContent = info.num;
+  $('introTitle').textContent = info.title;
+  $('introEmoji').textContent = info.emoji;
+  $('introDesc').textContent = info.desc;
+  showScreen('intro');
+}
+$('introBtn').addEventListener('click', () => {
+  const r = state.pendingRoundStart;
+  if (r === 1) startR1();
+  else if (r === 2) startR2();
+  else if (r === 3) startR3();
+});
+
+// ============ ROUND 1 ============
+function startR1() {
+  state.r1.qIndex = 0;
+  state.r1.questions = shuffle(R1_QUESTIONS);
+  loadR1Question();
+  showScreen('r1');
+}
+function loadR1Question() {
+  const q = state.r1.questions[state.r1.qIndex];
+  state.r1.locked = false;
+  $('r1Counter').textContent = `${state.r1.qIndex + 1} / ${state.r1.questions.length}`;
+  $('r1JobSvg').innerHTML = JOBS_SVG[q.svg] || '';
+  $('r1Result').textContent = '';
+  $('r1Result').classList.remove('visible', 'correct', 'wrong');
+
+  const options = shuffle([q.answer, ...q.distractors]);
+  const optsEl = $('r1Options');
+  optsEl.innerHTML = '';
+  options.forEach(opt => {
+    const b = document.createElement('button');
+    b.className = 'opt-btn';
+    b.textContent = opt;
+    b.addEventListener('click', () => onR1Pick(opt === q.answer, b));
+    optsEl.appendChild(b);
+  });
+}
+function onR1Pick(correct, btn) {
+  if (state.r1.locked) return;
+  $('r1Card').classList.add('bounce');
+  setTimeout(() => $('r1Card').classList.remove('bounce'), 500);
+  if (correct) {
+    state.r1.locked = true;
+    if (state.r1.wrongTimer) { clearTimeout(state.r1.wrongTimer); state.r1.wrongTimer = null; }
+    document.querySelectorAll('#r1Options .opt-btn').forEach(b => b.classList.remove('flash-wrong'));
+    $('r1Result').classList.remove('wrong');
+    playSound('ding');
+    btn.classList.add('flash-correct');
+    document.querySelectorAll('#r1Options .opt-btn').forEach(b => b.disabled = true);
+    $('r1Result').textContent = '✓ Yes!';
+    $('r1Result').classList.add('visible', 'correct');
+    state.totalScore += 10;
+    $('hudScore').textContent = `Score: ${state.totalScore}`;
+    setTimeout(() => {
+      state.r1.qIndex++;
+      if (state.r1.qIndex >= state.r1.questions.length) {
+        awardBadge('job_spotter', () => showRoundIntro(2));
+      } else {
+        loadR1Question();
+      }
+    }, 1200);
+  } else {
+    playSound('buzz');
+    btn.classList.add('flash-wrong');
+    $('r1Result').textContent = 'Try again!';
+    $('r1Result').classList.remove('correct');
+    $('r1Result').classList.add('visible', 'wrong');
+    if (state.r1.wrongTimer) clearTimeout(state.r1.wrongTimer);
+    state.r1.wrongTimer = setTimeout(() => {
+      btn.classList.remove('flash-wrong');
+      $('r1Result').textContent = '';
+      $('r1Result').classList.remove('visible', 'wrong');
+      state.r1.wrongTimer = null;
+    }, 1100);
+  }
+}
+
+// ============ ROUND 2 ============
+function startR2() {
+  state.r2.stages = shuffle(R2_STAGES);
+  state.r2.stage = 0;
+  loadR2Stage(state.r2.stage);
+  showScreen('r2');
+}
+function loadR2Stage(idx) {
+  const stage = state.r2.stages[idx];
+  state.r2.currentWord = stage.word;
+  state.r2.usedIndices = new Set();
+  state.r2.filledLetters = [];
+  state.r2.locked = false;
+
+  $('r2Counter').textContent = `STAGE ${idx + 1} / ${state.r2.stages.length}`;
+  $('r2JobSvg').innerHTML = JOBS_SVG[stage.svg] || '';
+
+  const slotsEl = $('answerSlots');
+  slotsEl.innerHTML = '';
+  for (let i = 0; i < stage.word.length; i++) {
+    const s = document.createElement('div');
+    s.className = 'slot';
+    s.dataset.slotIdx = String(i);
+    s.addEventListener('click', () => {
+      if (state.r2.locked) return;
+      const slotIdx = parseInt(s.dataset.slotIdx, 10);
+      if (slotIdx >= state.r2.filledLetters.length) return;
+      const filled = state.r2.filledLetters[slotIdx];
+      if (filled) removeLetterFromSlot(filled.origIdx);
+    });
+    slotsEl.appendChild(s);
+  }
+
+  // Letter pool - shuffled
+  const letters = stage.word.split('');
+  let order;
+  do {
+    order = shuffle(letters.map((_, i) => i));
+  } while (letters.length > 1 && order.every((idx, i) => letters[idx] === letters[i]));
+  state.r2.letterOrder = order;
+  renderLetterPool();
+}
+function renderLetterPool() {
+  const letters = state.r2.currentWord.split('');
+  const poolEl = $('letterPool');
+  poolEl.innerHTML = '';
+  state.r2.letterOrder.forEach(origIdx => {
+    const b = document.createElement('div');
+    b.className = 'letter-bubble';
+    b.textContent = letters[origIdx];
+    b.dataset.origIdx = String(origIdx);
+    b.addEventListener('click', (ev) => {
+      ev.stopPropagation();
+      if (state.r2.locked) return;
+      const idx = parseInt(b.dataset.origIdx, 10);
+      onLetterPick(idx);
+    });
+    poolEl.appendChild(b);
+  });
+}
+function onLetterPick(origIdx) {
+  if (state.r2.locked) return;
+  if (state.r2.usedIndices.has(origIdx)) return;
+  if (state.r2.filledLetters.length >= state.r2.currentWord.length) return;
+  state.r2.usedIndices.add(origIdx);
+  state.r2.letterOrder = state.r2.letterOrder.filter(i => i !== origIdx);
+  const letter = state.r2.currentWord.charAt(origIdx);
+  state.r2.filledLetters.push({ origIdx, letter });
+  playSound('pop');
+
+  const slots = document.querySelectorAll('#answerSlots .slot');
+  const slot = slots[state.r2.filledLetters.length - 1];
+  slot.textContent = letter;
+  slot.classList.add('filled');
+
+  renderLetterPool();
+
+  if (state.r2.filledLetters.length === state.r2.currentWord.length) {
+    checkR2Answer();
+  }
+}
+function removeLetterFromSlot(origIdx) {
+  if (state.r2.locked) return;
+  const idx = state.r2.filledLetters.findIndex(f => f.origIdx === origIdx);
+  if (idx < 0) return;
+  state.r2.filledLetters.splice(idx, 1);
+  state.r2.usedIndices.delete(origIdx);
+  state.r2.letterOrder.push(origIdx);
+  const slots = document.querySelectorAll('#answerSlots .slot');
+  slots.forEach((s, i) => {
+    if (i < state.r2.filledLetters.length) {
+      s.textContent = state.r2.filledLetters[i].letter;
+      s.classList.add('filled');
+    } else {
+      s.textContent = '';
+      s.classList.remove('filled');
+    }
+  });
+  renderLetterPool();
+  playSound('pop');
+}
+function checkR2Answer() {
+  const guess = state.r2.filledLetters.map(f => f.letter).join('');
+  const target = state.r2.currentWord;
+  const slots = document.querySelectorAll('#answerSlots .slot');
+  if (guess === target) {
+    state.r2.locked = true;
+    playSound('ding');
+    slots.forEach((s, i) => {
+      setTimeout(() => {
+        s.classList.remove('filled');
+        s.classList.add('correct');
+      }, i * 80);
+    });
+    state.totalScore += 10;
+    $('hudScore').textContent = `Score: ${state.totalScore}`;
+    setTimeout(() => {
+      const banner = $('successBanner');
+      banner.textContent = `Great! ${target} ✨`;
+      banner.classList.add('visible');
+    }, 500);
+    setTimeout(() => {
+      $('successBanner').classList.remove('visible');
+      state.r2.stage++;
+      if (state.r2.stage >= state.r2.stages.length) {
+        awardBadge('word_builder', () => showRoundIntro(3));
+      } else {
+        loadR2Stage(state.r2.stage);
+      }
+    }, 1800);
+  } else {
+    state.r2.locked = true;
+    playSound('buzz');
+    slots.forEach(s => {
+      s.classList.remove('filled');
+      s.classList.add('wrong');
+    });
+    setTimeout(() => {
+      slots.forEach(s => {
+        s.classList.remove('wrong');
+        s.textContent = '';
+      });
+      state.r2.usedIndices = new Set();
+      state.r2.filledLetters = [];
+      const letters = state.r2.currentWord.split('');
+      let order;
+      do {
+        order = shuffle(letters.map((_, i) => i));
+      } while (letters.length > 1 && order.every((idx, i) => letters[idx] === letters[i]));
+      state.r2.letterOrder = order;
+      renderLetterPool();
+      state.r2.locked = false;
+    }, 1100);
+  }
+}
+
+// ============ ROUND 3 ============
+function startR3() {
+  state.r3.qIndex = 0;
+  state.r3.questions = shuffle(R3_QUESTIONS);
+  loadR3Question();
+  showScreen('r3');
+}
+function loadR3Question() {
+  const q = state.r3.questions[state.r3.qIndex];
+  state.r3.locked = false;
+  $('r3Counter').textContent = `${state.r3.qIndex + 1} / ${state.r3.questions.length}`;
+  $('r3Speaker').innerHTML = JOBS_SVG[q.svg] || '';
+  $('r3Question').textContent = q.question;
+  const ans = $('r3Answer');
+  ans.textContent = 'drag here';
+  ans.classList.remove('response');
+  ans.classList.add('empty');
+
+  const options = shuffle([q.answer, ...q.distractors]);
+  const poolEl = $('r3Pool');
+  poolEl.innerHTML = '';
+  options.forEach(text => {
+    const card = document.createElement('div');
+    card.className = 'response-card';
+    card.textContent = text;
+    card.dataset.text = text;
+    attachR3Drag(card);
+    poolEl.appendChild(card);
+  });
+}
+function attachR3Drag(card) {
+  let dragging = false, startX, startY, origLeft, origTop, ghost = null;
+  const onStart = (e) => {
+    if (state.r3.locked) return;
+    e.preventDefault();
+    const p = e.touches ? e.touches[0] : e;
+    startX = p.clientX; startY = p.clientY;
+    const rect = card.getBoundingClientRect();
+    origLeft = rect.left; origTop = rect.top;
+    ghost = card.cloneNode(true);
+    ghost.classList.add('dragging');
+    ghost.style.position = 'fixed';
+    ghost.style.left = rect.left + 'px';
+    ghost.style.top = rect.top + 'px';
+    ghost.style.width = rect.width + 'px';
+    ghost.style.pointerEvents = 'none';
+    ghost.style.zIndex = '200';
+    document.body.appendChild(ghost);
+    card.style.opacity = '0.3';
+    dragging = true;
+  };
+  const onMove = (e) => {
+    if (!dragging || !ghost) return;
+    e.preventDefault();
+    const p = e.touches ? e.touches[0] : e;
+    ghost.style.left = (origLeft + p.clientX - startX) + 'px';
+    ghost.style.top = (origTop + p.clientY - startY) + 'px';
+    const elBelow = document.elementFromPoint(p.clientX, p.clientY);
+    document.querySelectorAll('.bubble.empty').forEach(b => b.classList.remove('drag-over'));
+    if (elBelow) {
+      const bubble = elBelow.closest('.bubble.empty');
+      if (bubble) bubble.classList.add('drag-over');
+    }
+  };
+  const onEnd = (e) => {
+    if (!dragging) return;
+    dragging = false;
+    const p = e.changedTouches ? e.changedTouches[0] : e;
+    const elBelow = document.elementFromPoint(p.clientX, p.clientY);
+    const bubble = elBelow ? elBelow.closest('.bubble.empty') : null;
+    document.querySelectorAll('.bubble.empty').forEach(b => b.classList.remove('drag-over'));
+    if (ghost) { ghost.remove(); ghost = null; }
+    card.style.opacity = '';
+    if (bubble) handleR3Drop(card);
+  };
+  card.addEventListener('touchstart', onStart, { passive: false });
+  card.addEventListener('touchmove', onMove, { passive: false });
+  card.addEventListener('touchend', onEnd);
+  card.addEventListener('mousedown', onStart);
+  document.addEventListener('mousemove', onMove);
+  document.addEventListener('mouseup', onEnd);
+}
+function handleR3Drop(card) {
+  if (state.r3.locked) return;
+  const q = state.r3.questions[state.r3.qIndex];
+  const text = card.dataset.text;
+  const ans = $('r3Answer');
+  if (text === q.answer) {
+    state.r3.locked = true;
+    playSound('ding');
+    card.classList.add('flash-correct');
+    ans.textContent = text;
+    ans.classList.remove('empty');
+    ans.classList.add('response');
+    state.totalScore += 10;
+    $('hudScore').textContent = `Score: ${state.totalScore}`;
+    setTimeout(() => {
+      card.classList.add('fly-out');
+      setTimeout(() => {
+        state.r3.qIndex++;
+        if (state.r3.qIndex >= state.r3.questions.length) {
+          awardBadge('question_master', () => { showScreen('menu'); updateMenu(); });
+        } else {
+          loadR3Question();
+        }
+      }, 400);
+    }, 1100);
+  } else {
+    playSound('buzz');
+    card.classList.add('shake');
+    setTimeout(() => card.classList.remove('shake'), 600);
+  }
+}
+
+// ============ BADGE ============
+let badgeContinueCallback = null;
+function awardBadge(id, onContinue) {
+  const b = ALL_BADGES.find(x => x.id === id);
+  if (!b) { if (onContinue) onContinue(); return; }
+  state.earnedBadges.add(id);
+  $('badgeEmoji').textContent = b.emoji;
+  $('badgeName').textContent = b.name;
+  $('badgeMessage').textContent = b.desc;
+  badgeContinueCallback = onContinue;
+  $('badgeOverlay').classList.add('active');
+  playSound('badge');
+  spawnConfetti();
+}
+$('badgeBtn').addEventListener('click', () => {
+  $('badgeOverlay').classList.remove('active');
+  const cb = badgeContinueCallback;
+  badgeContinueCallback = null;
+  if (cb) cb();
+});
+
+updateMenu();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>⚡ Action Time!</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg1: #1a1035;
+  --bg2: #2d1b69;
+  --card: #ffffff;
+  --accent: #f7c948;
+  --correct: #22c55e;
+  --wrong: #ef4444;
+  --radius: 28px;
+}
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; user-select:none; }
+
+body {
+  font-family: 'Nunito', sans-serif;
+  background: linear-gradient(160deg, var(--bg1) 0%, var(--bg2) 100%);
+  min-height: 100vh;
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+}
+
+/* ── STARS ── */
+.stars {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+}
+.star {
+  position: absolute; border-radius: 50%;
+  background: white; animation: twinkle ease-in-out infinite;
+}
+@keyframes twinkle {
+  0%,100% { opacity: 0.15; transform: scale(1); }
+  50%      { opacity: 0.8;  transform: scale(1.4); }
+}
+
+/* ── APP ── */
+.app {
+  position: relative; z-index: 10;
+  width: min(420px, 100vw);
+  height: 100vh;
+  display: flex; flex-direction: column;
+  align-items: center;
+  padding: 18px 20px 28px;
+  gap: 12px;
+}
+
+/* ── HEADER ── */
+.header {
+  width: 100%; display: flex; align-items: center; justify-content: space-between;
+}
+.game-title {
+  font-family: 'Fredoka One', cursive;
+  font-size: 1.3rem; color: var(--accent);
+  text-shadow: 0 2px 12px rgba(247,201,72,0.4);
+}
+.score-pill {
+  background: rgba(255,255,255,0.12);
+  border-radius: 50px; padding: 5px 14px;
+  font-weight: 900; font-size: 0.85rem; color: white;
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.15);
+}
+
+/* ── PROGRESS ── */
+.prog-wrap { width: 100%; }
+.prog-bg {
+  height: 8px; background: rgba(255,255,255,0.12);
+  border-radius: 50px; overflow: hidden;
+}
+.prog-fill {
+  height: 100%; border-radius: 50px;
+  background: linear-gradient(90deg, #f7c948, #ff6f61);
+  transition: width 0.5s cubic-bezier(0.34,1.56,0.64,1);
+  box-shadow: 0 0 8px rgba(247,201,72,0.5);
+}
+.prog-label {
+  font-size: 0.7rem; font-weight: 800;
+  color: rgba(255,255,255,0.45); text-align: center; margin-top: 3px;
+}
+
+/* ── SITUATION CARD ── */
+.situation-card {
+  width: 100%;
+  background: white;
+  border-radius: var(--radius);
+  padding: 24px 20px 20px;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.35), 0 0 0 2px rgba(255,255,255,0.1);
+  flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
+}
+.situation-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 5px;
+  background: linear-gradient(90deg, #f7c948, #ff6f61, #c084fc);
+  border-radius: var(--radius) var(--radius) 0 0;
+}
+.situation-label {
+  font-size: 0.68rem; font-weight: 900; letter-spacing: 2px;
+  text-transform: uppercase; color: #9ca3af; margin-bottom: 10px;
+}
+.situation-emoji {
+  font-size: 4.5rem; line-height: 1; display: block;
+  margin-bottom: 12px;
+  animation: float-emoji 3s ease-in-out infinite;
+  filter: drop-shadow(0 8px 16px rgba(0,0,0,0.15));
+}
+@keyframes float-emoji {
+  0%,100% { transform: translateY(0); }
+  50%      { transform: translateY(-8px); }
+}
+.situation-sentence {
+  font-family: 'Fredoka One', cursive;
+  font-size: 1.35rem; color: #1a1035; line-height: 1.3;
+}
+
+/* ── QUESTION ── */
+.question-label {
+  font-family: 'Fredoka One', cursive;
+  font-size: 1rem; color: rgba(255,255,255,0.75);
+  text-align: center; letter-spacing: 0.5px;
+}
+
+/* ── OPTIONS ── */
+.options {
+  width: 100%;
+  display: flex; flex-direction: column; gap: 10px;
+  flex: 1; justify-content: center;
+}
+
+.option-btn {
+  width: 100%;
+  background: rgba(255,255,255,0.08);
+  border: 2px solid rgba(255,255,255,0.15);
+  border-radius: 20px;
+  padding: 16px 20px;
+  display: flex; align-items: center; gap: 14px;
+  cursor: pointer;
+  transition: transform 0.15s, background 0.15s, border-color 0.15s;
+  backdrop-filter: blur(8px);
+  position: relative; overflow: hidden;
+}
+.option-btn:active { transform: scale(0.97); }
+
+.option-letter {
+  font-family: 'Fredoka One', cursive;
+  font-size: 1rem; color: rgba(255,255,255,0.5);
+  width: 28px; height: 28px;
+  border-radius: 50%; border: 2px solid rgba(255,255,255,0.2);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; transition: all 0.2s;
+}
+.option-verb {
+  font-family: 'Fredoka One', cursive;
+  font-size: 1.2rem; color: white; letter-spacing: 0.5px;
+}
+
+/* STATES */
+.option-btn.selected {
+  background: rgba(247,201,72,0.15);
+  border-color: var(--accent);
+  transform: scale(1.02);
+}
+.option-btn.selected .option-letter {
+  background: var(--accent); border-color: var(--accent); color: #1a1035;
+}
+
+.option-btn.correct {
+  background: rgba(34,197,94,0.2);
+  border-color: var(--correct);
+  animation: correct-pop 0.5s cubic-bezier(0.34,1.56,0.64,1);
+}
+.option-btn.correct .option-letter {
+  background: var(--correct); border-color: var(--correct); color: white;
+}
+@keyframes correct-pop {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.option-btn.wrong {
+  background: rgba(239,68,68,0.18);
+  border-color: var(--wrong);
+  animation: wrong-shake 0.45s ease;
+}
+.option-btn.wrong .option-letter {
+  background: var(--wrong); border-color: var(--wrong); color: white;
+}
+@keyframes wrong-shake {
+  0%,100% { transform: translateX(0); }
+  20%     { transform: translateX(-8px); }
+  40%     { transform: translateX(8px); }
+  60%     { transform: translateX(-5px); }
+  80%     { transform: translateX(5px); }
+}
+
+/* ── NEXT BTN ── */
+.next-btn {
+  display: none; width: 100%;
+  background: linear-gradient(135deg, #f7c948, #ff6f61);
+  color: white; border: none; border-radius: 20px;
+  padding: 16px; font-family: 'Fredoka One', cursive; font-size: 1.2rem;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(247,201,72,0.35);
+  transition: transform 0.15s;
+  animation: slide-up 0.4s cubic-bezier(0.34,1.56,0.64,1);
+}
+.next-btn:active { transform: scale(0.97); }
+@keyframes slide-up {
+  from { transform: translateY(20px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+/* ── FEEDBACK ── */
+.feedback {
+  font-family: 'Fredoka One', cursive;
+  font-size: 1.1rem; text-align: center;
+  min-height: 28px; color: white;
+  transition: all 0.3s;
+}
+
+/* ── BADGE OVERLAY ── */
+.overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.82); backdrop-filter: blur(14px);
+  z-index: 2000; align-items: center; justify-content: center;
+  padding: 24px;
+}
+.overlay.show { display: flex; }
+
+.badge-box {
+  background: linear-gradient(160deg, #2d1b69, #1a1035);
+  border: 2px solid rgba(247,201,72,0.3);
+  border-radius: 32px; padding: 40px 36px; text-align: center;
+  max-width: 320px; width: 100%;
+  animation: pop 0.6s cubic-bezier(0.34,1.56,0.64,1);
+  box-shadow: 0 0 60px rgba(247,201,72,0.2);
+}
+@keyframes pop { from{transform:scale(0.15) rotate(-10deg);opacity:0} to{transform:scale(1);opacity:1} }
+
+.badge-icon-big { font-size: 5.5rem; display: block; animation: badge-bounce 1.2s ease-in-out infinite; }
+@keyframes badge-bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-16px)} }
+.badge-title { font-family:'Fredoka One',cursive; font-size:1.7rem; color:var(--accent); margin:14px 0 6px; }
+.badge-msg   { color:rgba(255,255,255,0.65); font-size:0.88rem; font-weight:700; line-height:1.65; margin-bottom:24px; }
+.badge-btn {
+  width: 100%; background: linear-gradient(135deg,#f7c948,#ff6f61);
+  color: white; border: none; border-radius: 20px;
+  padding: 15px; font-family:'Fredoka One',cursive; font-size:1.2rem;
+  cursor: pointer; box-shadow: 0 8px 24px rgba(247,201,72,0.35);
+  transition: transform 0.15s;
+}
+.badge-btn:active { transform: scale(0.97); }
+
+/* ── FINAL OVERLAY ── */
+.final-box {
+  background: linear-gradient(160deg, #2d1b69, #1a1035);
+  border: 2px solid rgba(247,201,72,0.25);
+  border-radius: 32px; padding: 32px 28px; text-align: center;
+  max-width: 340px; width: 100%;
+  animation: pop 0.6s cubic-bezier(0.34,1.56,0.64,1);
+}
+.final-icon  { font-size: 4rem; display:block; animation: badge-bounce 2s ease-in-out infinite; }
+.final-title { font-family:'Fredoka One',cursive; font-size:1.8rem; color:var(--accent); margin:10px 0 4px; }
+.final-sub   { color:rgba(255,255,255,0.6); font-size:0.88rem; font-weight:700; margin-bottom:20px; }
+
+.badges-earned { display:flex; gap:10px; justify-content:center; margin-bottom:18px; flex-wrap:wrap; }
+.badge-chip {
+  background: rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.12);
+  border-radius:18px; padding:12px 10px; text-align:center; min-width:80px;
+  animation: pop 0.5s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+.badge-chip:nth-child(2){animation-delay:.12s}.badge-chip:nth-child(3){animation-delay:.24s}
+.bc-icon { font-size:2rem; }
+.bc-name { font-size:0.6rem; font-weight:900; color:var(--accent); margin-top:3px; }
+
+.stats-row { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:18px; }
+.stat-box  { background:rgba(255,255,255,0.07); border-radius:14px; padding:12px 8px; }
+.stat-num  { font-family:'Fredoka One',cursive; font-size:1.8rem; color:white; }
+.stat-lbl  { font-size:0.65rem; font-weight:800; color:rgba(255,255,255,0.4); }
+
+.restart-btn {
+  width:100%; background:linear-gradient(135deg,#f7c948,#ff6f61);
+  color:white; border:none; border-radius:20px;
+  padding:15px; font-family:'Fredoka One',cursive; font-size:1.2rem;
+  cursor:pointer; box-shadow:0 8px 24px rgba(247,201,72,0.3);
+  transition:transform 0.15s;
+}
+.restart-btn:active{transform:scale(0.97);}
+
+/* ── CONFETTI ── */
+.cp{position:fixed;top:-20px;border-radius:2px;animation:cf linear forwards;z-index:3000;pointer-events:none;}
+@keyframes cf{0%{transform:translateY(0) rotate(0);opacity:1}100%{transform:translateY(110vh) rotate(720deg);opacity:0}}
+</style>
+</head>
+<body>
+
+<!-- Stars -->
+<div class="stars" id="stars"></div>
+
+<div class="app">
+  <!-- Header -->
+  <div class="header">
+    <div class="game-title">⚡ Action Time!</div>
+    <div class="score-pill">⭐ <span id="score">0</span> / 21</div>
+  </div>
+
+  <!-- Progress -->
+  <div class="prog-wrap">
+    <div class="prog-bg"><div class="prog-fill" id="prog" style="width:0%"></div></div>
+    <div class="prog-label" id="prog-lbl">Question 1 of 21</div>
+  </div>
+
+  <!-- Situation Card -->
+  <div class="situation-card" id="sit-card">
+    <div class="situation-label">What's happening?</div>
+    <span class="situation-emoji" id="sit-emoji">🎵</span>
+    <div class="situation-sentence" id="sit-sentence">Music plays!</div>
+  </div>
+
+  <!-- Question -->
+  <div class="question-label">What do you do? 👇</div>
+
+  <!-- Options -->
+  <div class="options" id="options"></div>
+
+  <!-- Feedback -->
+  <div class="feedback" id="feedback"></div>
+
+  <!-- Next -->
+  <button class="next-btn" id="next-btn">Next →</button>
+</div>
+
+<!-- Badge overlay -->
+<div class="overlay" id="badge-ov">
+  <div class="badge-box">
+    <span class="badge-icon-big" id="b-icon">⭐</span>
+    <div class="badge-title" id="b-title">Star Verb!</div>
+    <div class="badge-msg"   id="b-msg">Great job!</div>
+    <button class="badge-btn" id="b-btn">Keep going! →</button>
+  </div>
+</div>
+
+<!-- Final overlay -->
+<div class="overlay" id="final-ov">
+  <div class="final-box">
+    <span class="final-icon">🏆</span>
+    <div class="final-title">Amazing!</div>
+    <div class="final-sub">You finished all 21 questions!</div>
+    <div class="badges-earned" id="final-badges"></div>
+    <div class="stats-row">
+      <div class="stat-box"><div class="stat-num" id="stat-score">—</div><div class="stat-lbl">Correct</div></div>
+      <div class="stat-box"><div class="stat-num" id="stat-streak">—</div><div class="stat-lbl">Best Streak 🔥</div></div>
+    </div>
+    <button class="restart-btn" onclick="init()">Play Again 🔄</button>
+  </div>
+</div>
+
+<script>
+// ── QUESTIONS ──
+const ALL_QUESTIONS = [
+  { emoji:'🎵', sentence:'Music plays!',           correct:'dance',  wrong:['sleep','climb']  },
+  { emoji:'🌧️', sentence:'It rains outside!',      correct:'run',    wrong:['swim','jump']    },
+  { emoji:'🍎', sentence:'You see an apple!',       correct:'eat',    wrong:['fly','paint']    },
+  { emoji:'🐕', sentence:'A dog runs to you!',      correct:'hug',    wrong:['cook','read']    },
+  { emoji:'📚', sentence:'You open a book!',        correct:'read',   wrong:['kick','drive']   },
+  { emoji:'🎂', sentence:"It's your birthday!",     correct:'sing',   wrong:['dig','push']     },
+  { emoji:'⚽', sentence:'You see a ball!',         correct:'kick',   wrong:['write','sleep']  },
+  { emoji:'🌊', sentence:"You're at the beach!",    correct:'swim',   wrong:['climb','cook']   },
+  { emoji:'🖍️', sentence:'You have crayons!',       correct:'draw',   wrong:['jump','eat']     },
+  { emoji:'🌳', sentence:"You're in a big tree!",   correct:'climb',  wrong:['dance','wash']   },
+  { emoji:'🔔', sentence:'The bell rings!',         correct:'run',    wrong:['sit','fly']      },
+  { emoji:'🧼', sentence:'Your hands are dirty!',   correct:'wash',   wrong:['sing','kick']    },
+  { emoji:'✉️', sentence:'You get a letter!',        correct:'read',   wrong:['swim','push']    },
+  { emoji:'🚲', sentence:'You see a bicycle!',      correct:'ride',   wrong:['eat','dig']      },
+  { emoji:'🌱', sentence:'You plant a seed!',       correct:'dig',    wrong:['dance','drive']  },
+  { emoji:'🚗', sentence:'"Let\'s go!" says Mom!',  correct:'drive',  wrong:['climb','draw']   },
+  { emoji:'🧩', sentence:'You find a puzzle!',      correct:'play',   wrong:['wash','run']     },
+  { emoji:'🐦', sentence:'A bird flies past!',      correct:'jump',   wrong:['cook','ride']    },
+  { emoji:'🎨', sentence:'You have a canvas!',      correct:'paint',  wrong:['sleep','kick']   },
+  { emoji:'🏔️', sentence:"You're on a mountain!",   correct:'climb',  wrong:['swim','write']   },
+  { emoji:'✏️', sentence:'You have a pencil!',       correct:'write',  wrong:['fly','hug']      },
+];
+
+const BADGES = [
+  { icon:'⚡', name:'Action Starter', msg:"7 questions done!\nYou're moving and grooving!" },
+  { icon:'🌟', name:'Verb Champ',     msg:"14 questions done!\nAction verbs are your superpower!" },
+  { icon:'🏆', name:'Action Hero',    msg:"21 questions done!\nYou're an Action Hero!" },
+];
+
+const LETTERS = ['A','B','C'];
+const FEEDBACKS_OK  = ['⚡ Correct!','🌟 Great job!','🎯 Spot on!','🔥 Awesome!','✅ Yes!'];
+const FEEDBACKS_ERR = ['❌ Try again!','🤔 Not quite!','💪 Almost!'];
+
+// ── STATE ──
+let queue=[], qIdx=0, score=0, streak=0, bestStreak=0;
+let earnedBadges=[], badgesAwarded=new Set();
+let answered=false;
+
+function init() {
+  queue = shuffle([...ALL_QUESTIONS]);
+  qIdx=0; score=0; streak=0; bestStreak=0;
+  earnedBadges=[]; badgesAwarded=new Set(); answered=false;
+  document.getElementById('score').textContent='0';
+  document.getElementById('final-ov').classList.remove('show');
+  document.getElementById('badge-ov').classList.remove('show');
+  document.getElementById('next-btn').style.display='none';
+  document.getElementById('feedback').textContent='';
+  updateProg();
+  loadQuestion();
+}
+
+function loadQuestion() {
+  if (qIdx >= 21) { showFinal(); return; }
+  answered = false;
+  document.getElementById('next-btn').style.display='none';
+  document.getElementById('feedback').textContent='';
+
+  const q = queue[qIdx];
+  // Animate card
+  const card = document.getElementById('sit-card');
+  card.style.opacity='0'; card.style.transform='scale(0.92) translateY(10px)';
+  card.style.transition='opacity 0.3s, transform 0.4s cubic-bezier(0.34,1.56,0.64,1)';
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    card.style.opacity='1'; card.style.transform='scale(1) translateY(0)';
+  }));
+
+  document.getElementById('sit-emoji').textContent    = q.emoji;
+  document.getElementById('sit-sentence').textContent = q.sentence;
+
+  // Build shuffled options
+  const opts = shuffle([q.correct, ...q.wrong]);
+  const container = document.getElementById('options');
+  container.innerHTML = '';
+  opts.forEach((verb, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.innerHTML = `
+      <div class="option-letter">${LETTERS[i]}</div>
+      <div class="option-verb">${verb}</div>
+    `;
+    btn.onclick = () => onAnswer(verb, q.correct, btn, opts);
+    container.appendChild(btn);
+    // staggered entrance
+    btn.style.opacity='0'; btn.style.transform='translateX(-16px)';
+    btn.style.transition=`opacity 0.3s ${i*0.07}s, transform 0.35s ${i*0.07}s cubic-bezier(0.34,1.56,0.64,1)`;
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{
+      btn.style.opacity='1'; btn.style.transform='translateX(0)';
+    }));
+  });
+
+  updateProg();
+}
+
+function onAnswer(verb, correct, btn, opts) {
+  if (answered) return;
+  answered = true;
+
+  const allBtns = document.querySelectorAll('.option-btn');
+  allBtns.forEach(b=>b.style.pointerEvents='none');
+
+  if (verb === correct) {
+    btn.classList.add('correct');
+    score++; streak++;
+    if (streak > bestStreak) bestStreak = streak;
+    document.getElementById('score').textContent=score;
+    document.getElementById('feedback').textContent = pick(FEEDBACKS_OK);
+    document.getElementById('feedback').style.color = '#4ade80';
+    miniConf();
+
+    qIdx++;
+    const milestone = qIdx===7?0 : qIdx===14?1 : qIdx===21?2 : -1;
+    if (milestone >= 0 && !badgesAwarded.has(milestone)) {
+      badgesAwarded.add(milestone); earnedBadges.push(milestone);
+      if (qIdx >= 21) {
+        setTimeout(()=>showBadge(milestone, showFinal), 400);
+      } else {
+        setTimeout(()=>showBadge(milestone, ()=>{ document.getElementById('next-btn').style.display='block'; }), 400);
+      }
+    } else if (qIdx >= 21) {
+      setTimeout(showFinal, 500);
+    } else {
+      document.getElementById('next-btn').style.display='block';
+    }
+  } else {
+    btn.classList.add('wrong');
+    streak = 0;
+    document.getElementById('feedback').textContent = pick(FEEDBACKS_ERR);
+    document.getElementById('feedback').style.color = '#f87171';
+    // Re-enable after shake
+    setTimeout(()=>{
+      btn.classList.remove('wrong');
+      allBtns.forEach(b=>b.style.pointerEvents='');
+      document.getElementById('feedback').textContent='';
+      answered = false;
+    }, 700);
+  }
+}
+
+// ── NEXT ──
+document.getElementById('next-btn').onclick = () => {
+  document.getElementById('next-btn').style.display='none';
+  loadQuestion();
+};
+
+function updateProg() {
+  const pct=(qIdx/21)*100;
+  document.getElementById('prog').style.width=pct+'%';
+  document.getElementById('prog-lbl').textContent=`Question ${Math.min(qIdx+1,21)} of 21`;
+}
+
+// ── BADGE ──
+function showBadge(idx, cb) {
+  confetti();
+  const b = BADGES[idx];
+  document.getElementById('b-icon').textContent = b.icon;
+  document.getElementById('b-title').textContent = b.name;
+  document.getElementById('b-msg').textContent   = b.msg;
+  const ov = document.getElementById('badge-ov');
+  ov.classList.add('show');
+  document.getElementById('b-btn').onclick = ()=>{ ov.classList.remove('show'); cb(); };
+}
+
+// ── FINAL ──
+function showFinal() {
+  confetti();
+  document.getElementById('stat-score').textContent  = score;
+  document.getElementById('stat-streak').textContent = bestStreak;
+  const row = document.getElementById('final-badges');
+  row.innerHTML = earnedBadges.map(i=>`
+    <div class="badge-chip">
+      <div class="bc-icon">${BADGES[i].icon}</div>
+      <div class="bc-name">${BADGES[i].name}</div>
+    </div>`).join('');
+  document.getElementById('final-ov').classList.add('show');
+}
+
+// ── CONFETTI ──
+function confetti() {
+  const cols=['#f7c948','#ff6f61','#c084fc','#34d399','#60a5fa','#fb923c'];
+  for(let i=0;i<50;i++){
+    const c=document.createElement('div'); c.className='cp';
+    c.style.left=Math.random()*100+'vw';
+    c.style.background=cols[~~(Math.random()*cols.length)];
+    c.style.width=(7+Math.random()*9)+'px'; c.style.height=(7+Math.random()*13)+'px';
+    c.style.animationDuration=(1.4+Math.random()*2.2)+'s';
+    c.style.animationDelay=Math.random()*0.5+'s';
+    c.style.borderRadius=Math.random()>.5?'50%':'2px';
+    document.body.appendChild(c); setTimeout(()=>c.remove(),4000);
+  }
+}
+function miniConf() {
+  const cols=['#f7c948','#34d399','#60a5fa'];
+  for(let i=0;i<14;i++){
+    const c=document.createElement('div'); c.className='cp';
+    c.style.left=(20+Math.random()*60)+'vw';
+    c.style.background=cols[~~(Math.random()*3)];
+    c.style.width='8px'; c.style.height='8px';
+    c.style.animationDuration=(0.7+Math.random()*0.8)+'s';
+    c.style.borderRadius='50%';
+    document.body.appendChild(c); setTimeout(()=>c.remove(),2000);
+  }
+}
+
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=~~(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function pick(arr){return arr[~~(Math.random()*arr.length)];}
+
+// ── STARS ──
+(function makeStars(){
+  const container=document.getElementById('stars');
+  for(let i=0;i<60;i++){
+    const s=document.createElement('div'); s.className='star';
+    const sz=1+Math.random()*3;
+    s.style.cssText=`width:${sz}px;height:${sz}px;top:${Math.random()*100}%;left:${Math.random()*100}%;animation-duration:${2+Math.random()*3}s;animation-delay:${Math.random()*3}s;`;
+    container.appendChild(s);
+  }
+})();
+
+init();
+</script>
+</body>
+</html>

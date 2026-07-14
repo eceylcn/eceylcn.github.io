@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>🌍 Dünya Kahramanı</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; user-select:none; touch-action:none; }
+
+body {
+  font-family: 'Nunito', sans-serif;
+  background: linear-gradient(180deg, #87ceeb 0%, #b8e4b8 55%, #5a9e5a 100%);
+  height: 100vh; width: 100vw;
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+}
+
+.app {
+  width: min(420px, 100vw);
+  height: 100vh;
+  position: relative;
+  display: flex; flex-direction: column;
+  overflow: hidden;
+}
+
+/* ── DECORATIVE BG ── */
+.sun {
+  position: absolute; top: 18px; right: 24px;
+  width: 56px; height: 56px;
+  background: radial-gradient(circle, #ffe066, #ffb300);
+  border-radius: 50%;
+  box-shadow: 0 0 0 8px rgba(255,220,0,0.2), 0 0 0 16px rgba(255,220,0,0.1);
+  z-index: 0;
+  animation: sun-pulse 3s ease-in-out infinite;
+}
+@keyframes sun-pulse { 0%,100%{box-shadow:0 0 0 8px rgba(255,220,0,0.2),0 0 0 16px rgba(255,220,0,0.08)} 50%{box-shadow:0 0 0 12px rgba(255,220,0,0.25),0 0 0 24px rgba(255,220,0,0.1)} }
+
+.cloud {
+  position: absolute; background: rgba(255,255,255,0.85);
+  border-radius: 50px; z-index: 0;
+  animation: drift linear infinite;
+}
+.cloud::before,.cloud::after { content:''; position:absolute; background:rgba(255,255,255,0.85); border-radius:50%; }
+.cl1 { width:60px;height:20px;top:38px;left:-70px;animation-duration:20s; }
+.cl1::before{width:30px;height:30px;top:-15px;left:8px;}
+.cl1::after{width:22px;height:22px;top:-10px;left:28px;}
+.cl2 { width:80px;height:26px;top:70px;left:-90px;animation-duration:28s;animation-delay:-12s; }
+.cl2::before{width:38px;height:38px;top:-19px;left:12px;}
+.cl2::after{width:28px;height:28px;top:-13px;left:40px;}
+@keyframes drift { from{transform:translateX(-120px)} to{transform:translateX(calc(min(420px,100vw) + 120px))} }
+
+/* ── HEADER ── */
+.header {
+  position: relative; z-index: 10;
+  padding: 14px 18px 8px;
+  display: flex; align-items:center; justify-content:space-between;
+}
+.title {
+  font-family:'Fredoka One',cursive;
+  font-size: 1.2rem; color: #1b5e20;
+  text-shadow: 0 2px 0 rgba(255,255,255,0.7);
+}
+.hdr-right { display:flex; gap:8px; align-items:center; }
+.pill {
+  background: rgba(255,255,255,0.85);
+  border-radius: 50px; padding: 4px 12px;
+  font-weight:900; font-size:0.82rem; color:#2e7d32;
+  backdrop-filter: blur(4px);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* ── PROGRESS ── */
+.prog-wrap {
+  position: relative; z-index:10;
+  padding: 0 18px 6px;
+}
+.prog-bg {
+  height:9px; background:rgba(255,255,255,0.45);
+  border-radius:50px; overflow:hidden;
+}
+.prog-fill {
+  height:100%; border-radius:50px;
+  background: linear-gradient(90deg, #69f0ae, #00c853);
+  transition: width 0.5s cubic-bezier(0.34,1.56,0.64,1);
+  box-shadow: 0 0 6px rgba(0,200,83,0.5);
+}
+.prog-label { font-size:0.7rem; font-weight:800; color:#2e7d32; text-align:center; margin-top:2px; }
+
+/* ── GAME FIELD ── */
+.field {
+  position: relative; z-index:10;
+  flex:1;
+  display: flex; align-items:center; justify-content:center;
+}
+
+/* ── BINS ── */
+.bin {
+  position: absolute;
+  display: flex; flex-direction:column; align-items:center;
+  border-radius: 20px;
+  padding: 10px 8px;
+  cursor: pointer;
+  transition: transform 0.2s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.2s;
+  width: 88px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+  border: 3px solid rgba(255,255,255,0.5);
+}
+.bin.highlight {
+  transform: scale(1.12) !important;
+  box-shadow: 0 0 0 4px white, 0 10px 32px rgba(0,0,0,0.2) !important;
+}
+.bin.correct-flash { animation: correct-b 0.5s ease; }
+.bin.wrong-flash   { animation: wrong-b 0.4s ease; }
+@keyframes correct-b { 0%,100%{transform:scale(1)} 50%{transform:scale(1.2)} }
+@keyframes wrong-b   { 0%,100%{transform:scale(1)} 30%{transform:scale(0.88) rotate(-4deg)} 70%{transform:scale(0.94) rotate(3deg)} }
+
+/* positions */
+.bin-top    { top: 10px;  left:50%; transform:translateX(-50%); }
+.bin-bottom { bottom:10px;left:50%; transform:translateX(-50%); }
+.bin-left   { left:6px;   top:50%;  transform:translateY(-50%); }
+.bin-right  { right:6px;  top:50%;  transform:translateY(-50%); }
+
+/* colors */
+.bin-paper   { background: linear-gradient(160deg,#fff9c4,#ffe082); }
+.bin-plastic { background: linear-gradient(160deg,#bbdefb,#90caf9); }
+.bin-glass   { background: linear-gradient(160deg,#b2ebf2,#80deea); }
+.bin-organic { background: linear-gradient(160deg,#dcedc8,#aed581); }
+
+.bin-icon { font-size:2rem; line-height:1; }
+.bin-label {
+  font-family:'Fredoka One',cursive;
+  font-size:0.7rem; margin-top:3px; text-align:center; line-height:1.2;
+}
+.bin-paper   .bin-label { color:#f57f17; }
+.bin-plastic .bin-label { color:#1565c0; }
+.bin-glass   .bin-label { color:#006064; }
+.bin-organic .bin-label { color:#33691e; }
+
+.bin-cnt {
+  position:absolute; top:-8px; right:-8px;
+  background:white; border-radius:50%;
+  width:22px; height:22px;
+  font-size:0.7rem; font-weight:900;
+  display:flex; align-items:center; justify-content:center;
+  box-shadow:0 2px 8px rgba(0,0,0,0.15);
+}
+.bin-cnt.bump { animation:cnt-bump 0.35s ease; }
+@keyframes cnt-bump { 0%,100%{transform:scale(1)} 50%{transform:scale(1.6)} }
+
+/* ── WASTE CARD (center) ── */
+.waste-card {
+  position: absolute;
+  left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  border-radius: 28px;
+  padding: 18px 22px;
+  text-align: center;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.18), 0 0 0 3px rgba(255,255,255,0.9);
+  cursor: grab;
+  z-index: 30;
+  min-width: 130px;
+  transition: box-shadow 0.2s;
+}
+.waste-card.dragging {
+  cursor: grabbing;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.28);
+}
+.waste-card.wrong-anim { animation: wrong-card 0.55s ease; }
+@keyframes wrong-card {
+  0%,100%{transform:translate(-50%,-50%) scale(1) rotate(0)}
+  20%{transform:translate(-50%,-50%) scale(1.08) rotate(-5deg)}
+  40%{transform:translate(-50%,-50%) scale(1.04) rotate(5deg)}
+  60%{transform:translate(-50%,-50%) scale(1.06) rotate(-3deg)}
+  80%{transform:translate(-50%,-50%) scale(1.02) rotate(2deg)}
+}
+.waste-emoji { font-size:3.6rem; display:block; line-height:1; }
+.waste-name  { font-family:'Fredoka One',cursive; font-size:1.05rem; color:#1b2631; margin-top:5px; }
+.waste-hint  { font-size:0.68rem; color:#9e9e9e; font-weight:700; margin-top:2px; }
+
+/* drag ghost — fixed positioned */
+.drag-ghost {
+  position: fixed;
+  pointer-events: none;
+  z-index: 999;
+  background: white;
+  border-radius: 28px;
+  padding: 18px 22px;
+  text-align: center;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.28);
+  transform: translate(-50%,-50%) scale(1.08) rotate(3deg);
+  min-width: 130px;
+  opacity: 0.95;
+}
+
+/* ── INSTRUCTION ── */
+.instruction {
+  position: absolute; top: -38px; left:50%; transform:translateX(-50%);
+  background: rgba(255,255,255,0.85); border-radius:50px;
+  padding: 5px 16px; font-size:0.78rem; font-weight:800;
+  color:#2e7d32; white-space:nowrap;
+  backdrop-filter:blur(4px);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+/* ── TOAST ── */
+.toast {
+  position:fixed; bottom:24px; left:50%;
+  transform:translateX(-50%) translateY(50px);
+  padding:10px 22px; border-radius:50px;
+  font-weight:800; font-size:0.88rem;
+  color:white; z-index:2000; opacity:0;
+  transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
+  pointer-events:none; white-space:nowrap;
+}
+.toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+.toast.ok  { background:#2e7d32; }
+.toast.err { background:#c62828; }
+
+/* ── OVERLAYS ── */
+.overlay {
+  display:none; position:fixed; inset:0;
+  background:rgba(0,0,0,0.78); backdrop-filter:blur(12px);
+  z-index:3000; align-items:center; justify-content:center; padding:20px;
+}
+.overlay.show { display:flex; }
+.ov-box {
+  background:white; border-radius:32px;
+  padding:36px 32px; text-align:center; max-width:320px; width:100%;
+  animation:pop 0.6s cubic-bezier(0.34,1.56,0.64,1);
+}
+@keyframes pop { from{transform:scale(0.15) rotate(-12deg);opacity:0} to{transform:scale(1);opacity:1} }
+.ov-icon-big { font-size:5rem; display:block; animation:bounce-icon 1.2s ease-in-out infinite; }
+@keyframes bounce-icon { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-14px)} }
+.ov-title { font-family:'Fredoka One',cursive; font-size:1.6rem; color:#1b2631; margin:12px 0 6px; }
+.ov-msg   { color:#666; font-size:0.86rem; font-weight:700; line-height:1.6; margin-bottom:22px; }
+.ov-btn {
+  background:linear-gradient(135deg,#43a047,#1b5e20);
+  color:white; border:none; border-radius:50px;
+  padding:14px; font-family:'Fredoka One',cursive; font-size:1.2rem;
+  cursor:pointer; width:100%;
+  box-shadow:0 8px 24px rgba(27,94,32,0.35);
+  transition:transform 0.15s;
+}
+.ov-btn:hover{transform:scale(1.03);}
+
+/* ── FINAL ── */
+.final-box {
+  background:linear-gradient(160deg,#e8f5e9,#f1f8e9);
+  border-radius:32px; padding:28px 24px; text-align:center;
+  max-width:340px; width:100%;
+  animation:pop 0.6s cubic-bezier(0.34,1.56,0.64,1);
+}
+.final-globe { font-size:4rem; display:block; animation:spin-globe 4s linear infinite; }
+@keyframes spin-globe { 0%{filter:hue-rotate(0deg)} 100%{filter:hue-rotate(360deg)} }
+.final-title { font-family:'Fredoka One',cursive; font-size:1.7rem; color:#1b5e20; margin:8px 0 4px; }
+.final-sub   { color:#558b2f; font-size:0.88rem; font-weight:700; margin-bottom:18px; }
+.badges-row  { display:flex; gap:10px; justify-content:center; margin-bottom:16px; flex-wrap:wrap; }
+.badge-chip  {
+  background:white; border-radius:18px; padding:12px 10px;
+  text-align:center; box-shadow:0 4px 16px rgba(0,0,0,0.1);
+  min-width:80px;
+  animation:pop 0.5s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+.badge-chip:nth-child(2){animation-delay:.12s}.badge-chip:nth-child(3){animation-delay:.24s}
+.bc-icon{font-size:2rem;}.bc-name{font-size:0.6rem;font-weight:900;color:#33691e;margin-top:3px;}
+.stats-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:18px; }
+.stat-box   { background:white; border-radius:14px; padding:10px 8px; box-shadow:0 2px 8px rgba(0,0,0,0.06); }
+.stat-num   { font-family:'Fredoka One',cursive; font-size:1.7rem; color:#2e7d32; }
+.stat-lbl   { font-size:0.65rem; font-weight:800; color:#9e9e9e; }
+.badge-earned-note { font-size:0.72rem; color:#888; font-weight:700; margin-bottom:14px; }
+
+/* ── CONFETTI ── */
+.cp{position:fixed;top:-20px;border-radius:2px;animation:cf linear forwards;z-index:4000;pointer-events:none;}
+@keyframes cf{0%{transform:translateY(0) rotate(0);opacity:1}100%{transform:translateY(110vh) rotate(720deg);opacity:0}}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="sun"></div>
+  <div class="cloud cl1"></div>
+  <div class="cloud cl2"></div>
+
+  <!-- Header -->
+  <div class="header">
+    <div class="title">🌍 Dünya Kahramanı</div>
+    <div class="hdr-right">
+      <div class="pill">✅ <span id="score">0</span>/20</div>
+    </div>
+  </div>
+
+  <!-- Progress -->
+  <div class="prog-wrap">
+    <div class="prog-bg"><div class="prog-fill" id="prog" style="width:0%"></div></div>
+    <div class="prog-label" id="prog-lbl">0 / 20 atık sıralandı</div>
+  </div>
+
+  <!-- Field -->
+  <div class="field" id="field">
+    <!-- Bins placed by JS -->
+    <!-- Waste card placed by JS -->
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Badge overlay -->
+<div class="overlay" id="badge-ov">
+  <div class="ov-box">
+    <span class="ov-icon-big" id="b-icon">🌱</span>
+    <div class="ov-title" id="b-title">Fidan Dostu!</div>
+    <div class="ov-msg"   id="b-msg">Tebrikler!</div>
+    <button class="ov-btn" id="b-btn">Devam Et! →</button>
+  </div>
+</div>
+
+<!-- Final overlay -->
+<div class="overlay" id="final-ov">
+  <div class="final-box">
+    <span class="final-globe">🌍</span>
+    <div class="final-title">Dünya Teşekkür Eder!</div>
+    <div class="final-sub" id="final-sub">Tüm atıkları doğru sıraladın!</div>
+    <div class="badges-row" id="final-badges"></div>
+    <div class="badge-earned-note" id="badge-note"></div>
+    <div class="stats-grid">
+      <div class="stat-box"><div class="stat-num" id="stat-correct">—</div><div class="stat-lbl">Doğru Atık</div></div>
+      <div class="stat-box"><div class="stat-num" id="stat-trees">—</div><div class="stat-lbl">Ağaç Kurtardın 🌱</div></div>
+    </div>
+    <button class="ov-btn" onclick="init()">Tekrar Oyna 🔄</button>
+  </div>
+</div>
+
+<script>
+// ── DATA ──
+const WASTES = [
+  {emoji:'📰',name:'Gazete',     hint:'Kâğıt ürünü',   type:'paper'  },
+  {emoji:'📦',name:'Karton',     hint:'Kâğıt ürünü',   type:'paper'  },
+  {emoji:'📚',name:'Eski Kitap', hint:'Kâğıt ürünü',   type:'paper'  },
+  {emoji:'🧻',name:'Kâğıt Rulo',hint:'Kâğıt ürünü',   type:'paper'  },
+  {emoji:'✉️',name:'Zarf',       hint:'Kâğıt ürünü',   type:'paper'  },
+  {emoji:'🧴',name:'Şampuan',    hint:'Plastik ürün',   type:'plastic'},
+  {emoji:'🥤',name:'Plastik Bardak',hint:'Plastik ürün',type:'plastic'},
+  {emoji:'🛍️',name:'Poşet',      hint:'Plastik ürün',   type:'plastic'},
+  {emoji:'🪣',name:'Plastik Kova',hint:'Plastik ürün',  type:'plastic'},
+  {emoji:'🖊️',name:'Kalem',      hint:'Plastik ürün',   type:'plastic'},
+  {emoji:'🫙',name:'Cam Kavanoz',hint:'Cam ürünü',      type:'glass'  },
+  {emoji:'🍾',name:'Cam Şişe',   hint:'Cam ürünü',      type:'glass'  },
+  {emoji:'🥛',name:'Süt Şişesi', hint:'Cam ürünü',      type:'glass'  },
+  {emoji:'🕯️',name:'Cam Mumluk', hint:'Cam ürünü',      type:'glass'  },
+  {emoji:'🪟',name:'Cam Parçası',hint:'Cam ürünü',      type:'glass'  },
+  {emoji:'🍎',name:'Elma Kabuğu',hint:'Organik atık',   type:'organic'},
+  {emoji:'🍌',name:'Muz Kabuğu', hint:'Organik atık',   type:'organic'},
+  {emoji:'🥕',name:'Havuç Sapı', hint:'Organik atık',   type:'organic'},
+  {emoji:'🍂',name:'Yaprak',     hint:'Organik atık',   type:'organic'},
+  {emoji:'☕',name:'Kahve Telvesi',hint:'Organik atık', type:'organic'},
+];
+
+const BINS = [
+  {type:'paper',  icon:'📄', label:'Kâğıt',   cls:'bin-paper',   pos:'bin-top'   },
+  {type:'organic',icon:'🌿', label:'Organik',  cls:'bin-organic', pos:'bin-bottom'},
+  {type:'plastic',icon:'🧴', label:'Plastik',  cls:'bin-plastic', pos:'bin-left'  },
+  {type:'glass',  icon:'🫙', label:'Cam',      cls:'bin-glass',   pos:'bin-right' },
+];
+
+const BADGES = [
+  {icon:'🌱', name:'Fidan Dostu',    msg:'5 atığı doğru sıraladın!\nDünya bir nefes aldı.'},
+  {icon:'🌳', name:'Ağaç Bekçisi',  msg:'10 atığı doğru sıraladın!\nOrmanlar seninle büyüyor.'},
+  {icon:'🌍', name:'Dünya Kahramanı',msg:'15 atığı doğru sıraladın!\nGezegen sana teşekkür eder!'},
+];
+
+// ── STATE ──
+let queue=[], qIdx=0, score=0, totalSorted=0;
+let earnedBadges=[], badgesAwarded=new Set();
+let dragGhost=null, dragging=false;
+let touchId=null, dragOffX=0, dragOffY=0;
+let binPositions=[];
+
+// ── INIT ──
+function init() {
+  queue=shuffle([...WASTES]);
+  qIdx=0; score=0; totalSorted=0;
+  earnedBadges=[]; badgesAwarded=new Set();
+  document.getElementById('score').textContent='0';
+  document.getElementById('final-ov').classList.remove('show');
+  document.getElementById('badge-ov').classList.remove('show');
+  buildField();
+  updateProg();
+  loadWaste();
+}
+
+function buildField() {
+  const field=document.getElementById('field');
+  field.innerHTML='';
+
+  // Bins
+  BINS.forEach(b=>{
+    const el=document.createElement('div');
+    el.className=`bin ${b.cls} ${b.pos}`;
+    el.id='bin-'+b.type;
+    el.dataset.type=b.type;
+    el.innerHTML=`
+      <div class="bin-icon">${b.icon}</div>
+      <div class="bin-label">${b.label}</div>
+      <div class="bin-cnt" id="cnt-${b.type}">0</div>
+    `;
+    field.appendChild(el);
+  });
+
+  // Instruction
+  const inst=document.createElement('div');
+  inst.className='instruction'; inst.id='instruction';
+  inst.textContent='Doğru kutuya sürükle! 👆';
+  field.appendChild(inst);
+
+  // Waste card
+  const card=document.createElement('div');
+  card.className='waste-card'; card.id='waste-card';
+  card.innerHTML=`<span class="waste-emoji" id="waste-emoji"></span><div class="waste-name" id="waste-name"></div><div class="waste-hint" id="waste-hint"></div>`;
+  card.addEventListener('touchstart',onTouchStart,{passive:false});
+  card.addEventListener('mousedown',onMouseDown);
+  field.appendChild(card);
+}
+
+function loadWaste() {
+  if(totalSorted>=20){showFinal();return;}
+  const w=queue[qIdx%queue.length]; qIdx++;
+  const card=document.getElementById('waste-card');
+  card.style.cssText='';
+  document.getElementById('waste-emoji').textContent=w.emoji;
+  document.getElementById('waste-name').textContent=w.name;
+  document.getElementById('waste-hint').textContent=w.hint;
+  card.dataset.type=w.type;
+
+  // entrance
+  card.style.opacity='0';
+  card.style.transform='translate(-50%,-50%) scale(0.5)';
+  card.style.transition='opacity 0.35s, transform 0.4s cubic-bezier(0.34,1.56,0.64,1)';
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    card.style.opacity='1';
+    card.style.transform='translate(-50%,-50%) scale(1)';
+  }));
+}
+
+function updateProg() {
+  const pct=(totalSorted/20)*100;
+  document.getElementById('prog').style.width=pct+'%';
+  document.getElementById('prog-lbl').textContent=`${totalSorted} / 20 atık sıralandı`;
+}
+
+// ── DRAG ──
+function onTouchStart(e) {
+  e.preventDefault();
+  const t=e.changedTouches[0]; touchId=t.identifier;
+  startDrag(t.clientX,t.clientY);
+  const move=ev=>{const tt=Array.from(ev.changedTouches).find(x=>x.identifier===touchId);if(tt)moveDrag(tt.clientX,tt.clientY);};
+  const end=ev=>{const tt=Array.from(ev.changedTouches).find(x=>x.identifier===touchId);if(tt){endDrag(tt.clientX,tt.clientY);}document.removeEventListener('touchmove',move);document.removeEventListener('touchend',end);};
+  document.addEventListener('touchmove',move,{passive:false});
+  document.addEventListener('touchend',end);
+}
+function onMouseDown(e) {
+  startDrag(e.clientX,e.clientY);
+  const move=ev=>moveDrag(ev.clientX,ev.clientY);
+  const up=ev=>{endDrag(ev.clientX,ev.clientY);window.removeEventListener('mousemove',move);window.removeEventListener('mouseup',up);};
+  window.addEventListener('mousemove',move);
+  window.addEventListener('mouseup',up);
+}
+
+function startDrag(x,y) {
+  dragging=true;
+  const card=document.getElementById('waste-card');
+  const rect=card.getBoundingClientRect();
+  dragOffX=x-rect.left-rect.width/2;
+  dragOffY=y-rect.top-rect.height/2;
+
+  // Create ghost
+  dragGhost=document.createElement('div');
+  dragGhost.className='drag-ghost';
+  dragGhost.innerHTML=card.innerHTML;
+  dragGhost.style.left=x+'px'; dragGhost.style.top=y+'px';
+  dragGhost.style.width=rect.width+'px';
+  document.body.appendChild(dragGhost);
+
+  card.style.opacity='0.25';
+  card.style.transform='translate(-50%,-50%) scale(0.85)';
+  card.style.transition='opacity 0.15s, transform 0.15s';
+
+  // highlight bins
+  document.querySelectorAll('.bin').forEach(b=>b.classList.add('highlight'));
+}
+
+function moveDrag(x,y) {
+  if(!dragging||!dragGhost)return;
+  dragGhost.style.left=x+'px';
+  dragGhost.style.top=y+'px';
+}
+
+function endDrag(x,y) {
+  if(!dragging)return;
+  dragging=false;
+  if(dragGhost){dragGhost.remove();dragGhost=null;}
+  document.querySelectorAll('.bin').forEach(b=>b.classList.remove('highlight'));
+
+  // Find target bin
+  let dropped=null;
+  document.querySelectorAll('.bin').forEach(bin=>{
+    const r=bin.getBoundingClientRect();
+    if(x>=r.left&&x<=r.right&&y>=r.top&&y<=r.bottom) dropped=bin.dataset.type;
+  });
+
+  const card=document.getElementById('waste-card');
+  card.style.opacity='1';
+  card.style.transform='translate(-50%,-50%) scale(1)';
+  card.style.transition='opacity 0.3s, transform 0.35s cubic-bezier(0.34,1.56,0.64,1)';
+
+  if(dropped) checkAnswer(dropped);
+}
+
+// ── CHECK ──
+function checkAnswer(type) {
+  const card=document.getElementById('waste-card');
+  const correct=card.dataset.type;
+  const bin=document.getElementById('bin-'+type);
+
+  if(type===correct){
+    bin.classList.add('correct-flash');
+    setTimeout(()=>bin.classList.remove('correct-flash'),600);
+    const cnt=document.getElementById('cnt-'+type);
+    cnt.textContent=parseInt(cnt.textContent)+1;
+    cnt.classList.add('bump');
+    setTimeout(()=>cnt.classList.remove('bump'),400);
+    score++; totalSorted++;
+    document.getElementById('score').textContent=score;
+    showToast('♻️ Harika! '+BINS.find(b=>b.type===type).label+' kutusuna gitti!','ok');
+    miniConf();
+    updateProg();
+
+    // Badge check (sadece 1 kez her milestone için)
+    const milestone = totalSorted===5?0:totalSorted===10?1:totalSorted===15?2:-1;
+    if(milestone>=0 && !badgesAwarded.has(milestone)){
+      badgesAwarded.add(milestone);
+      earnedBadges.push(milestone);
+      setTimeout(()=>showBadge(milestone,()=>{ totalSorted>=20?showFinal():loadWaste(); }),400);
+    } else if(totalSorted>=20){
+      setTimeout(showFinal,500);
+    } else {
+      setTimeout(loadWaste,350);
+    }
+  } else {
+    bin.classList.add('wrong-flash');
+    setTimeout(()=>bin.classList.remove('wrong-flash'),500);
+    card.style.cssText='';
+    card.classList.add('wrong-anim');
+    setTimeout(()=>card.classList.remove('wrong-anim'),600);
+    showToast('❌ Yanlış kutu! Tekrar dene.','err');
+  }
+}
+
+// ── BADGE ──
+function showBadge(idx,cb) {
+  confetti();
+  const b=BADGES[idx];
+  document.getElementById('b-icon').textContent=b.icon;
+  document.getElementById('b-title').textContent=b.name;
+  document.getElementById('b-msg').textContent=b.msg;
+  const ov=document.getElementById('badge-ov');
+  ov.classList.add('show');
+  document.getElementById('b-btn').onclick=()=>{ ov.classList.remove('show'); cb(); };
+}
+
+// ── FINAL ──
+function showFinal() {
+  confetti();
+  document.getElementById('stat-correct').textContent=score;
+  document.getElementById('stat-trees').textContent=Math.floor(score/4);
+
+  const row=document.getElementById('final-badges');
+  if(earnedBadges.length>0){
+    row.innerHTML=earnedBadges.map(i=>`
+      <div class="badge-chip">
+        <div class="bc-icon">${BADGES[i].icon}</div>
+        <div class="bc-name">${BADGES[i].name}</div>
+      </div>`).join('');
+    document.getElementById('badge-note').textContent='';
+  } else {
+    row.innerHTML='';
+    document.getElementById('badge-note').textContent='Rozet için 5 doğru atık gerekiyor. Tekrar oyna!';
+  }
+
+  // Rozet kazanılamaz durumu (zaten 3 tane kazanıldıysa)
+  if(badgesAwarded.size>=3){
+    document.getElementById('badge-note').textContent='3 rozeti de kazandın! 🎉';
+  }
+
+  document.getElementById('final-ov').classList.add('show');
+}
+
+// ── TOAST ──
+function showToast(msg,type=''){
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.className='toast '+type+' show';
+  setTimeout(()=>el.classList.remove('show'),2000);
+}
+
+// ── CONFETTI ──
+function confetti(){
+  const cols=['#69f0ae','#40c4ff','#ffeb3b','#ff80ab','#ea80fc','#ccff90','#ff6e40'];
+  for(let i=0;i<48;i++){
+    const c=document.createElement('div');c.className='cp';
+    c.style.left=Math.random()*100+'vw';
+    c.style.background=cols[~~(Math.random()*cols.length)];
+    c.style.width=(7+Math.random()*9)+'px';c.style.height=(7+Math.random()*13)+'px';
+    c.style.animationDuration=(1.4+Math.random()*2.2)+'s';
+    c.style.animationDelay=Math.random()*0.6+'s';
+    c.style.borderRadius=Math.random()>.5?'50%':'2px';
+    document.body.appendChild(c);setTimeout(()=>c.remove(),4000);
+  }
+}
+function miniConf(){
+  const cols=['#69f0ae','#ffeb3b','#40c4ff'];
+  for(let i=0;i<14;i++){
+    const c=document.createElement('div');c.className='cp';
+    c.style.left=(25+Math.random()*50)+'vw';
+    c.style.background=cols[~~(Math.random()*3)];
+    c.style.width=(6+Math.random()*6)+'px';c.style.height='8px';
+    c.style.animationDuration=(0.7+Math.random()*0.9)+'s';
+    c.style.borderRadius='50%';
+    document.body.appendChild(c);setTimeout(()=>c.remove(),2000);
+  }
+}
+
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=~~(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+init();
+</script>
+</body>
+</html>

@@ -1,0 +1,1255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Feel & Match</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; user-select: none; }
+  body {
+    display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(135deg, #1a3a5c 0%, #0a1a2e 100%);
+    min-height: 100vh; padding: 20px;
+  }
+  .device {
+    width: 390px; height: 780px; max-height: 95vh;
+    background: linear-gradient(180deg, #e8f4fb 0%, #c8e4f5 100%);
+    border-radius: 36px; overflow: hidden; position: relative;
+    box-shadow: 0 25px 60px rgba(0,0,0,0.4);
+  }
+  .hud {
+    position: absolute; top: 0; left: 0; right: 0; height: 60px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 16px; z-index: 100;
+    background: rgba(255,255,255,0.5); backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255,255,255,0.5);
+  }
+  .hud-btn {
+    width: 40px; height: 40px; border-radius: 50%; border: none; cursor: pointer;
+    background: rgba(255,255,255,0.8);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; color: #1a3a5c; transition: transform 0.15s;
+  }
+  .hud-btn:active { transform: scale(0.92); }
+  .hud-score {
+    font-weight: 700; color: #1a3a5c; font-size: 16px;
+    background: rgba(255,255,255,0.8); padding: 8px 16px; border-radius: 20px;
+  }
+  .hud-trophy { font-size: 22px; }
+  .screen {
+    position: absolute; top: 60px; left: 0; right: 0; bottom: 0;
+    overflow-y: auto; overflow-x: hidden; display: none; flex-direction: column;
+  }
+  .screen.active { display: flex; }
+  .menu-screen { padding: 24px 20px; }
+  .menu-screen.active { justify-content: center; }
+  .menu-title { font-size: 30px; font-weight: 800; color: #1a3a5c; text-align: center; margin-bottom: 8px; }
+  .menu-subtitle { font-size: 14px; color: #4a6e8a; text-align: center; margin-bottom: 24px; }
+  .game-card {
+    background: white; border-radius: 24px; padding: 24px;
+    box-shadow: 0 8px 24px rgba(26, 58, 92, 0.15);
+    border: 3px solid #3a8fc7; cursor: pointer; transition: transform 0.2s;
+  }
+  .game-card:active { transform: scale(0.97); }
+  .game-card-emoji { font-size: 56px; text-align: center; margin-bottom: 12px; }
+  .game-card-title { font-size: 22px; font-weight: 700; color: #1a3a5c; text-align: center; margin-bottom: 6px; }
+  .game-card-desc { font-size: 13px; color: #4a6e8a; text-align: center; margin-bottom: 16px; }
+  .progress-bar { height: 10px; background: #d0e4f0; border-radius: 5px; overflow: hidden; margin-bottom: 8px; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, #3a8fc7, #5fb3e0); border-radius: 5px; transition: width 0.5s; }
+  .progress-text { font-size: 12px; color: #4a6e8a; text-align: center; }
+  .play-cta {
+    margin-top: 20px; padding: 14px; background: #3a8fc7; color: white;
+    border: none; border-radius: 16px; font-size: 16px; font-weight: 700;
+    width: 100%; cursor: pointer;
+  }
+  .play-cta:active { transform: scale(0.97); }
+
+  .round-intro {
+    padding: 40px 24px; text-align: center;
+    display: flex; flex-direction: column; justify-content: center; height: 100%;
+  }
+  .round-intro-num { font-size: 14px; color: #3a8fc7; font-weight: 700; letter-spacing: 2px; }
+  .round-intro-title { font-size: 30px; font-weight: 800; color: #1a3a5c; margin: 8px 0 20px; }
+  .round-intro-emoji { font-size: 100px; margin: 24px 0; animation: bounce 1.2s ease-in-out infinite; }
+  .round-intro-desc { font-size: 16px; color: #1a3a5c; margin-bottom: 32px; line-height: 1.5; padding: 0 12px; }
+  .round-intro-btn {
+    padding: 16px 40px; background: #3a8fc7; color: white; border: none;
+    border-radius: 20px; font-size: 18px; font-weight: 700; cursor: pointer;
+    box-shadow: 0 6px 20px rgba(58, 143, 199, 0.4);
+  }
+  .round-intro-btn:active { transform: scale(0.96); }
+
+  /* ============ ROUND 1 - ANAGRAM ============ */
+  .r1-screen { padding: 14px; }
+  .r1-stage-info {
+    background: white; padding: 10px 14px; border-radius: 14px; margin-bottom: 12px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .r1-stage-title { font-size: 12px; font-weight: 700; color: #3a8fc7; }
+  .r1-counter { background: #3a8fc7; color: white; padding: 6px 12px; border-radius: 12px; font-weight: 700; font-size: 12px; }
+
+  .face-card {
+    background: white; border-radius: 22px; padding: 12px;
+    box-shadow: 0 8px 20px rgba(26, 58, 92, 0.12);
+    margin-bottom: 14px; text-align: center;
+    border: 3px solid #3a8fc7;
+  }
+  .face-svg-wrap {
+    display: flex; justify-content: center; align-items: center;
+    height: 140px;
+  }
+  .face-svg-wrap svg { width: 120px; height: 120px; }
+  .face-hint { font-size: 13px; color: #4a6e8a; font-weight: 600; margin-top: 4px; }
+
+  .answer-slots {
+    display: flex; gap: 4px; justify-content: center; margin-bottom: 14px;
+    flex-wrap: nowrap;
+  }
+  .slot {
+    width: 32px; height: 40px;
+    background: white; border: 2px dashed #3a8fc7; border-radius: 7px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; font-weight: 800; color: #1a3a5c;
+    transition: background 0.2s, border 0.2s;
+    flex-shrink: 0;
+  }
+  .slot.filled { cursor: pointer; }
+  .slot.filled { background: #ffd966; border: 2px solid #c89a30; }
+  .slot.correct { background: #c8f0d4; border: 2px solid #5cc77f; color: #3a9d5c; animation: slotPop 0.4s; }
+  .slot.wrong { background: #ffc8c8; border: 2px solid #e57373; color: #c44; animation: shake 0.4s; }
+
+  .letter-pool {
+    display: flex; gap: 6px; justify-content: center; flex-wrap: nowrap;
+    margin-bottom: 14px; padding: 10px;
+    background: rgba(255,255,255,0.6); border-radius: 16px;
+    min-height: 56px;
+  }
+  .letter-bubble {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: white; color: #1a3a5c;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; font-weight: 800;
+    box-shadow: 0 3px 8px rgba(26,58,92,0.15);
+    cursor: pointer; transition: transform 0.15s, opacity 0.3s;
+    border: 2px solid #3a8fc7;
+    flex-shrink: 0;
+  }
+  .letter-bubble:active { transform: scale(0.92); }
+  .letter-bubble.used { opacity: 0.25; }
+
+  .r1-actions {
+    display: flex; gap: 10px; justify-content: center;
+  }
+  .action-btn {
+    padding: 10px 18px; border-radius: 14px; border: none; cursor: pointer;
+    font-size: 13px; font-weight: 700;
+    background: white; color: #1a3a5c;
+    box-shadow: 0 3px 10px rgba(26,58,92,0.12);
+  }
+  .action-btn:active { transform: scale(0.96); }
+
+  .success-banner {
+    position: absolute; top: 20%; left: 50%; transform: translateX(-50%) translateY(-20px) scale(0.8);
+    background: linear-gradient(135deg, #5cc77f, #3a9d5c);
+    color: white; padding: 16px 30px; border-radius: 18px;
+    font-size: 22px; font-weight: 800;
+    box-shadow: 0 10px 30px rgba(92, 199, 127, 0.45);
+    opacity: 0; pointer-events: none; transition: opacity 0.4s, transform 0.4s;
+    z-index: 50; white-space: nowrap;
+  }
+  .success-banner.visible { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+
+  /* ============ ROUND 2 - SUGGESTION MATCH ============ */
+  .r2-screen { padding: 14px; }
+  .r2-stage-info {
+    background: white; padding: 10px 14px; border-radius: 14px; margin-bottom: 10px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .r2-stage-title { font-size: 12px; font-weight: 700; color: #3a8fc7; }
+  .r2-counter { background: #3a8fc7; color: white; padding: 6px 12px; border-radius: 12px; font-weight: 700; font-size: 12px; }
+  .r2-instruction {
+    background: linear-gradient(135deg, #ffd966, #ffb84d);
+    color: #1a3a5c; padding: 10px 14px; border-radius: 12px; margin-bottom: 14px;
+    font-size: 13px; font-weight: 700; text-align: center;
+  }
+
+  .speaker-area {
+    background: white; border-radius: 22px; padding: 16px;
+    box-shadow: 0 8px 20px rgba(26, 58, 92, 0.12);
+    margin-bottom: 16px;
+    display: flex; align-items: center; gap: 12px;
+    min-height: 130px;
+    border: 3px solid #3a8fc7;
+  }
+  .speaker {
+    width: 70px; height: 70px; flex-shrink: 0;
+    background: linear-gradient(180deg, #ffd966, #ffb84d);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgba(255, 184, 77, 0.3);
+  }
+  .speaker svg { width: 60px; height: 60px; }
+  .bubble {
+    flex: 1; background: #f0f8ff; border-radius: 16px;
+    padding: 12px 14px; position: relative;
+    border: 2px solid #b0d4ec; min-height: 50px;
+    display: flex; align-items: center;
+    font-size: 17px; font-weight: 700; color: #1a3a5c;
+  }
+  .bubble::before {
+    content: ''; position: absolute; left: -10px; top: 18px;
+    width: 0; height: 0;
+    border-top: 8px solid transparent;
+    border-bottom: 8px solid transparent;
+    border-right: 10px solid #b0d4ec;
+  }
+  .bubble.response { background: #fff8e0; border-color: #ffd966; margin-top: 10px; }
+  .bubble.response::before { border-right-color: #ffd966; }
+  .bubble.empty { background: #f5f5f5; border: 2px dashed #b0b0b0; color: #888; font-style: italic; }
+  .bubble.empty.drag-over { background: #fff0d0; border: 2px solid #ffd966; transform: scale(1.03); }
+
+  .speaker-area .bubbles-stack {
+    flex: 1; display: flex; flex-direction: column; gap: 6px;
+  }
+
+  .response-pool {
+    display: flex; flex-direction: column; gap: 10px;
+    background: rgba(255,255,255,0.6); padding: 12px; border-radius: 16px;
+  }
+  .response-card {
+    background: white; padding: 12px 16px; border-radius: 14px;
+    font-size: 16px; font-weight: 700; color: #1a3a5c;
+    box-shadow: 0 4px 10px rgba(26, 58, 92, 0.12);
+    cursor: grab; touch-action: none;
+    border: 2px solid #ffd966;
+    transition: transform 0.3s, opacity 0.3s, box-shadow 0.3s;
+  }
+  .response-card:active { transform: scale(0.97); cursor: grabbing; }
+  .response-card.dragging { opacity: 0.85; box-shadow: 0 12px 24px rgba(26,58,92,0.25); }
+  .response-card.shake { animation: shake 0.5s; border-color: #e57373; }
+  .response-card.flash-correct { border-color: #5cc77f; background: #d4edd9; }
+  .response-card.fly-out { transform: translateY(-30px) scale(0.4); opacity: 0; }
+
+  /* ============ ROUND 3 - ACTION MATCH ============ */
+  .r3-screen { padding: 14px; }
+  .r3-stage-info {
+    background: white; padding: 10px 14px; border-radius: 14px; margin-bottom: 10px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .r3-stage-title { font-size: 12px; font-weight: 700; color: #3a8fc7; }
+  .r3-counter { background: #3a8fc7; color: white; padding: 6px 12px; border-radius: 12px; font-weight: 700; font-size: 12px; }
+  .r3-instruction {
+    background: linear-gradient(135deg, #ffd966, #ffb84d);
+    color: #1a3a5c; padding: 10px 14px; border-radius: 12px; margin-bottom: 12px;
+    font-size: 13px; font-weight: 700; text-align: center;
+  }
+  .action-card {
+    background: white; border-radius: 22px; padding: 16px;
+    box-shadow: 0 8px 20px rgba(26,58,92,0.12);
+    margin-bottom: 14px; text-align: center;
+    border: 3px solid #3a8fc7;
+    min-height: 180px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    transition: transform 0.3s;
+  }
+  .action-card.bounce { animation: cardBounce 0.5s; }
+  .action-card svg { width: 130px; height: 130px; }
+  .action-result {
+    font-size: 14px; color: #4a6e8a; margin-top: 8px; font-weight: 700;
+    opacity: 0; transition: opacity 0.4s;
+  }
+  .action-result.visible { opacity: 1; }
+  .action-result.correct { color: #3a9d5c; }
+  .action-result.wrong { color: #c44; }
+
+  .action-options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .option-btn {
+    padding: 14px 8px; border-radius: 14px; cursor: pointer;
+    font-size: 14px; font-weight: 700;
+    background: white; color: #1a3a5c;
+    box-shadow: 0 4px 12px rgba(26, 58, 92, 0.12);
+    border: 2px solid transparent;
+    transition: transform 0.15s, box-shadow 0.3s;
+    line-height: 1.3;
+  }
+  .option-btn:active:not(:disabled) { transform: scale(0.96); }
+  .option-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .option-btn.flash-correct { box-shadow: 0 0 20px #5cc77f; border-color: #5cc77f; background: #d4edd9; }
+  .option-btn.flash-wrong { box-shadow: 0 0 20px #e57373; border-color: #e57373; animation: shake 0.5s; background: #ffd0d0; }
+
+  /* Badge */
+  .badge-overlay {
+    position: absolute; inset: 0; z-index: 200;
+    background: rgba(10, 26, 46, 0.85); backdrop-filter: blur(8px);
+    display: none; flex-direction: column; align-items: center; justify-content: center;
+    padding: 24px;
+  }
+  .badge-overlay.active { display: flex; }
+  .badge-emoji {
+    font-size: 110px; animation: badgeBounce 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+    margin-bottom: 16px; filter: drop-shadow(0 8px 20px rgba(255,217,102,0.5));
+  }
+  .badge-name { font-size: 26px; font-weight: 800; color: white; margin-bottom: 8px; text-align: center; }
+  .badge-message { font-size: 15px; color: #c8e4f5; margin-bottom: 28px; text-align: center; line-height: 1.5; padding: 0 12px; }
+  .badge-btn {
+    padding: 14px 36px; background: #3a8fc7; color: white; border: none;
+    border-radius: 18px; font-size: 16px; font-weight: 700; cursor: pointer;
+    display: flex; align-items: center; gap: 8px;
+    box-shadow: 0 6px 20px rgba(58, 143, 199, 0.5);
+  }
+  .badge-btn:active { transform: scale(0.96); }
+  .confetti { position: absolute; width: 8px; height: 8px; pointer-events: none; z-index: 199; }
+
+  .sheet-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.4); z-index: 150; display: none; }
+  .sheet-overlay.active { display: block; }
+  .bottom-sheet {
+    position: absolute; bottom: 0; left: 0; right: 0; max-height: 70%;
+    background: white; border-radius: 24px 24px 0 0; padding: 20px;
+    z-index: 151; transform: translateY(100%); transition: transform 0.3s;
+    overflow-y: auto;
+  }
+  .bottom-sheet.active { transform: translateY(0); }
+  .sheet-handle { width: 40px; height: 4px; background: #d0e4f0; border-radius: 2px; margin: 0 auto 16px; }
+  .sheet-title { font-size: 18px; font-weight: 800; color: #1a3a5c; margin-bottom: 12px; }
+  .sheet-progress { background: #e8f4fb; border-radius: 12px; padding: 12px; margin-bottom: 16px; }
+  .sheet-progress-text { font-size: 13px; font-weight: 700; color: #4a6e8a; margin-bottom: 6px; }
+  .sheet-section-title { font-size: 14px; font-weight: 700; color: #1a3a5c; margin: 12px 0 8px; }
+  .sheet-badges { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .sheet-badge { aspect-ratio: 1; background: #e8f4fb; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 28px; padding: 4px; }
+  .sheet-badge.locked { filter: grayscale(1); opacity: 0.5; border: 2px dashed #80a8c0; background: white; }
+  .sheet-badge .badge-label { font-size: 9px; color: #4a6e8a; margin-top: 4px; text-align: center; font-weight: 700; line-height: 1.1; }
+
+  .toast {
+    position: absolute; top: 80px; left: 20px; right: 20px;
+    background: rgba(26, 58, 92, 0.95); color: white; padding: 12px 16px;
+    border-radius: 12px; text-align: center; font-weight: 600; font-size: 14px;
+    z-index: 110; opacity: 0; transition: opacity 0.3s; pointer-events: none;
+  }
+  .toast.active { opacity: 1; }
+
+  @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+  @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+  @keyframes badgeBounce { 0% { transform: scale(0) rotate(-180deg); } 60% { transform: scale(1.2) rotate(20deg); } 100% { transform: scale(1) rotate(0deg); } }
+  @keyframes confettiFall { 0% { transform: translateY(0) rotate(0); opacity: 1; } 100% { transform: translateY(600px) rotate(720deg); opacity: 0; } }
+  @keyframes cardBounce { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.04); } }
+  @keyframes slotPop { 0% { transform: scale(1); } 50% { transform: scale(1.18); } 100% { transform: scale(1); } }
+</style>
+</head>
+<body>
+
+<div class="device" id="device">
+  <div class="hud" id="hud">
+    <button class="hud-btn" id="backBtn">←</button>
+    <div class="hud-score" id="hudScore">Score: 0</div>
+    <button class="hud-btn hud-trophy" id="trophyBtn">🏆</button>
+  </div>
+  <div class="toast" id="toast"></div>
+
+  <!-- Menu -->
+  <div class="screen menu-screen active" id="menuScreen">
+    <div class="game-card" id="gameCard">
+      <div class="game-card-emoji">🎯</div>
+      <div class="game-card-title">Feel & Match</div>
+      <div class="game-card-desc">Spell feelings, match suggestions, name actions!</div>
+      <div class="progress-bar"><div class="progress-fill" id="menuProgress" style="width: 0%"></div></div>
+      <div class="progress-text" id="menuProgressText">0 / 3 badges</div>
+      <button class="play-cta" id="playBtn">▶ Play</button>
+    </div>
+  </div>
+
+  <!-- Round Intro -->
+  <div class="screen" id="introScreen">
+    <div class="round-intro">
+      <div class="round-intro-num" id="introNum">ROUND 1</div>
+      <div class="round-intro-title" id="introTitle">Feeling Words</div>
+      <div class="round-intro-emoji" id="introEmoji">😊</div>
+      <div class="round-intro-desc" id="introDesc">Look at the face. Unscramble the letters to spell the feeling!</div>
+      <button class="round-intro-btn" id="introBtn">Start! ▶</button>
+    </div>
+  </div>
+
+  <!-- Round 1 -->
+  <div class="screen r1-screen" id="r1Screen">
+    <div class="r1-stage-info">
+      <div class="r1-stage-title" id="r1StageTitle">STAGE 1 / 6</div>
+    </div>
+    <div class="face-card">
+      <div class="face-svg-wrap" id="faceSvgWrap"></div>
+      <div class="face-hint" id="faceHint">How does this face feel?</div>
+    </div>
+    <div class="answer-slots" id="answerSlots"></div>
+    <div class="letter-pool" id="letterPool"></div>
+  </div>
+  <div class="success-banner" id="successBanner">Great! HAPPY ✨</div>
+
+  <!-- Round 2 -->
+  <div class="screen r2-screen" id="r2Screen">
+    <div class="r2-stage-info">
+      <div class="r2-stage-title">WHAT SHOULD WE DO?</div>
+      <div class="r2-counter" id="r2Counter">1 / 5</div>
+    </div>
+    <div class="r2-instruction">Drag the right answer here!</div>
+    <div class="speaker-area">
+      <div class="speaker" id="speakerSvg"></div>
+      <div class="bubbles-stack">
+        <div class="bubble" id="situationBubble">I am tired.</div>
+        <div class="bubble empty" id="responseBubble">drag here</div>
+      </div>
+    </div>
+    <div class="response-pool" id="responsePool"></div>
+  </div>
+
+  <!-- Round 3 -->
+  <div class="screen r3-screen" id="r3Screen">
+    <div class="r3-stage-info">
+      <div class="r3-stage-title">LET'S ACTION!</div>
+      <div class="r3-counter" id="r3Counter">1 / 8</div>
+    </div>
+    <div class="r3-instruction">Look at the picture. Pick the right one!</div>
+    <div class="action-card" id="actionCard">
+      <div id="actionSvgWrap"></div>
+      <div class="action-result" id="actionResult"></div>
+    </div>
+    <div class="action-options" id="actionOptions"></div>
+  </div>
+
+  <!-- Badge -->
+  <div class="badge-overlay" id="badgeOverlay">
+    <div class="badge-emoji" id="badgeEmoji">😊</div>
+    <div class="badge-name" id="badgeName">Happy Hunter</div>
+    <div class="badge-message" id="badgeMessage">Great job!</div>
+    <button class="badge-btn" id="badgeBtn">▶ Continue</button>
+  </div>
+
+  <!-- Sheet -->
+  <div class="sheet-overlay" id="sheetOverlay"></div>
+  <div class="bottom-sheet" id="bottomSheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">🏆 Badge Collection</div>
+    <div class="sheet-progress">
+      <div class="sheet-progress-text" id="sheetProgressText">0 / 8 badges</div>
+      <div class="progress-bar"><div class="progress-fill" id="sheetProgress" style="width: 0%"></div></div>
+    </div>
+    <div class="sheet-section-title">Earned</div>
+    <div class="sheet-badges" id="sheetEarned"></div>
+    <div class="sheet-section-title">Locked</div>
+    <div class="sheet-badges" id="sheetLocked"></div>
+  </div>
+</div>
+
+<script>
+// ============ STATE ============
+const state = {
+  currentScreen: 'menu',
+  earnedBadges: new Set(),
+  totalScore: 0,
+  pendingRoundStart: null,
+  r1: { stage: 0, currentWord: '', usedIndices: new Set(), filledLetters: [], letterOrder: [], locked: false },
+  r2: { qIndex: 0, locked: false },
+  r3: { qIndex: 0, locked: false }
+};
+
+const ALL_BADGES = [
+  { id: 'feeling_master', emoji: '🎭', name: 'Feeling Master', desc: "You learned all the feeling words!", round: 1 },
+  { id: 'smart_helper',   emoji: '🌟', name: 'Smart Helper',   desc: "You always know what to do!", round: 2 },
+  { id: 'action_master',  emoji: '🎯', name: 'Action Master',  desc: "You know all the actions!", round: 3 }
+];
+
+// ============ SVG FACES (hand-drawn cartoon style) ============
+const FACES = {
+  happy: `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="60" cy="60" r="48" fill="#fff8e0" stroke="#1a1a1a" stroke-width="3"/>
+    <!-- Eyes (curved happy) -->
+    <path d="M 40 50 Q 45 42 50 50" fill="none" stroke="#1a1a1a" stroke-width="3" stroke-linecap="round"/>
+    <path d="M 70 50 Q 75 42 80 50" fill="none" stroke="#1a1a1a" stroke-width="3" stroke-linecap="round"/>
+    <!-- Big smile -->
+    <path d="M 38 68 Q 60 88 82 68" fill="none" stroke="#1a1a1a" stroke-width="3" stroke-linecap="round"/>
+    <!-- Sparkles -->
+    <text x="20" y="30" font-size="14" fill="#ffb84d">✨</text>
+    <text x="92" y="38" font-size="14" fill="#ffb84d">✨</text>
+  </svg>`,
+  good: `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="60" cy="60" r="48" fill="#fff8e0" stroke="#1a1a1a" stroke-width="3"/>
+    <!-- Star eyes (excited) -->
+    <g transform="translate(44 50)">
+      <path d="M 0 -7 L 2 -2 L 7 -2 L 3 1 L 5 7 L 0 4 L -5 7 L -3 1 L -7 -2 L -2 -2 Z" fill="#ffd966" stroke="#c89a30" stroke-width="1.5"/>
+    </g>
+    <g transform="translate(76 50)">
+      <path d="M 0 -7 L 2 -2 L 7 -2 L 3 1 L 5 7 L 0 4 L -5 7 L -3 1 L -7 -2 L -2 -2 Z" fill="#ffd966" stroke="#c89a30" stroke-width="1.5"/>
+    </g>
+    <!-- Big confident smile -->
+    <path d="M 36 70 Q 60 92 84 70" fill="none" stroke="#1a1a1a" stroke-width="3.5" stroke-linecap="round"/>
+    <!-- Cheek blush -->
+    <ellipse cx="36" cy="74" rx="5" ry="3" fill="#ffb0b0" opacity="0.6"/>
+    <ellipse cx="84" cy="74" rx="5" ry="3" fill="#ffb0b0" opacity="0.6"/>
+    <!-- Sparkles around -->
+    <text x="14" y="32" font-size="16" fill="#ffd966">✨</text>
+    <text x="96" y="40" font-size="14" fill="#ffd966">✨</text>
+    <text x="100" y="86" font-size="12" fill="#ffd966">⭐</text>
+  </svg>`,
+  bad: `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="60" cy="60" r="48" fill="#f0f0f0" stroke="#1a1a1a" stroke-width="3"/>
+    <!-- X eyes -->
+    <line x1="36" y1="44" x2="48" y2="56" stroke="#1a1a1a" stroke-width="3" stroke-linecap="round"/>
+    <line x1="48" y1="44" x2="36" y2="56" stroke="#1a1a1a" stroke-width="3" stroke-linecap="round"/>
+    <line x1="72" y1="44" x2="84" y2="56" stroke="#1a1a1a" stroke-width="3" stroke-linecap="round"/>
+    <line x1="84" y1="44" x2="72" y2="56" stroke="#1a1a1a" stroke-width="3" stroke-linecap="round"/>
+    <!-- Wavy frown -->
+    <path d="M 38 80 Q 47 72 55 80 Q 63 88 71 80 Q 79 72 87 80" fill="none" stroke="#1a1a1a" stroke-width="3" stroke-linecap="round"/>
+  </svg>`,
+  tired: `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="60" cy="60" r="48" fill="#fff8e0" stroke="#1a1a1a" stroke-width="3"/>
+    <!-- Tired droopy eyes -->
+    <path d="M 38 50 Q 44 56 50 50" fill="none" stroke="#1a1a1a" stroke-width="3" stroke-linecap="round"/>
+    <path d="M 70 50 Q 76 56 82 50" fill="none" stroke="#1a1a1a" stroke-width="3" stroke-linecap="round"/>
+    <!-- Open O mouth (yawn) -->
+    <ellipse cx="60" cy="78" rx="9" ry="11" fill="#1a1a1a"/>
+    <!-- Sweat drop -->
+    <path d="M 90 36 Q 86 44 90 50 Q 94 44 90 36 Z" fill="#5fb3e0" stroke="#3a8fc7" stroke-width="2"/>
+  </svg>`,
+  angry: `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="60" cy="60" r="48" fill="#ffebd0" stroke="#1a1a1a" stroke-width="3"/>
+    <!-- Angry eyebrows -->
+    <line x1="32" y1="40" x2="50" y2="46" stroke="#1a1a1a" stroke-width="4" stroke-linecap="round"/>
+    <line x1="70" y1="46" x2="88" y2="40" stroke="#1a1a1a" stroke-width="4" stroke-linecap="round"/>
+    <!-- Angry eyes -->
+    <circle cx="44" cy="56" r="3" fill="#1a1a1a"/>
+    <circle cx="76" cy="56" r="3" fill="#1a1a1a"/>
+    <!-- Angry mouth (frown with teeth) -->
+    <path d="M 38 82 Q 60 70 82 82" fill="none" stroke="#1a1a1a" stroke-width="3" stroke-linecap="round"/>
+    <!-- Steam -->
+    <text x="14" y="30" font-size="14">💢</text>
+  </svg>`,
+  surprised: `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="60" cy="60" r="48" fill="#fff8e0" stroke="#1a1a1a" stroke-width="3"/>
+    <!-- Wide eyes -->
+    <circle cx="44" cy="52" r="6" fill="white" stroke="#1a1a1a" stroke-width="3"/>
+    <circle cx="44" cy="52" r="2.5" fill="#1a1a1a"/>
+    <circle cx="76" cy="52" r="6" fill="white" stroke="#1a1a1a" stroke-width="3"/>
+    <circle cx="76" cy="52" r="2.5" fill="#1a1a1a"/>
+    <!-- Round O mouth -->
+    <circle cx="60" cy="80" r="9" fill="#1a1a1a"/>
+    <!-- Surprise marks -->
+    <text x="14" y="32" font-size="20" fill="#ff8a65">!</text>
+    <text x="98" y="32" font-size="20" fill="#ff8a65">!</text>
+  </svg>`
+};
+
+// ============ ROUND 1 STAGES ============
+const R1_STAGES = [
+  { word: 'HAPPY',     face: 'happy',     hint: 'How does this face feel?' },
+  { word: 'GOOD',      face: 'good',      hint: 'How does this face feel?' },
+  { word: 'BAD',       face: 'bad',       hint: 'How does this face feel?' },
+  { word: 'TIRED',     face: 'tired',     hint: 'How does this face feel?' },
+  { word: 'ANGRY',     face: 'angry',     hint: 'How does this face feel?' },
+  { word: 'SURPRISED', face: 'surprised', hint: 'How does this face feel?' }
+];
+
+// ============ ROUND 2 ITEMS ============
+const R2_ITEMS = [
+  { situation: 'I am thirsty.',  answer: "Let's drink lemonade.", distractors: ["Let's go home.", "Let's dance."],         speakerType: 'thirsty' },
+  { situation: 'I am tired.',    answer: "Let's go home.",         distractors: ["Let's play tennis.", "Let's swim."],       speakerType: 'tired'  },
+  { situation: 'I am happy.',    answer: "Let's dance.",           distractors: ["Let's sleep.", "Let's cook."],             speakerType: 'happy'  },
+  { situation: 'I am hungry.',   answer: "Let's eat.",             distractors: ["Let's watch TV.", "Let's ride a bike."],  speakerType: 'hungry' },
+  { situation: 'I am bored.',    answer: "Let's play a game.",     distractors: ["Let's sleep.", "Let's drink water."],     speakerType: 'bored'  }
+];
+
+// ============ ROUND 3 ITEMS ============
+const R3_ITEMS = [
+  { svg: 'guitar',  answer: "Let's play the guitar.", distractors: ["Let's watch TV.", "Let's cook.", "Let's sleep."] },
+  { svg: 'cook',    answer: "Let's cook.",             distractors: ["Let's sing.", "Let's play tennis.", "Let's swim."] },
+  { svg: 'sleep',   answer: "Let's sleep.",            distractors: ["Let's watch TV.", "Let's ride a bike.", "Let's cook."] },
+  { svg: 'bike',    answer: "Let's ride a bike.",      distractors: ["Let's fly a kite.", "Let's play tennis.", "Let's swim."] },
+  { svg: 'tv',      answer: "Let's watch TV.",         distractors: ["Let's sleep.", "Let's cook.", "Let's play the guitar."] },
+  { svg: 'swim',    answer: "Let's swim.",             distractors: ["Let's play tennis.", "Let's ride a bike.", "Let's fly a kite."] },
+  { svg: 'kite',    answer: "Let's fly a kite.",       distractors: ["Let's swim.", "Let's ride a bike.", "Let's play the guitar."] },
+  { svg: 'tennis',  answer: "Let's play tennis.",      distractors: ["Let's swim.", "Let's fly a kite.", "Let's cook."] }
+];
+
+// ============ ACTION SVGs ============
+const ACTIONS = {
+  guitar: `<svg viewBox="0 0 130 130" xmlns="http://www.w3.org/2000/svg">
+    <!-- Guitar body -->
+    <ellipse cx="50" cy="85" rx="28" ry="32" fill="#c87a3e" stroke="#1a1a1a" stroke-width="3"/>
+    <ellipse cx="50" cy="85" rx="14" ry="14" fill="#1a1a1a"/>
+    <rect x="46" y="38" width="8" height="50" fill="#8b5a2b" stroke="#1a1a1a" stroke-width="2"/>
+    <rect x="42" y="20" width="16" height="20" rx="2" fill="#5a3a1a" stroke="#1a1a1a" stroke-width="2"/>
+    <!-- Music notes -->
+    <text x="80" y="40" font-size="22">🎵</text>
+    <text x="95" y="65" font-size="18">♪</text>
+  </svg>`,
+  cook: `<svg viewBox="0 0 130 130" xmlns="http://www.w3.org/2000/svg">
+    <!-- Pan -->
+    <ellipse cx="65" cy="80" rx="40" ry="10" fill="#444" stroke="#1a1a1a" stroke-width="3"/>
+    <rect x="25" y="70" width="80" height="14" fill="#666" stroke="#1a1a1a" stroke-width="3"/>
+    <rect x="100" y="74" width="20" height="6" fill="#8b5a2b" stroke="#1a1a1a" stroke-width="2"/>
+    <!-- Food bubbles -->
+    <circle cx="50" cy="68" r="5" fill="#ffd966" stroke="#c89a30" stroke-width="2"/>
+    <circle cx="68" cy="65" r="6" fill="#ff8a65" stroke="#c44" stroke-width="2"/>
+    <circle cx="80" cy="69" r="4" fill="#ffd966" stroke="#c89a30" stroke-width="2"/>
+    <!-- Steam -->
+    <path d="M 55 50 Q 50 42 55 35 Q 60 28 55 22" fill="none" stroke="#aaa" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M 70 48 Q 65 40 70 33" fill="none" stroke="#aaa" stroke-width="2.5" stroke-linecap="round"/>
+  </svg>`,
+  sleep: `<svg viewBox="0 0 130 130" xmlns="http://www.w3.org/2000/svg">
+    <!-- Bed -->
+    <rect x="20" y="80" width="90" height="20" fill="#fff8e0" stroke="#1a1a1a" stroke-width="3" rx="3"/>
+    <rect x="22" y="62" width="35" height="22" fill="#ffd1d1" stroke="#1a1a1a" stroke-width="3" rx="6"/>
+    <!-- Sleeping head -->
+    <circle cx="40" cy="58" r="14" fill="#fff8e0" stroke="#1a1a1a" stroke-width="3"/>
+    <!-- Closed eye -->
+    <path d="M 33 58 Q 36 55 39 58" fill="none" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- Z's -->
+    <text x="78" y="40" font-size="22" fill="#3a8fc7" font-weight="800">Z</text>
+    <text x="92" y="28" font-size="18" fill="#3a8fc7" font-weight="800">z</text>
+    <text x="103" y="18" font-size="14" fill="#3a8fc7" font-weight="800">z</text>
+  </svg>`,
+  bike: `<svg viewBox="0 0 130 130" xmlns="http://www.w3.org/2000/svg">
+    <!-- Wheels -->
+    <circle cx="35" cy="90" r="20" fill="none" stroke="#1a1a1a" stroke-width="3.5"/>
+    <circle cx="35" cy="90" r="3" fill="#1a1a1a"/>
+    <circle cx="95" cy="90" r="20" fill="none" stroke="#1a1a1a" stroke-width="3.5"/>
+    <circle cx="95" cy="90" r="3" fill="#1a1a1a"/>
+    <!-- Spokes -->
+    <line x1="35" y1="70" x2="35" y2="110" stroke="#1a1a1a" stroke-width="1.5"/>
+    <line x1="15" y1="90" x2="55" y2="90" stroke="#1a1a1a" stroke-width="1.5"/>
+    <line x1="95" y1="70" x2="95" y2="110" stroke="#1a1a1a" stroke-width="1.5"/>
+    <line x1="75" y1="90" x2="115" y2="90" stroke="#1a1a1a" stroke-width="1.5"/>
+    <!-- Frame -->
+    <line x1="35" y1="90" x2="65" y2="55" stroke="#ff8a65" stroke-width="4"/>
+    <line x1="65" y1="55" x2="95" y2="90" stroke="#ff8a65" stroke-width="4"/>
+    <line x1="65" y1="55" x2="50" y2="90" stroke="#ff8a65" stroke-width="4"/>
+    <!-- Seat -->
+    <rect x="60" y="50" width="14" height="5" rx="2" fill="#1a1a1a"/>
+    <!-- Handle -->
+    <line x1="80" y1="55" x2="92" y2="48" stroke="#1a1a1a" stroke-width="3" stroke-linecap="round"/>
+  </svg>`,
+  tv: `<svg viewBox="0 0 130 130" xmlns="http://www.w3.org/2000/svg">
+    <!-- TV box -->
+    <rect x="20" y="30" width="90" height="60" rx="6" fill="#3a3a3a" stroke="#1a1a1a" stroke-width="3"/>
+    <rect x="28" y="38" width="74" height="44" rx="2" fill="#5fb3e0"/>
+    <!-- Screen content (smiley) -->
+    <circle cx="65" cy="58" r="12" fill="#ffd966" stroke="#c89a30" stroke-width="2"/>
+    <circle cx="60" cy="56" r="1.5" fill="#1a1a1a"/>
+    <circle cx="70" cy="56" r="1.5" fill="#1a1a1a"/>
+    <path d="M 58 62 Q 65 67 72 62" fill="none" stroke="#1a1a1a" stroke-width="1.5"/>
+    <!-- Stand -->
+    <rect x="55" y="90" width="20" height="6" fill="#3a3a3a" stroke="#1a1a1a" stroke-width="2"/>
+    <rect x="40" y="94" width="50" height="6" rx="2" fill="#3a3a3a" stroke="#1a1a1a" stroke-width="2"/>
+  </svg>`,
+  swim: `<svg viewBox="0 0 130 130" xmlns="http://www.w3.org/2000/svg">
+    <!-- Water waves -->
+    <path d="M 0 80 Q 20 72 40 80 Q 60 88 80 80 Q 100 72 130 80 L 130 130 L 0 130 Z" fill="#5fb3e0" stroke="#3a8fc7" stroke-width="2"/>
+    <path d="M 0 95 Q 20 87 40 95 Q 60 103 80 95 Q 100 87 130 95" fill="none" stroke="#3a8fc7" stroke-width="2"/>
+    <!-- Swimmer head -->
+    <circle cx="60" cy="60" r="14" fill="#fff8e0" stroke="#1a1a1a" stroke-width="3"/>
+    <!-- Goggles -->
+    <circle cx="55" cy="58" r="4" fill="#3a8fc7" stroke="#1a1a1a" stroke-width="2"/>
+    <circle cx="65" cy="58" r="4" fill="#3a8fc7" stroke="#1a1a1a" stroke-width="2"/>
+    <line x1="59" y1="58" x2="61" y2="58" stroke="#1a1a1a" stroke-width="2"/>
+    <!-- Arm -->
+    <path d="M 70 65 Q 90 50 105 60" fill="none" stroke="#1a1a1a" stroke-width="3" stroke-linecap="round"/>
+    <!-- Splash -->
+    <text x="92" y="48" font-size="18">💦</text>
+  </svg>`,
+  kite: `<svg viewBox="0 0 130 130" xmlns="http://www.w3.org/2000/svg">
+    <!-- Kite -->
+    <polygon points="80,20 100,50 80,80 60,50" fill="#ff8a65" stroke="#1a1a1a" stroke-width="3"/>
+    <line x1="80" y1="20" x2="80" y2="80" stroke="#1a1a1a" stroke-width="2"/>
+    <line x1="60" y1="50" x2="100" y2="50" stroke="#1a1a1a" stroke-width="2"/>
+    <!-- Tail -->
+    <path d="M 80 80 Q 75 90 80 100 Q 85 110 80 120" fill="none" stroke="#ff8a65" stroke-width="3" stroke-linecap="round"/>
+    <circle cx="78" cy="92" r="2.5" fill="#ffd966"/>
+    <circle cx="82" cy="105" r="2.5" fill="#ffd966"/>
+    <!-- String -->
+    <line x1="80" y1="50" x2="30" y2="100" stroke="#1a1a1a" stroke-width="1.5" stroke-dasharray="3 2"/>
+    <!-- Hand -->
+    <circle cx="28" cy="100" r="6" fill="#fff8e0" stroke="#1a1a1a" stroke-width="2"/>
+  </svg>`,
+  tennis: `<svg viewBox="0 0 130 130" xmlns="http://www.w3.org/2000/svg">
+    <!-- Racket head (oval) -->
+    <ellipse cx="50" cy="50" rx="28" ry="32" fill="#fff" stroke="#1a1a1a" stroke-width="3"/>
+    <!-- Strings -->
+    <line x1="32" y1="38" x2="68" y2="38" stroke="#1a1a1a" stroke-width="1"/>
+    <line x1="28" y1="50" x2="72" y2="50" stroke="#1a1a1a" stroke-width="1"/>
+    <line x1="32" y1="62" x2="68" y2="62" stroke="#1a1a1a" stroke-width="1"/>
+    <line x1="42" y1="22" x2="42" y2="78" stroke="#1a1a1a" stroke-width="1"/>
+    <line x1="50" y1="20" x2="50" y2="80" stroke="#1a1a1a" stroke-width="1"/>
+    <line x1="58" y1="22" x2="58" y2="78" stroke="#1a1a1a" stroke-width="1"/>
+    <!-- Handle -->
+    <rect x="68" y="68" width="40" height="10" rx="3" transform="rotate(35 88 73)" fill="#8b5a2b" stroke="#1a1a1a" stroke-width="2"/>
+    <!-- Tennis ball -->
+    <circle cx="100" cy="40" r="11" fill="#d4ee5c" stroke="#1a1a1a" stroke-width="2.5"/>
+    <path d="M 91 38 Q 100 32 109 40" fill="none" stroke="white" stroke-width="1.5"/>
+    <path d="M 91 44 Q 100 50 109 42" fill="none" stroke="white" stroke-width="1.5"/>
+  </svg>`
+};
+
+// ============ SPEAKER SVGs (small) ============
+const SPEAKERS = {
+  thirsty: `<svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="30" cy="30" r="24" fill="#fff8e0" stroke="#1a1a1a" stroke-width="2.5"/>
+    <circle cx="22" cy="26" r="2" fill="#1a1a1a"/>
+    <circle cx="38" cy="26" r="2" fill="#1a1a1a"/>
+    <path d="M 22 38 Q 30 34 38 38" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+    <text x="40" y="20" font-size="14">💧</text>
+  </svg>`,
+  tired: `<svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="30" cy="30" r="24" fill="#fff8e0" stroke="#1a1a1a" stroke-width="2.5"/>
+    <path d="M 18 26 Q 22 30 26 26" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+    <path d="M 34 26 Q 38 30 42 26" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+    <ellipse cx="30" cy="40" rx="4" ry="5" fill="#1a1a1a"/>
+  </svg>`,
+  happy: `<svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="30" cy="30" r="24" fill="#fff8e0" stroke="#1a1a1a" stroke-width="2.5"/>
+    <path d="M 20 26 Q 23 22 26 26" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+    <path d="M 34 26 Q 37 22 40 26" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+    <path d="M 20 36 Q 30 46 40 36" fill="none" stroke="#1a1a1a" stroke-width="2.5"/>
+  </svg>`,
+  hungry: `<svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="30" cy="30" r="24" fill="#fff8e0" stroke="#1a1a1a" stroke-width="2.5"/>
+    <circle cx="22" cy="26" r="2" fill="#1a1a1a"/>
+    <circle cx="38" cy="26" r="2" fill="#1a1a1a"/>
+    <ellipse cx="30" cy="40" rx="6" ry="4" fill="#1a1a1a"/>
+    <text x="42" y="20" font-size="14">🍔</text>
+  </svg>`,
+  bored: `<svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="30" cy="30" r="24" fill="#f0f0f0" stroke="#1a1a1a" stroke-width="2.5"/>
+    <line x1="18" y1="26" x2="26" y2="26" stroke="#1a1a1a" stroke-width="2"/>
+    <line x1="34" y1="26" x2="42" y2="26" stroke="#1a1a1a" stroke-width="2"/>
+    <line x1="22" y1="40" x2="38" y2="40" stroke="#1a1a1a" stroke-width="2"/>
+  </svg>`
+};
+
+// ============ UTILS ============
+const $ = id => document.getElementById(id);
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  $(`${name}Screen`).classList.add('active');
+  state.currentScreen = name;
+}
+function showToast(msg, ms = 1800) {
+  const t = $('toast'); t.textContent = msg; t.classList.add('active');
+  setTimeout(() => t.classList.remove('active'), ms);
+}
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+function playSound(type) {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const o = ctx.createOscillator(); const g = ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    if (type === 'ding') {
+      o.frequency.value = 880; o.type = 'sine';
+      g.gain.setValueAtTime(0.15, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
+      o.start(); o.stop(ctx.currentTime + 0.2);
+    } else if (type === 'buzz') {
+      o.frequency.value = 180; o.type = 'sawtooth';
+      g.gain.setValueAtTime(0.1, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.18);
+      o.start(); o.stop(ctx.currentTime + 0.18);
+    } else if (type === 'pop') {
+      o.frequency.setValueAtTime(660, ctx.currentTime);
+      o.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.08);
+      o.type = 'sine';
+      g.gain.setValueAtTime(0.1, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.12);
+      o.start(); o.stop(ctx.currentTime + 0.12);
+    } else if (type === 'badge') {
+      o.frequency.setValueAtTime(523, ctx.currentTime);
+      o.frequency.setValueAtTime(659, ctx.currentTime + 0.1);
+      o.frequency.setValueAtTime(784, ctx.currentTime + 0.2);
+      o.type = 'triangle';
+      g.gain.setValueAtTime(0.15, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+      o.start(); o.stop(ctx.currentTime + 0.5);
+    }
+  } catch (e) {}
+}
+function spawnConfetti() {
+  const colors = ['#3a8fc7', '#ffd966', '#5cc77f', '#ff8a65', '#9078dc'];
+  const overlay = $('badgeOverlay');
+  for (let i = 0; i < 40; i++) {
+    const c = document.createElement('div');
+    c.className = 'confetti';
+    c.style.background = colors[Math.floor(Math.random() * colors.length)];
+    c.style.left = Math.random() * 100 + '%';
+    c.style.top = '-20px';
+    c.style.animation = `confettiFall ${1 + Math.random() * 1.5}s ease-out forwards`;
+    c.style.animationDelay = Math.random() * 0.3 + 's';
+    overlay.appendChild(c);
+    setTimeout(() => c.remove(), 2500);
+  }
+}
+
+function updateMenu() {
+  const earned = state.earnedBadges.size;
+  $('menuProgress').style.width = (earned / ALL_BADGES.length * 100) + '%';
+  $('menuProgressText').textContent = `${earned} / ${ALL_BADGES.length} badges`;
+}
+
+$('playBtn').addEventListener('click', () => {
+  if (!state.earnedBadges.has('feeling_master')) {
+    state.r1.stage = 0;
+    showRoundIntro(1);
+  } else if (!state.earnedBadges.has('smart_helper')) {
+    showRoundIntro(2);
+  } else if (!state.earnedBadges.has('action_master')) {
+    showRoundIntro(3);
+  } else {
+    showToast("All badges earned! 🎉");
+  }
+});
+$('gameCard').addEventListener('click', e => { if (e.target.id !== 'playBtn') $('playBtn').click(); });
+
+$('backBtn').addEventListener('click', () => { showScreen('menu'); updateMenu(); });
+$('trophyBtn').addEventListener('click', () => {
+  renderBottomSheet();
+  $('sheetOverlay').classList.add('active');
+  $('bottomSheet').classList.add('active');
+});
+$('sheetOverlay').addEventListener('click', () => {
+  $('sheetOverlay').classList.remove('active');
+  $('bottomSheet').classList.remove('active');
+});
+function renderBottomSheet() {
+  const earned = ALL_BADGES.filter(b => state.earnedBadges.has(b.id));
+  const locked = ALL_BADGES.filter(b => !state.earnedBadges.has(b.id));
+  $('sheetProgress').style.width = (earned.length / ALL_BADGES.length * 100) + '%';
+  $('sheetProgressText').textContent = `${earned.length} / ${ALL_BADGES.length} badges`;
+  $('sheetEarned').innerHTML = earned.length
+    ? earned.map(b => `<div class="sheet-badge"><div>${b.emoji}</div><div class="badge-label">${b.name}</div></div>`).join('')
+    : '<div style="grid-column: 1/-1; color: #4a6e8a; font-size: 13px; padding: 8px;">No badges yet. Play!</div>';
+  $('sheetLocked').innerHTML = locked.length
+    ? locked.map(b => `<div class="sheet-badge locked"><div>🔒</div><div class="badge-label">${b.name}</div></div>`).join('')
+    : '<div style="grid-column: 1/-1; color: #5cc77f; font-size: 13px; padding: 8px; font-weight: 700;">Complete! 🎉</div>';
+}
+
+// ============ ROUND INTRO ============
+function showRoundIntro(roundNum) {
+  state.pendingRoundStart = roundNum;
+  const intros = {
+    1: { num: 'ROUND 1', title: 'Feeling Words', emoji: '😊',
+         desc: 'Look at the face. Put the letters in order!' },
+    2: { num: 'ROUND 2', title: 'What Should We Do?', emoji: '🌟',
+         desc: "Read what they say. Drag the right answer!" },
+    3: { num: 'ROUND 3', title: "Let's Action!", emoji: '🎯',
+         desc: 'Look at the picture. Pick the right sentence!' }
+  };
+  const info = intros[roundNum];
+  $('introNum').textContent = info.num;
+  $('introTitle').textContent = info.title;
+  $('introEmoji').textContent = info.emoji;
+  $('introDesc').textContent = info.desc;
+  showScreen('intro');
+}
+$('introBtn').addEventListener('click', () => {
+  if (state.pendingRoundStart === 1) startR1();
+  else if (state.pendingRoundStart === 2) startR2();
+  else if (state.pendingRoundStart === 3) startR3();
+});
+
+// ============ ROUND 1 - ANAGRAM ============
+function startR1() {
+  loadR1Stage(state.r1.stage);
+  showScreen('r1');
+}
+
+function loadR1Stage(idx) {
+  const stage = R1_STAGES[idx];
+  state.r1.currentWord = stage.word;
+  state.r1.usedIndices = new Set();
+  state.r1.filledLetters = [];
+  state.r1.locked = false;
+
+  $('r1StageTitle').textContent = `STAGE ${idx + 1} / ${R1_STAGES.length}`;
+  $('faceSvgWrap').innerHTML = FACES[stage.face] || '';
+  $('faceHint').textContent = stage.hint;
+
+  // Build slots
+  const slotsEl = $('answerSlots');
+  slotsEl.innerHTML = '';
+  for (let i = 0; i < stage.word.length; i++) {
+    const s = document.createElement('div');
+    s.className = 'slot';
+    s.dataset.slotIdx = String(i);
+    s.addEventListener('click', () => {
+      if (state.r1.locked) return;
+      const slotIdx = parseInt(s.dataset.slotIdx, 10);
+      if (slotIdx >= state.r1.filledLetters.length) return;
+      const filled = state.r1.filledLetters[slotIdx];
+      if (filled) removeLetterFromSlot(filled.origIdx);
+    });
+    slotsEl.appendChild(s);
+  }
+
+  // Build letter pool (shuffled)
+  const letters = stage.word.split('');
+  let order;
+  do {
+    order = shuffle(letters.map((_, i) => i));
+  } while (letters.length > 1 && order.every((idx, i) => letters[idx] === letters[i])); // ensure not in original order
+
+  state.r1.letterOrder = order;
+  renderLetterPool();
+}
+
+function renderLetterPool() {
+  const letters = state.r1.currentWord.split('');
+  const poolEl = $('letterPool');
+  poolEl.innerHTML = '';
+  // Pool sadece kullanılmamış harfleri içersin, sırayla
+  state.r1.letterOrder.forEach((origIdx) => {
+    const b = document.createElement('div');
+    b.className = 'letter-bubble';
+    b.textContent = letters[origIdx];
+    b.dataset.origIdx = String(origIdx);
+    b.addEventListener('click', (ev) => {
+      ev.stopPropagation();
+      if (state.r1.locked) return;
+      const idx = parseInt(b.dataset.origIdx, 10);
+      onLetterPick(idx, b);
+    });
+    poolEl.appendChild(b);
+  });
+}
+
+function removeLetterFromSlot(origIdx) {
+  if (state.r1.locked) return;
+  const idx = state.r1.filledLetters.findIndex(f => f.origIdx === origIdx);
+  if (idx < 0) return;
+  // Remove from filledLetters
+  state.r1.filledLetters.splice(idx, 1);
+  state.r1.usedIndices.delete(origIdx);
+  // Pool'un SONUNA ekle (sağdan)
+  state.r1.letterOrder.push(origIdx);
+  // Re-render slots
+  const slots = document.querySelectorAll('#answerSlots .slot');
+  slots.forEach((s, i) => {
+    if (i < state.r1.filledLetters.length) {
+      s.textContent = state.r1.filledLetters[i].letter;
+      s.classList.add('filled');
+    } else {
+      s.textContent = '';
+      s.classList.remove('filled');
+    }
+  });
+  renderLetterPool();
+  playSound('pop');
+}
+
+function onLetterPick(origIdx, btn) {
+  if (state.r1.locked) return;
+  if (state.r1.usedIndices.has(origIdx)) return;
+  if (state.r1.filledLetters.length >= state.r1.currentWord.length) return;
+
+  state.r1.usedIndices.add(origIdx);
+  // letterOrder'dan çıkar
+  state.r1.letterOrder = state.r1.letterOrder.filter(i => i !== origIdx);
+  const letter = state.r1.currentWord.charAt(origIdx);
+  state.r1.filledLetters.push({ origIdx, letter });
+  playSound('pop');
+
+  // Update slots
+  const slots = document.querySelectorAll('#answerSlots .slot');
+  const slot = slots[state.r1.filledLetters.length - 1];
+  slot.textContent = letter;
+  slot.classList.add('filled');
+
+
+  // Pool'u yeniden çiz (kullanılmış harf gitmiş olacak)
+  renderLetterPool();
+
+  if (state.r1.filledLetters.length === state.r1.currentWord.length) {
+    checkR1Answer();
+  }
+}
+
+function checkR1Answer() {
+  const guess = state.r1.filledLetters.map(f => f.letter).join('');
+  const target = state.r1.currentWord;
+  const slots = document.querySelectorAll('#answerSlots .slot');
+
+  if (guess === target) {
+    // CORRECT
+    state.r1.locked = true;
+    playSound('ding');
+    slots.forEach((s, i) => {
+      setTimeout(() => {
+        s.classList.remove('filled');
+        s.classList.add('correct');
+      }, i * 80);
+    });
+    state.totalScore += 5;
+    $('hudScore').textContent = `Score: ${state.totalScore}`;
+
+    // Show success banner
+    setTimeout(() => {
+      const banner = $('successBanner');
+      banner.textContent = `Great! ${target} ✨`;
+      banner.classList.add('visible');
+    }, 600);
+
+    // Next stage
+    setTimeout(() => {
+      $('successBanner').classList.remove('visible');
+      state.r1.stage++;
+      if (state.r1.stage < R1_STAGES.length) {
+        loadR1Stage(state.r1.stage);
+        showScreen('r1');
+      } else {
+        // Round 1 finished → Feeling Master badge
+        awardBadge('feeling_master', () => showRoundIntro(2));
+      }
+    }, 1800);
+  } else {
+    // WRONG
+    state.r1.locked = true;
+    playSound('buzz');
+    slots.forEach(s => {
+      s.classList.remove('filled');
+      s.classList.add('wrong');
+    });
+    setTimeout(() => {
+      // Reset
+      slots.forEach(s => {
+        s.classList.remove('wrong');
+        s.textContent = '';
+      });
+      state.r1.usedIndices = new Set();
+      state.r1.filledLetters = [];
+      // letterOrder'ı yeniden kur (tüm harfler shuffled olarak)
+      const letters = state.r1.currentWord.split('');
+      let order;
+      do {
+        order = shuffle(letters.map((_, i) => i));
+      } while (letters.length > 1 && order.every((idx, i) => letters[idx] === letters[i]));
+      state.r1.letterOrder = order;
+      renderLetterPool();
+      state.r1.locked = false;
+    }, 1100);
+  }
+}
+
+// ============ ROUND 2 - SUGGESTION MATCH ============
+function startR2() {
+  state.r2.qIndex = 0;
+  state.r2.locked = false;
+  loadR2Question();
+  showScreen('r2');
+}
+
+function loadR2Question() {
+  const item = R2_ITEMS[state.r2.qIndex];
+  state.r2.locked = false;
+
+  $('r2Counter').textContent = `${state.r2.qIndex + 1} / ${R2_ITEMS.length}`;
+  $('speakerSvg').innerHTML = SPEAKERS[item.speakerType] || SPEAKERS.happy;
+  $('situationBubble').textContent = item.situation;
+
+  const respBubble = $('responseBubble');
+  respBubble.textContent = 'drag here';
+  respBubble.classList.remove('response');
+  respBubble.classList.add('empty');
+
+  // Build response pool (1 answer + 2 distractors, shuffled)
+  const options = shuffle([item.answer, ...item.distractors]);
+  const poolEl = $('responsePool');
+  poolEl.innerHTML = '';
+  options.forEach(text => {
+    const card = document.createElement('div');
+    card.className = 'response-card';
+    card.textContent = text;
+    card.dataset.text = text;
+    attachR2DragHandlers(card);
+    poolEl.appendChild(card);
+  });
+}
+
+function attachR2DragHandlers(card) {
+  let dragging = false, startX, startY, origLeft, origTop, dragGhost = null;
+  const onStart = (e) => {
+    if (state.r2.locked) return;
+    e.preventDefault();
+    const point = e.touches ? e.touches[0] : e;
+    startX = point.clientX; startY = point.clientY;
+    const rect = card.getBoundingClientRect();
+    origLeft = rect.left; origTop = rect.top;
+    dragGhost = card.cloneNode(true);
+    dragGhost.classList.add('dragging');
+    dragGhost.style.position = 'fixed';
+    dragGhost.style.left = rect.left + 'px';
+    dragGhost.style.top = rect.top + 'px';
+    dragGhost.style.width = rect.width + 'px';
+    dragGhost.style.pointerEvents = 'none';
+    dragGhost.style.zIndex = '200';
+    document.body.appendChild(dragGhost);
+    card.style.opacity = '0.3';
+    dragging = true;
+  };
+  const onMove = (e) => {
+    if (!dragging || !dragGhost) return;
+    e.preventDefault();
+    const point = e.touches ? e.touches[0] : e;
+    dragGhost.style.left = (origLeft + point.clientX - startX) + 'px';
+    dragGhost.style.top = (origTop + point.clientY - startY) + 'px';
+    const elBelow = document.elementFromPoint(point.clientX, point.clientY);
+    document.querySelectorAll('.bubble.empty').forEach(b => b.classList.remove('drag-over'));
+    if (elBelow) {
+      const bubble = elBelow.closest('.bubble.empty');
+      if (bubble) bubble.classList.add('drag-over');
+    }
+  };
+  const onEnd = (e) => {
+    if (!dragging) return;
+    dragging = false;
+    const point = e.changedTouches ? e.changedTouches[0] : e;
+    const elBelow = document.elementFromPoint(point.clientX, point.clientY);
+    const bubble = elBelow ? elBelow.closest('.bubble.empty') : null;
+    document.querySelectorAll('.bubble.empty').forEach(b => b.classList.remove('drag-over'));
+    if (dragGhost) { dragGhost.remove(); dragGhost = null; }
+    card.style.opacity = '';
+    if (bubble) handleR2Drop(card);
+  };
+  card.addEventListener('touchstart', onStart, { passive: false });
+  card.addEventListener('touchmove', onMove, { passive: false });
+  card.addEventListener('touchend', onEnd);
+  card.addEventListener('mousedown', onStart);
+  document.addEventListener('mousemove', onMove);
+  document.addEventListener('mouseup', onEnd);
+}
+
+function handleR2Drop(card) {
+  if (state.r2.locked) return;
+  const item = R2_ITEMS[state.r2.qIndex];
+  const text = card.dataset.text;
+  const respBubble = $('responseBubble');
+
+  if (text === item.answer) {
+    state.r2.locked = true;
+    playSound('ding');
+    card.classList.add('flash-correct');
+    respBubble.textContent = text;
+    respBubble.classList.remove('empty');
+    respBubble.classList.add('response');
+    state.totalScore += 5;
+    $('hudScore').textContent = `Score: ${state.totalScore}`;
+    setTimeout(() => {
+      card.classList.add('fly-out');
+      setTimeout(() => {
+        state.r2.qIndex++;
+        if (state.r2.qIndex >= R2_ITEMS.length) {
+          awardBadge('smart_helper', () => showRoundIntro(3));
+        } else {
+          loadR2Question();
+        }
+      }, 400);
+    }, 1100);
+  } else {
+    playSound('buzz');
+    card.classList.add('shake');
+    setTimeout(() => card.classList.remove('shake'), 600);
+  }
+}
+
+// ============ ROUND 3 - ACTION MATCH ============
+function startR3() {
+  state.r3.qIndex = 0;
+  state.r3.locked = false;
+  loadR3Question();
+  showScreen('r3');
+}
+
+function loadR3Question() {
+  const item = R3_ITEMS[state.r3.qIndex];
+  state.r3.locked = false;
+
+  $('r3Counter').textContent = `${state.r3.qIndex + 1} / ${R3_ITEMS.length}`;
+  $('actionSvgWrap').innerHTML = ACTIONS[item.svg] || '';
+  $('actionResult').textContent = '';
+  $('actionResult').classList.remove('visible', 'correct', 'wrong');
+
+  const options = shuffle([item.answer, ...item.distractors]);
+  const optsEl = $('actionOptions');
+  optsEl.innerHTML = '';
+  options.forEach(text => {
+    const b = document.createElement('button');
+    b.className = 'option-btn';
+    b.textContent = text;
+    b.dataset.text = text;
+    b.addEventListener('click', () => onR3Pick(text, b));
+    optsEl.appendChild(b);
+  });
+}
+
+function onR3Pick(text, btn) {
+  if (state.r3.locked) return;
+  const item = R3_ITEMS[state.r3.qIndex];
+  $('actionCard').classList.add('bounce');
+  setTimeout(() => $('actionCard').classList.remove('bounce'), 500);
+
+  if (text === item.answer) {
+    state.r3.locked = true;
+    playSound('ding');
+    btn.classList.add('flash-correct');
+    document.querySelectorAll('.option-btn').forEach(b => b.disabled = true);
+    $('actionResult').textContent = '✓ Yes!';
+    $('actionResult').classList.add('visible', 'correct');
+    state.totalScore += 5;
+    $('hudScore').textContent = `Score: ${state.totalScore}`;
+    setTimeout(() => {
+      state.r3.qIndex++;
+      if (state.r3.qIndex >= R3_ITEMS.length) {
+        awardBadge('action_master', () => { showScreen('menu'); updateMenu(); });
+      } else {
+        loadR3Question();
+      }
+    }, 1200);
+  } else {
+    playSound('buzz');
+    btn.classList.add('flash-wrong');
+    $('actionResult').textContent = 'Try again!';
+    $('actionResult').classList.add('visible', 'wrong');
+    setTimeout(() => {
+      btn.classList.remove('flash-wrong');
+      $('actionResult').textContent = '';
+      $('actionResult').classList.remove('visible', 'wrong');
+    }, 1100);
+  }
+}
+
+// ============ BADGE ============
+let badgeContinueCallback = null;
+function awardBadge(id, onContinue) {
+  const b = ALL_BADGES.find(x => x.id === id);
+  if (!b) { if (onContinue) onContinue(); return; }
+  state.earnedBadges.add(id);
+  $('badgeEmoji').textContent = b.emoji;
+  $('badgeName').textContent = b.name;
+  $('badgeMessage').textContent = b.desc;
+  badgeContinueCallback = onContinue;
+  $('badgeOverlay').classList.add('active');
+  playSound('badge');
+  spawnConfetti();
+}
+$('badgeBtn').addEventListener('click', () => {
+  $('badgeOverlay').classList.remove('active');
+  const cb = badgeContinueCallback;
+  badgeContinueCallback = null;
+  if (cb) cb();
+});
+
+updateMenu();
+</script>
+
+</body>
+</html>

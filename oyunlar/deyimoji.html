@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deyimoji</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/twemoji.min.js" crossorigin="anonymous"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; user-select: none; }
+  body {
+    display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(135deg, #3a1f3a 0%, #1a0f1a 100%);
+    min-height: 100vh; padding: 20px;
+  }
+  .device {
+    width: 390px; height: 780px; max-height: 95vh;
+    background: linear-gradient(180deg, #fef0f5 0%, #fbd8e5 100%);
+    border-radius: 36px; overflow: hidden; position: relative;
+    box-shadow: 0 25px 60px rgba(0,0,0,0.4);
+  }
+  .hud {
+    position: absolute; top: 0; left: 0; right: 0; height: 60px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 16px; z-index: 100;
+    background: rgba(255,255,255,0.5); backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255,255,255,0.5);
+  }
+  .hud-btn {
+    width: 40px; height: 40px; border-radius: 50%; border: none; cursor: pointer;
+    background: rgba(255,255,255,0.8);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; color: #5a2a4a; transition: transform 0.15s;
+  }
+  .hud-btn:active { transform: scale(0.92); }
+  .hud-score {
+    font-weight: 700; color: #5a2a4a; font-size: 16px;
+    background: rgba(255,255,255,0.8); padding: 8px 16px; border-radius: 20px;
+  }
+  .hud-trophy { font-size: 22px; }
+  .hud-trophy img.emoji { height: 24px; width: 24px; }
+  .screen {
+    position: absolute; top: 60px; left: 0; right: 0; bottom: 0;
+    overflow-y: auto; overflow-x: hidden; display: none; flex-direction: column;
+  }
+  .screen.active { display: flex; }
+  .menu-screen { padding: 24px 20px; }
+  .menu-screen.active { justify-content: center; }
+  .game-card {
+    background: white; border-radius: 24px; padding: 24px;
+    box-shadow: 0 8px 24px rgba(90,42,74,0.15);
+    border: 3px solid #c44a8a; cursor: pointer; transition: transform 0.2s;
+  }
+  .game-card:active { transform: scale(0.97); }
+  .game-card-emoji { font-size: 56px; text-align: center; margin-bottom: 12px; display: flex; justify-content: center; }
+  .game-card-emoji img.emoji { height: 56px; width: 56px; }
+  .game-card-title { font-size: 22px; font-weight: 700; color: #5a2a4a; text-align: center; margin-bottom: 6px; }
+  .game-card-desc { font-size: 13px; color: #8a5a7a; text-align: center; margin-bottom: 16px; }
+  .progress-bar { height: 10px; background: #f5e0eb; border-radius: 5px; overflow: hidden; margin-bottom: 8px; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, #c44a8a, #e87aa8); border-radius: 5px; transition: width 0.5s; }
+  .progress-text { font-size: 12px; color: #8a5a7a; text-align: center; }
+  .play-cta {
+    margin-top: 20px; padding: 14px; background: #c44a8a; color: white;
+    border: none; border-radius: 16px; font-size: 16px; font-weight: 700;
+    width: 100%; cursor: pointer;
+  }
+  .play-cta:active { transform: scale(0.97); }
+
+  .round-intro {
+    padding: 40px 24px; text-align: center;
+    display: flex; flex-direction: column; justify-content: center; height: 100%;
+  }
+  .round-intro-num { font-size: 14px; color: #c44a8a; font-weight: 700; letter-spacing: 2px; }
+  .round-intro-title { font-size: 30px; font-weight: 800; color: #5a2a4a; margin: 8px 0 20px; }
+  .round-intro-emoji { font-size: 80px; margin: 24px 0; animation: bounce 1.2s ease-in-out infinite; display: flex; justify-content: center; }
+  .round-intro-emoji img.emoji { height: 80px; width: 80px; }
+  .round-intro-desc { font-size: 16px; color: #5a2a4a; margin-bottom: 32px; line-height: 1.5; padding: 0 12px; }
+  .round-intro-btn {
+    padding: 16px 40px; background: #c44a8a; color: white; border: none;
+    border-radius: 20px; font-size: 18px; font-weight: 700; cursor: pointer;
+    box-shadow: 0 6px 20px rgba(196,74,138,0.4);
+  }
+  .round-intro-btn:active { transform: scale(0.96); }
+
+  .stage-info {
+    background: white; padding: 10px 14px; border-radius: 14px; margin-bottom: 10px;
+    display: flex; justify-content: center; align-items: center;
+  }
+  .stage-counter { background: #c44a8a; color: white; padding: 6px 16px; border-radius: 12px; font-weight: 700; font-size: 13px; }
+  .instruction {
+    background: linear-gradient(135deg, #ffd966, #ffb84d);
+    color: #5a2a4a; padding: 10px 14px; border-radius: 12px; margin-bottom: 12px;
+    font-size: 14px; font-weight: 700; text-align: center;
+  }
+
+  /* Round 1 - emoji scene */
+  .scene-card {
+    background: white; border-radius: 22px; padding: 20px 14px;
+    box-shadow: 0 8px 20px rgba(90,42,74,0.12);
+    margin-bottom: 14px; text-align: center;
+    border: 3px solid #c44a8a;
+    transition: transform 0.3s;
+    min-height: 180px;
+  }
+  .scene-card.bounce { animation: cardBounce 0.5s; }
+  .emoji-scene {
+    display: flex; align-items: center; justify-content: center;
+    gap: 10px; flex-wrap: wrap;
+    min-height: 120px;
+    margin-bottom: 8px;
+    padding: 8px 4px;
+  }
+  .emoji-scene img.emoji {
+    height: 64px; width: 64px;
+    animation: emojiFloat 2.5s ease-in-out infinite;
+    filter: drop-shadow(0 3px 6px rgba(0,0,0,0.12));
+  }
+  .emoji-scene img.emoji:nth-child(2) { animation-delay: 0.25s; }
+  .emoji-scene img.emoji:nth-child(3) { animation-delay: 0.5s; }
+  .emoji-scene img.emoji:nth-child(4) { animation-delay: 0.75s; }
+  .result-text {
+    font-size: 14px; color: #8a5a7a; margin-top: 6px; font-weight: 700;
+    opacity: 0; transition: opacity 0.4s; min-height: 18px;
+  }
+  .result-text.visible { opacity: 1; }
+  .result-text.correct { color: #3a9d5c; }
+  .result-text.wrong { color: #c44; }
+
+  /* Round 2 - text card */
+  .idiom-card {
+    background: white; border-radius: 22px; padding: 24px 16px;
+    box-shadow: 0 8px 20px rgba(90,42,74,0.12);
+    margin-bottom: 14px; text-align: center;
+    border: 3px solid #c44a8a;
+    min-height: 120px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    transition: transform 0.3s;
+  }
+  .idiom-card.bounce { animation: cardBounce 0.5s; }
+  .idiom-text {
+    font-size: 24px; font-weight: 800; color: #5a2a4a;
+    margin-bottom: 6px;
+  }
+
+  .options-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+  }
+  .options-stack {
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .opt-btn {
+    background: white; border: 2px solid transparent;
+    border-radius: 14px; padding: 12px 10px; cursor: pointer;
+    font-size: 13px; font-weight: 700; color: #5a2a4a;
+    box-shadow: 0 4px 12px rgba(90,42,74,0.1);
+    transition: transform 0.15s, box-shadow 0.3s;
+    line-height: 1.3;
+    text-align: center;
+  }
+  .opt-btn.text-left { text-align: left; padding: 12px 14px; }
+  .opt-btn:active:not(:disabled) { transform: scale(0.97); }
+  .opt-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .opt-btn.flash-correct { box-shadow: 0 0 20px #5cc77f; border-color: #5cc77f; background: #d4edd9; }
+  .opt-btn.flash-wrong { box-shadow: 0 0 20px #e57373; border-color: #e57373; animation: shake 0.5s; background: #ffd0d0; }
+
+  /* Badge */
+  .badge-overlay {
+    position: absolute; inset: 0; z-index: 200;
+    background: rgba(58,31,58,0.85); backdrop-filter: blur(8px);
+    display: none; flex-direction: column; align-items: center; justify-content: center;
+    padding: 24px;
+  }
+  .badge-overlay.active { display: flex; }
+  .badge-emoji {
+    font-size: 100px; animation: badgeBounce 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+    margin-bottom: 16px; filter: drop-shadow(0 8px 20px rgba(255,217,102,0.5));
+    display: flex; justify-content: center;
+  }
+  .badge-emoji img.emoji { height: 100px; width: 100px; }
+  .badge-name { font-size: 26px; font-weight: 800; color: white; margin-bottom: 8px; text-align: center; }
+  .badge-message { font-size: 15px; color: #f5d8e8; margin-bottom: 28px; text-align: center; line-height: 1.5; padding: 0 12px; }
+  .badge-btn {
+    padding: 14px 36px; background: #c44a8a; color: white; border: none;
+    border-radius: 18px; font-size: 16px; font-weight: 700; cursor: pointer;
+    box-shadow: 0 6px 20px rgba(196,74,138,0.5);
+  }
+  .badge-btn:active { transform: scale(0.96); }
+  .confetti { position: absolute; width: 8px; height: 8px; pointer-events: none; z-index: 199; }
+
+  .sheet-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.4); z-index: 150; display: none; }
+  .sheet-overlay.active { display: block; }
+  .bottom-sheet {
+    position: absolute; bottom: 0; left: 0; right: 0; max-height: 70%;
+    background: white; border-radius: 24px 24px 0 0; padding: 20px;
+    z-index: 151; transform: translateY(100%); transition: transform 0.3s;
+    overflow-y: auto;
+  }
+  .bottom-sheet.active { transform: translateY(0); }
+  .sheet-handle { width: 40px; height: 4px; background: #f0d0e0; border-radius: 2px; margin: 0 auto 16px; }
+  .sheet-title { font-size: 18px; font-weight: 800; color: #5a2a4a; margin-bottom: 12px; }
+  .sheet-progress { background: #fef0f5; border-radius: 12px; padding: 12px; margin-bottom: 16px; }
+  .sheet-progress-text { font-size: 13px; font-weight: 700; color: #8a5a7a; margin-bottom: 6px; }
+  .sheet-section-title { font-size: 14px; font-weight: 700; color: #5a2a4a; margin: 12px 0 8px; }
+  .sheet-badges { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .sheet-badge { aspect-ratio: 1; background: #fef0f5; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 28px; padding: 4px; }
+  .sheet-badge img.emoji { height: 32px; width: 32px; }
+  .sheet-badge.locked { filter: grayscale(1); opacity: 0.5; border: 2px dashed #d8a4c0; background: white; }
+  .sheet-badge .badge-label { font-size: 9px; color: #8a5a7a; margin-top: 4px; text-align: center; font-weight: 700; line-height: 1.1; }
+
+  .toast {
+    position: absolute; top: 80px; left: 20px; right: 20px;
+    background: rgba(90,42,74,0.95); color: white; padding: 12px 16px;
+    border-radius: 12px; text-align: center; font-weight: 600; font-size: 14px;
+    z-index: 110; opacity: 0; transition: opacity 0.3s; pointer-events: none;
+  }
+  .toast.active { opacity: 1; }
+
+  .game-screen { padding: 14px; }
+
+  /* Inline emoji image default */
+  img.emoji {
+    height: 1em; width: 1em;
+    margin: 0 .05em 0 .1em;
+    vertical-align: -0.1em;
+    display: inline-block;
+  }
+
+  @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+  @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+  @keyframes emojiFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+  @keyframes badgeBounce { 0% { transform: scale(0) rotate(-180deg); } 60% { transform: scale(1.2) rotate(20deg); } 100% { transform: scale(1) rotate(0deg); } }
+  @keyframes confettiFall { 0% { transform: translateY(0) rotate(0); opacity: 1; } 100% { transform: translateY(600px) rotate(720deg); opacity: 0; } }
+  @keyframes cardBounce { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.04); } }
+</style>
+</head>
+<body>
+
+<div class="device" id="device">
+  <div class="hud" id="hud">
+    <button class="hud-btn" id="backBtn">←</button>
+    <div class="hud-score" id="hudScore">Skor: 0</div>
+    <button class="hud-btn hud-trophy" id="trophyBtn">🏆</button>
+  </div>
+  <div class="toast" id="toast"></div>
+
+  <div class="screen menu-screen active" id="menuScreen">
+    <div class="game-card" id="gameCard">
+      <div class="game-card-emoji">🖼️</div>
+      <div class="game-card-title">Deyimoji</div>
+      <div class="game-card-desc">Sahneye bak, deyimi bul. Anlamını tahmin et!</div>
+      <div class="progress-bar"><div class="progress-fill" id="menuProgress" style="width: 0%"></div></div>
+      <div class="progress-text" id="menuProgressText">0 / 2 rozet</div>
+      <button class="play-cta" id="playBtn">▶ Oyna</button>
+    </div>
+  </div>
+
+  <div class="screen" id="introScreen">
+    <div class="round-intro">
+      <div class="round-intro-num" id="introNum">ROUND 1</div>
+      <div class="round-intro-title" id="introTitle">Resimden Deyim</div>
+      <div class="round-intro-emoji" id="introEmoji">🖼️</div>
+      <div class="round-intro-desc" id="introDesc">Sahneye dikkatlice bak. Bu hangi deyim?</div>
+      <button class="round-intro-btn" id="introBtn">Başla! ▶</button>
+    </div>
+  </div>
+
+  <div class="screen game-screen" id="r1Screen">
+    <div class="stage-info"><div class="stage-counter" id="r1Counter">1 / 13</div></div>
+    <div class="instruction">Resimdeki deyim hangisi?</div>
+    <div class="scene-card" id="r1Card">
+      <div class="emoji-scene" id="r1Scene"></div>
+      <div class="result-text" id="r1Result"></div>
+    </div>
+    <div class="options-grid" id="r1Options"></div>
+  </div>
+
+  <div class="screen game-screen" id="r2Screen">
+    <div class="stage-info"><div class="stage-counter" id="r2Counter">1 / 10</div></div>
+    <div class="instruction">Bu deyimin anlamı ne?</div>
+    <div class="idiom-card" id="r2Card">
+      <div class="idiom-text" id="r2IdiomText"></div>
+      <div class="result-text" id="r2Result"></div>
+    </div>
+    <div class="options-stack" id="r2Options"></div>
+  </div>
+
+  <div class="badge-overlay" id="badgeOverlay">
+    <div class="badge-emoji" id="badgeEmoji">🖼️</div>
+    <div class="badge-name" id="badgeName">Resim Okuyucu</div>
+    <div class="badge-message" id="badgeMessage">Harika!</div>
+    <button class="badge-btn" id="badgeBtn">▶ Devam Et</button>
+  </div>
+
+  <div class="sheet-overlay" id="sheetOverlay"></div>
+  <div class="bottom-sheet" id="bottomSheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">🏆 Rozet Koleksiyonu</div>
+    <div class="sheet-progress">
+      <div class="sheet-progress-text" id="sheetProgressText">0 / 2 rozet</div>
+      <div class="progress-bar"><div class="progress-fill" id="sheetProgress" style="width: 0%"></div></div>
+    </div>
+    <div class="sheet-section-title">Kazandıkların</div>
+    <div class="sheet-badges" id="sheetEarned"></div>
+    <div class="sheet-section-title">Keşfedilmemiş</div>
+    <div class="sheet-badges" id="sheetLocked"></div>
+  </div>
+</div>
+
+<script>
+const state = {
+  currentScreen: 'menu',
+  earnedBadges: new Set(),
+  totalScore: 0,
+  pendingRoundStart: null,
+  r1: { qIndex: 0, locked: false, questions: [], wrongTimer: null },
+  r2: { qIndex: 0, locked: false, questions: [], wrongTimer: null }
+};
+
+const ALL_BADGES = [
+  { id: 'resim_okuyucu', emoji: '🖼️', name: 'Resim Okuyucu', desc: "Her sahnenin lafını çözdün! Sen tam bir resim okuyucususun!" },
+  { id: 'anlam_avcisi',  emoji: '📖', name: 'Anlam Avcısı',  desc: "Deyimlerin gizli anlamlarını çözdün!" }
+];
+
+// ============ EMOJI SAHNELERİ ============
+const SCENES = {
+  hapi_yutmak:     ['💊', '🤢'],              // Hap + bulantı
+  tas_yurekli:     ['🪨', '❤️'],              // Taş + kalp
+  gozden_kacmak:   ['👁️', '🏃‍♀️'],            // Göz + koşan kişi
+  kara_dusunmek:   ['⬛', '⬛', '🤔'],         // Siyah + siyah + düşünen
+  basina_corap:    ['👦', '🧦', '🧶'],         // Kişi + çorap + iplik
+  selam_kesmek:    ['👋', '✂️', '🙋'],         // El sallayan + makas + el sallayan
+  tepeden_bakmak:  ['🧍', '⛰️', '👀'],         // Kişi + dağ + bakan göz
+  pabuc_dama:      ['🏠', '⬆️', '👞'],         // Ev + yukarı + ayakkabı
+  etekleri_zil:    ['👗', '🔔', '🎉'],         // Etek + zil + kutlama
+  kulak_kabart:    ['👂', '📣'],               // Kulak + duyuru
+  daldan_dala:     ['🌳', '🐦', '🌲'],         // Ağaç + kuş + ağaç
+  yumurta_kapi:    ['🥚', '🚪'],               // Yumurta + kapı
+  ok_yay:          ['🏹', '💨']                // Yay+ok + hız
+};
+
+const R1_QUESTIONS = [
+  { scene: 'hapi_yutmak', answer: 'Hapı yutmak',
+    distractors: ['Hapı çiğnemek', 'Hapı saklamak', 'Hapı eritmek'] },
+  { scene: 'tas_yurekli', answer: 'Taş yürekli',
+    distractors: ['Tahta yürekli', 'Demir yürekli', 'Cam yürekli'] },
+  { scene: 'gozden_kacmak', answer: 'Gözden kaçmak',
+    distractors: ['Gözden silinmek', 'Gözden uçmak', 'Gözden saklanmak'] },
+  { scene: 'kara_dusunmek', answer: 'Kara kara düşünmek',
+    distractors: ['Sarı sarı düşünmek', 'Mavi mavi düşünmek', 'Beyaz beyaz düşünmek'] },
+  { scene: 'basina_corap', answer: 'Başına çorap örmek',
+    distractors: ['Başına kazak örmek', 'Başına atkı örmek', 'Başına eldiven örmek'] },
+  { scene: 'selam_kesmek', answer: 'Selamı sabahı kesmek',
+    distractors: ['Selamı sabahı dikmek', 'Selamı sabahı bağlamak', 'Selamı sabahı boyamak'] },
+  { scene: 'tepeden_bakmak', answer: 'Tepeden bakmak',
+    distractors: ['Vadiden bakmak', 'Köprüden bakmak', 'Kapıdan bakmak'] },
+  { scene: 'pabuc_dama', answer: 'Pabucu dama atılmak',
+    distractors: ['Pabucu bahçeye atılmak', 'Pabucu denize atılmak', 'Pabucu rafa atılmak'] },
+  { scene: 'etekleri_zil', answer: 'Etekleri zil çalmak',
+    distractors: ['Etekleri davul çalmak', 'Etekleri flüt çalmak', 'Etekleri şarkı söylemek'] },
+  { scene: 'kulak_kabart', answer: 'Kulak kabartmak',
+    distractors: ['Kulak şişirmek', 'Kulak uzatmak', 'Kulak renklendirmek'] },
+  { scene: 'daldan_dala', answer: 'Daldan dala konmak',
+    distractors: ['Yerden dala konmak', 'Buluttan dala konmak', 'Pencereden dala konmak'] },
+  { scene: 'yumurta_kapi', answer: 'Yumurta kapıya dayandı',
+    distractors: ['Yumurta bardağa dayandı', 'Yumurta masaya dayandı', 'Yumurta pencereye dayandı'] },
+  { scene: 'ok_yay', answer: 'Ok yaydan çıktı',
+    distractors: ['Ok kutudan çıktı', 'Ok çantadan çıktı', 'Ok şapkadan çıktı'] }
+];
+
+const R2_QUESTIONS = [
+  { idiom: 'Hapı yutmak', answer: 'Kötü bir duruma düşmek',
+    distractors: ['İlaç içmek', 'Hasta olmak', 'Yemek yemek'] },
+  { idiom: 'Taş yürekli', answer: 'Acımasız, duygusuz olmak',
+    distractors: ['Çok güçlü olmak', 'Hasta olmak', 'Cesur olmak'] },
+  { idiom: 'Gözden kaçmak', answer: 'Fark edilmemek, görülmemek',
+    distractors: ['Hızlı koşmak', 'Saklanmak', 'Uyumak'] },
+  { idiom: 'Kara kara düşünmek', answer: 'Üzüntüyle uzun uzun düşünmek',
+    distractors: ['Ders çalışmak', 'Karanlıkta oturmak', 'Bir karar vermek'] },
+  { idiom: 'Başına çorap örmek', answer: 'Birine kötülük yapmak için plan kurmak',
+    distractors: ['Birine hediye almak', 'El işi yapmak', 'Soğuktan korumak'] },
+  { idiom: 'Tepeden bakmak', answer: 'Kendini başkalarından üstün görmek',
+    distractors: ['Yüksek yerden bakmak', 'Çok şaşırmak', 'Çok sevinmek'] },
+  { idiom: 'Pabucu dama atılmak', answer: 'Değerini kaybedip beğenilmemek',
+    distractors: ['Eşyasını kaybetmek', 'Çatıya çıkmak', 'Hata yapmak'] },
+  { idiom: 'Etekleri zil çalmak', answer: 'Çok sevinmek, mutlu olmak',
+    distractors: ['Müzik dinlemek', 'Çok üzülmek', 'Korkmak'] },
+  { idiom: 'Kulak kabartmak', answer: 'Dikkatle dinlemek',
+    distractors: ['Çok yemek yemek', 'Sessizce uyumak', 'Yüksek sesle bağırmak'] },
+  { idiom: 'Daldan dala konmak', answer: 'Bir konudan diğerine geçmek, kararsız olmak',
+    distractors: ['Ağaca tırmanmak', 'Kuş gibi uçmak', 'Bahçede oynamak'] }
+];
+
+const $ = id => document.getElementById(id);
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  $(`${name}Screen`).classList.add('active');
+  state.currentScreen = name;
+}
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+function showToast(msg, ms = 1800) {
+  const t = $('toast'); t.textContent = msg; t.classList.add('active');
+  setTimeout(() => t.classList.remove('active'), ms);
+}
+function playSound(type) {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const o = ctx.createOscillator(); const g = ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    if (type === 'ding') {
+      o.frequency.value = 880; o.type = 'sine';
+      g.gain.setValueAtTime(0.15, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
+      o.start(); o.stop(ctx.currentTime + 0.2);
+    } else if (type === 'buzz') {
+      o.frequency.value = 180; o.type = 'sawtooth';
+      g.gain.setValueAtTime(0.1, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.18);
+      o.start(); o.stop(ctx.currentTime + 0.18);
+    } else if (type === 'badge') {
+      o.frequency.setValueAtTime(523, ctx.currentTime);
+      o.frequency.setValueAtTime(659, ctx.currentTime + 0.1);
+      o.frequency.setValueAtTime(784, ctx.currentTime + 0.2);
+      o.type = 'triangle';
+      g.gain.setValueAtTime(0.15, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+      o.start(); o.stop(ctx.currentTime + 0.5);
+    }
+  } catch (e) {}
+}
+function spawnConfetti() {
+  const colors = ['#c44a8a', '#ffd966', '#5cc77f', '#ff8a65', '#9078dc'];
+  const overlay = $('badgeOverlay');
+  for (let i = 0; i < 40; i++) {
+    const c = document.createElement('div');
+    c.className = 'confetti';
+    c.style.background = colors[Math.floor(Math.random() * colors.length)];
+    c.style.left = Math.random() * 100 + '%';
+    c.style.top = '-20px';
+    c.style.animation = `confettiFall ${1 + Math.random() * 1.5}s ease-out forwards`;
+    c.style.animationDelay = Math.random() * 0.3 + 's';
+    overlay.appendChild(c);
+    setTimeout(() => c.remove(), 2500);
+  }
+}
+
+// TWEMOJI HELPER - tüm DOM'daki emoji'leri iOS tarzına çevir
+function applyTwemoji(rootEl) {
+  if (window.twemoji) {
+    twemoji.parse(rootEl || document.body, {
+      folder: 'svg',
+      ext: '.svg',
+      base: 'https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/'
+    });
+  }
+}
+
+function updateMenu() {
+  const earned = state.earnedBadges.size;
+  $('menuProgress').style.width = (earned / ALL_BADGES.length * 100) + '%';
+  $('menuProgressText').textContent = `${earned} / ${ALL_BADGES.length} rozet`;
+}
+
+$('playBtn').addEventListener('click', () => {
+  if (state.earnedBadges.size === ALL_BADGES.length) {
+    state.earnedBadges.clear();
+    state.totalScore = 0;
+    $('hudScore').textContent = 'Skor: 0';
+    updateMenu();
+  }
+  if (!state.earnedBadges.has('resim_okuyucu')) showRoundIntro(1);
+  else if (!state.earnedBadges.has('anlam_avcisi')) showRoundIntro(2);
+});
+$('gameCard').addEventListener('click', e => { if (e.target.id !== 'playBtn') $('playBtn').click(); });
+
+$('backBtn').addEventListener('click', () => { showScreen('menu'); updateMenu(); });
+$('trophyBtn').addEventListener('click', () => {
+  renderBottomSheet();
+  $('sheetOverlay').classList.add('active');
+  $('bottomSheet').classList.add('active');
+});
+$('sheetOverlay').addEventListener('click', () => {
+  $('sheetOverlay').classList.remove('active');
+  $('bottomSheet').classList.remove('active');
+});
+function renderBottomSheet() {
+  const earned = ALL_BADGES.filter(b => state.earnedBadges.has(b.id));
+  const locked = ALL_BADGES.filter(b => !state.earnedBadges.has(b.id));
+  $('sheetProgress').style.width = (earned.length / ALL_BADGES.length * 100) + '%';
+  $('sheetProgressText').textContent = `${earned.length} / ${ALL_BADGES.length} rozet`;
+  $('sheetEarned').innerHTML = earned.length
+    ? earned.map(b => `<div class="sheet-badge"><div>${b.emoji}</div><div class="badge-label">${b.name}</div></div>`).join('')
+    : '<div style="grid-column: 1/-1; color: #8a5a7a; font-size: 13px; padding: 8px;">Henüz rozet yok. Oyna!</div>';
+  $('sheetLocked').innerHTML = locked.length
+    ? locked.map(b => `<div class="sheet-badge locked"><div>🔒</div><div class="badge-label">${b.name}</div></div>`).join('')
+    : '<div style="grid-column: 1/-1; color: #5cc77f; font-size: 13px; padding: 8px; font-weight: 700;">Tamamlandı! 🎉</div>';
+  applyTwemoji($('bottomSheet'));
+}
+
+function showRoundIntro(roundNum) {
+  state.pendingRoundStart = roundNum;
+  const intros = {
+    1: { num: 'ROUND 1', title: 'Resimden Deyim', emoji: '🖼️',
+         desc: 'Sahneye dikkatlice bak. Bu hangi deyim?' },
+    2: { num: 'ROUND 2', title: "Deyimin Anlamı", emoji: '📖',
+         desc: 'Deyim sana ne anlatıyor? Doğru anlamı bul!' }
+  };
+  const info = intros[roundNum];
+  $('introNum').textContent = info.num;
+  $('introTitle').textContent = info.title;
+  $('introEmoji').textContent = info.emoji;
+  $('introDesc').textContent = info.desc;
+  showScreen('intro');
+  applyTwemoji($('introScreen'));
+}
+$('introBtn').addEventListener('click', () => {
+  if (state.pendingRoundStart === 1) startR1();
+  else if (state.pendingRoundStart === 2) startR2();
+});
+
+function startR1() {
+  state.r1.qIndex = 0;
+  state.r1.questions = shuffle(R1_QUESTIONS);
+  loadR1Question();
+  showScreen('r1');
+}
+function loadR1Question() {
+  const q = state.r1.questions[state.r1.qIndex];
+  state.r1.locked = false;
+  $('r1Counter').textContent = `${state.r1.qIndex + 1} / ${state.r1.questions.length}`;
+
+  const sceneEmojis = SCENES[q.scene] || [];
+  const sceneEl = $('r1Scene');
+  sceneEl.innerHTML = sceneEmojis.map(e => `<span>${e}</span>`).join('');
+  $('r1Result').textContent = '';
+  $('r1Result').classList.remove('visible', 'correct', 'wrong');
+
+  const options = shuffle([q.answer, ...q.distractors]);
+  const optsEl = $('r1Options');
+  optsEl.innerHTML = '';
+  options.forEach(opt => {
+    const b = document.createElement('button');
+    b.className = 'opt-btn';
+    b.textContent = opt;
+    b.addEventListener('click', () => onR1Pick(opt === q.answer, b));
+    optsEl.appendChild(b);
+  });
+
+  applyTwemoji(sceneEl);
+}
+function onR1Pick(correct, btn) {
+  if (state.r1.locked) return;
+  $('r1Card').classList.add('bounce');
+  setTimeout(() => $('r1Card').classList.remove('bounce'), 500);
+  if (correct) {
+    state.r1.locked = true;
+    if (state.r1.wrongTimer) { clearTimeout(state.r1.wrongTimer); state.r1.wrongTimer = null; }
+    document.querySelectorAll('#r1Options .opt-btn').forEach(b => b.classList.remove('flash-wrong'));
+    $('r1Result').classList.remove('wrong');
+    playSound('ding');
+    btn.classList.add('flash-correct');
+    document.querySelectorAll('#r1Options .opt-btn').forEach(b => b.disabled = true);
+    $('r1Result').textContent = '✓ Doğru!';
+    $('r1Result').classList.add('visible', 'correct');
+    state.totalScore += 10;
+    $('hudScore').textContent = `Skor: ${state.totalScore}`;
+    setTimeout(() => {
+      state.r1.qIndex++;
+      if (state.r1.qIndex >= state.r1.questions.length) {
+        awardBadge('resim_okuyucu', () => showRoundIntro(2));
+      } else {
+        loadR1Question();
+      }
+    }, 1300);
+  } else {
+    playSound('buzz');
+    btn.classList.add('flash-wrong');
+    $('r1Result').textContent = 'Tekrar dene!';
+    $('r1Result').classList.remove('correct');
+    $('r1Result').classList.add('visible', 'wrong');
+    if (state.r1.wrongTimer) clearTimeout(state.r1.wrongTimer);
+    state.r1.wrongTimer = setTimeout(() => {
+      btn.classList.remove('flash-wrong');
+      $('r1Result').textContent = '';
+      $('r1Result').classList.remove('visible', 'wrong');
+      state.r1.wrongTimer = null;
+    }, 1100);
+  }
+}
+
+function startR2() {
+  state.r2.qIndex = 0;
+  state.r2.questions = shuffle(R2_QUESTIONS);
+  loadR2Question();
+  showScreen('r2');
+}
+function loadR2Question() {
+  const q = state.r2.questions[state.r2.qIndex];
+  state.r2.locked = false;
+  $('r2Counter').textContent = `${state.r2.qIndex + 1} / ${state.r2.questions.length}`;
+  $('r2IdiomText').textContent = q.idiom;
+  $('r2Result').textContent = '';
+  $('r2Result').classList.remove('visible', 'correct', 'wrong');
+
+  const options = shuffle([q.answer, ...q.distractors]);
+  const optsEl = $('r2Options');
+  optsEl.innerHTML = '';
+  options.forEach(opt => {
+    const b = document.createElement('button');
+    b.className = 'opt-btn text-left';
+    b.textContent = opt;
+    b.addEventListener('click', () => onR2Pick(opt === q.answer, b));
+    optsEl.appendChild(b);
+  });
+}
+function onR2Pick(correct, btn) {
+  if (state.r2.locked) return;
+  $('r2Card').classList.add('bounce');
+  setTimeout(() => $('r2Card').classList.remove('bounce'), 500);
+  if (correct) {
+    state.r2.locked = true;
+    if (state.r2.wrongTimer) { clearTimeout(state.r2.wrongTimer); state.r2.wrongTimer = null; }
+    document.querySelectorAll('#r2Options .opt-btn').forEach(b => b.classList.remove('flash-wrong'));
+    $('r2Result').classList.remove('wrong');
+    playSound('ding');
+    btn.classList.add('flash-correct');
+    document.querySelectorAll('#r2Options .opt-btn').forEach(b => b.disabled = true);
+    $('r2Result').textContent = '✓ Doğru!';
+    $('r2Result').classList.add('visible', 'correct');
+    state.totalScore += 10;
+    $('hudScore').textContent = `Skor: ${state.totalScore}`;
+    setTimeout(() => {
+      state.r2.qIndex++;
+      if (state.r2.qIndex >= state.r2.questions.length) {
+        awardBadge('anlam_avcisi', () => { showScreen('menu'); updateMenu(); });
+      } else {
+        loadR2Question();
+      }
+    }, 1300);
+  } else {
+    playSound('buzz');
+    btn.classList.add('flash-wrong');
+    $('r2Result').textContent = 'Tekrar dene!';
+    $('r2Result').classList.remove('correct');
+    $('r2Result').classList.add('visible', 'wrong');
+    if (state.r2.wrongTimer) clearTimeout(state.r2.wrongTimer);
+    state.r2.wrongTimer = setTimeout(() => {
+      btn.classList.remove('flash-wrong');
+      $('r2Result').textContent = '';
+      $('r2Result').classList.remove('visible', 'wrong');
+      state.r2.wrongTimer = null;
+    }, 1100);
+  }
+}
+
+let badgeContinueCallback = null;
+function awardBadge(id, onContinue) {
+  const b = ALL_BADGES.find(x => x.id === id);
+  if (!b) { if (onContinue) onContinue(); return; }
+  state.earnedBadges.add(id);
+  $('badgeEmoji').textContent = b.emoji;
+  $('badgeName').textContent = b.name;
+  $('badgeMessage').textContent = b.desc;
+  badgeContinueCallback = onContinue;
+  $('badgeOverlay').classList.add('active');
+  playSound('badge');
+  spawnConfetti();
+  applyTwemoji($('badgeOverlay'));
+}
+$('badgeBtn').addEventListener('click', () => {
+  $('badgeOverlay').classList.remove('active');
+  const cb = badgeContinueCallback;
+  badgeContinueCallback = null;
+  if (cb) cb();
+});
+
+updateMenu();
+// İlk yüklemede tüm sayfaya Twemoji uygula
+if (window.twemoji) {
+  applyTwemoji(document.body);
+} else {
+  window.addEventListener('load', () => applyTwemoji(document.body));
+}
+</script>
+
+</body>
+</html>
