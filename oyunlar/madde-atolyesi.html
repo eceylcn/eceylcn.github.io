@@ -1,0 +1,1510 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Madde Atölyesi</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/twemoji.min.js" crossorigin="anonymous"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; user-select: none; }
+  body {
+    display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(135deg, #1B3957 0%, #0a1a2e 100%);
+    min-height: 100vh; padding: 20px;
+  }
+  .device {
+    width: 390px; height: 780px; max-height: 95vh;
+    background: linear-gradient(180deg, #EAF3FB 0%, #CFE3F4 100%);
+    border-radius: 36px; overflow: hidden; position: relative;
+    box-shadow: 0 25px 60px rgba(0,0,0,0.4);
+  }
+  .hud {
+    position: absolute; top: 0; left: 0; right: 0; height: 60px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 16px; z-index: 100;
+    background: rgba(255,255,255,0.5); backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255,255,255,0.5);
+  }
+  .hud-btn {
+    width: 40px; height: 40px; border-radius: 50%; border: none; cursor: pointer;
+    background: rgba(255,255,255,0.8);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; color: #1B3957; transition: transform 0.15s;
+  }
+  .hud-btn:active { transform: scale(0.92); }
+  .hud-score {
+    font-weight: 700; color: #1B3957; font-size: 16px;
+    background: rgba(255,255,255,0.8); padding: 8px 16px; border-radius: 20px;
+  }
+  .hud-trophy { font-size: 22px; }
+  .hud-trophy img.emoji { height: 24px; width: 24px; }
+
+  .screen {
+    position: absolute; top: 60px; left: 0; right: 0; bottom: 0;
+    overflow-y: auto; overflow-x: hidden; display: none; flex-direction: column;
+  }
+  .screen.active { display: flex; }
+  .menu-screen { padding: 24px 20px; }
+  .menu-screen.active { justify-content: center; }
+  .game-card {
+    background: white; border-radius: 24px; padding: 24px;
+    box-shadow: 0 8px 24px rgba(27,57,87,0.15);
+    border: 3px solid #3D7DCA; cursor: pointer; transition: transform 0.2s;
+  }
+  .game-card:active { transform: scale(0.97); }
+  .game-card-emoji { font-size: 56px; text-align: center; margin-bottom: 12px; display: flex; justify-content: center; }
+  .game-card-emoji img.emoji { height: 56px; width: 56px; }
+  .game-card-title { font-size: 22px; font-weight: 700; color: #1B3957; text-align: center; margin-bottom: 6px; }
+  .game-card-desc { font-size: 13px; color: #5A7794; text-align: center; margin-bottom: 16px; }
+  .progress-bar { height: 10px; background: #d8e8f5; border-radius: 5px; overflow: hidden; margin-bottom: 8px; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, #3D7DCA, #5DCFE6); border-radius: 5px; transition: width 0.5s; }
+  .progress-text { font-size: 12px; color: #5A7794; text-align: center; }
+  .play-cta {
+    margin-top: 20px; padding: 14px; background: #3D7DCA; color: white;
+    border: none; border-radius: 16px; font-size: 16px; font-weight: 700;
+    width: 100%; cursor: pointer;
+  }
+  .play-cta:active { transform: scale(0.97); }
+
+  .round-intro {
+    padding: 32px 24px; text-align: center;
+    display: flex; flex-direction: column; justify-content: center; height: 100%;
+  }
+  .round-intro-num { font-size: 14px; color: #3D7DCA; font-weight: 700; letter-spacing: 2px; }
+  .round-intro-title { font-size: 28px; font-weight: 800; color: #1B3957; margin: 8px 0 16px; }
+  .round-intro-emoji { font-size: 80px; margin: 20px 0; animation: bounce 1.2s ease-in-out infinite; display: flex; justify-content: center; }
+  .round-intro-emoji img.emoji { height: 80px; width: 80px; }
+  .round-intro-desc { font-size: 15px; color: #1B3957; margin-bottom: 28px; line-height: 1.5; padding: 0 12px; }
+  .round-intro-btn {
+    padding: 16px 40px; background: #3D7DCA; color: white; border: none;
+    border-radius: 20px; font-size: 18px; font-weight: 700; cursor: pointer;
+    box-shadow: 0 6px 20px rgba(61,125,202,0.4);
+  }
+  .round-intro-btn:active { transform: scale(0.96); }
+
+  .stage-info {
+    background: white; padding: 10px 14px; border-radius: 14px; margin-bottom: 10px;
+    display: flex; justify-content: center; align-items: center;
+  }
+  .stage-counter { background: #3D7DCA; color: white; padding: 6px 16px; border-radius: 12px; font-weight: 700; font-size: 13px; }
+  .instruction {
+    background: linear-gradient(135deg, #FFD166, #F4A300);
+    color: #1B3957; padding: 10px 14px; border-radius: 12px; margin-bottom: 12px;
+    font-size: 14px; font-weight: 700; text-align: center;
+  }
+
+  /* Generic item card */
+  .item-card {
+    background: white; border-radius: 22px; padding: 16px;
+    box-shadow: 0 8px 20px rgba(27,57,87,0.12);
+    margin-bottom: 14px; text-align: center;
+    border: 3px solid #3D7DCA;
+    transition: transform 0.3s;
+  }
+  .item-card.bounce { animation: cardBounce 0.5s; }
+  .item-emoji-big {
+    font-size: 64px; display: flex; justify-content: center; align-items: center;
+    min-height: 100px; margin-bottom: 4px;
+    animation: emojiFloat 2.5s ease-in-out infinite;
+  }
+  .item-emoji-big img.emoji { height: 64px; width: 64px; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.12)); }
+  .item-emoji-big svg { width: 100px; height: 100px; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.15)); }
+  .item-label {
+    font-size: 18px; font-weight: 800; color: #1B3957;
+    margin-bottom: 4px;
+  }
+  .result-text {
+    font-size: 14px; color: #5A7794; margin-top: 6px; font-weight: 700;
+    opacity: 0; transition: opacity 0.4s; min-height: 18px;
+  }
+  .result-text.visible { opacity: 1; }
+  .result-text.correct { color: #3DAA68; }
+  .result-text.wrong { color: #E36F4A; }
+
+  /* Round 1, 3 - Two bin classification */
+  .bins-row {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+    margin-top: 8px;
+  }
+  .bin-btn {
+    background: white; border: 3px solid transparent;
+    border-radius: 18px; padding: 16px 12px; cursor: pointer;
+    font-size: 16px; font-weight: 800; color: #1B3957;
+    box-shadow: 0 4px 12px rgba(27,57,87,0.12);
+    transition: transform 0.15s, box-shadow 0.3s, border 0.3s;
+    text-align: center;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 4px;
+    min-height: 80px;
+  }
+  .bin-btn .bin-emoji { font-size: 32px; display: flex; align-items: center; justify-content: center; height: 36px; }
+  .bin-btn .bin-emoji img.emoji { height: 32px; width: 32px; }
+  .bin-btn .bin-emoji svg { height: 36px; width: 36px; }
+  .bin-btn:active:not(:disabled) { transform: scale(0.96); }
+  .bin-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .bin-btn.flash-correct { box-shadow: 0 0 20px #5cc77f; border-color: #5cc77f; background: #d4edd9; }
+  .bin-btn.flash-wrong { box-shadow: 0 0 20px #E36F4A; border-color: #E36F4A; animation: shake 0.5s; background: #ffd0d0; }
+
+  /* Round 2 - Sense organ matching */
+  .property-card {
+    background: white; border-radius: 22px; padding: 24px 14px;
+    box-shadow: 0 8px 20px rgba(27,57,87,0.12);
+    margin-bottom: 14px; text-align: center;
+    border: 3px solid #3D7DCA;
+    min-height: 110px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    transition: transform 0.3s;
+  }
+  .property-card.bounce { animation: cardBounce 0.5s; }
+  .property-title-small { font-size: 11px; color: #5A7794; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px; }
+  .property-text {
+    font-size: 22px; font-weight: 800; color: #1B3957;
+  }
+  .organ-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+  }
+  .organ-btn {
+    background: white; border: 3px solid transparent;
+    border-radius: 16px; padding: 14px 10px; cursor: pointer;
+    color: #1B3957;
+    box-shadow: 0 4px 12px rgba(27,57,87,0.12);
+    transition: transform 0.15s, box-shadow 0.3s, border 0.3s;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 4px;
+    min-height: 84px;
+  }
+  .organ-btn .organ-emoji { font-size: 34px; }
+  .organ-btn .organ-emoji img.emoji { height: 34px; width: 34px; }
+  .organ-btn .organ-name { font-size: 14px; font-weight: 700; }
+  .organ-btn:active:not(:disabled) { transform: scale(0.96); }
+  .organ-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .organ-btn.flash-correct { box-shadow: 0 0 20px #5cc77f; border-color: #5cc77f; background: #d4edd9; }
+  .organ-btn.flash-wrong { box-shadow: 0 0 20px #E36F4A; border-color: #E36F4A; animation: shake 0.5s; background: #ffd0d0; }
+
+  /* Round 4 - 3-way drag bins (Katı/Sıvı/Gaz) */
+  .three-bins-row {
+    display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;
+    margin-top: 12px;
+  }
+  .three-bin {
+    background: white; border: 3px solid transparent;
+    border-radius: 16px; padding: 14px 6px;
+    color: #1B3957; min-height: 100px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 6px; transition: transform 0.15s, background 0.3s, border 0.3s;
+  }
+  .three-bin .bin-emoji { font-size: 36px; }
+  .three-bin .bin-emoji img.emoji { height: 36px; width: 36px; }
+  .three-bin .bin-name { font-size: 13px; font-weight: 800; }
+  .three-bin.kati { background: #d6ecfc; border-color: #90CAF9; }
+  .three-bin.sivi { background: #c8e8fc; border-color: #4FC3F7; }
+  .three-bin.gaz  { background: #dceefe; border-color: #81D4FA; }
+  .three-bin.drag-over { transform: scale(1.04); box-shadow: 0 0 20px rgba(61,125,202,0.4); }
+  .three-bin.flash-correct { box-shadow: 0 0 20px #5cc77f; border-color: #5cc77f; }
+  .three-bin.flash-wrong { box-shadow: 0 0 20px #E36F4A; border-color: #E36F4A; animation: shake 0.4s; }
+
+  .draggable-item {
+    background: white; padding: 12px; border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(27,57,87,0.12);
+    border: 2px solid #3D7DCA;
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    cursor: grab; touch-action: none;
+    transition: transform 0.3s, opacity 0.3s, box-shadow 0.3s;
+  }
+  .draggable-item .item-emoji-small { font-size: 36px; display: flex; align-items: center; justify-content: center; height: 40px; }
+  .draggable-item .item-emoji-small img.emoji { height: 36px; width: 36px; }
+  .draggable-item .item-emoji-small svg { height: 40px; width: 40px; }
+  .draggable-item .item-name { font-size: 12px; font-weight: 700; color: #1B3957; }
+  .draggable-item:active { cursor: grabbing; }
+  .draggable-item.dragging { opacity: 0.85; box-shadow: 0 12px 24px rgba(27,57,87,0.25); }
+
+  .drag-pool {
+    background: rgba(255,255,255,0.6); border-radius: 16px; padding: 12px;
+    display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;
+    min-height: 110px;
+  }
+
+  /* Badge */
+  .badge-overlay {
+    position: absolute; inset: 0; z-index: 200;
+    background: rgba(27,57,87,0.85); backdrop-filter: blur(8px);
+    display: none; flex-direction: column; align-items: center; justify-content: center;
+    padding: 24px;
+  }
+  .badge-overlay.active { display: flex; }
+  .badge-emoji {
+    font-size: 100px; animation: badgeBounce 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+    margin-bottom: 16px; filter: drop-shadow(0 8px 20px rgba(255,217,102,0.5));
+    display: flex; justify-content: center;
+  }
+  .badge-emoji img.emoji { height: 100px; width: 100px; }
+  .badge-name { font-size: 26px; font-weight: 800; color: white; margin-bottom: 8px; text-align: center; }
+  .badge-message { font-size: 15px; color: #CFE3F4; margin-bottom: 28px; text-align: center; line-height: 1.5; padding: 0 12px; }
+  .badge-btn {
+    padding: 14px 36px; background: #3D7DCA; color: white; border: none;
+    border-radius: 18px; font-size: 16px; font-weight: 700; cursor: pointer;
+    box-shadow: 0 6px 20px rgba(61,125,202,0.5);
+  }
+  .badge-btn:active { transform: scale(0.96); }
+  .confetti { position: absolute; width: 8px; height: 8px; pointer-events: none; z-index: 199; }
+
+  .sheet-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.4); z-index: 150; display: none; }
+  .sheet-overlay.active { display: block; }
+  .bottom-sheet {
+    position: absolute; bottom: 0; left: 0; right: 0; max-height: 70%;
+    background: white; border-radius: 24px 24px 0 0; padding: 20px;
+    z-index: 151; transform: translateY(100%); transition: transform 0.3s;
+    overflow-y: auto;
+  }
+  .bottom-sheet.active { transform: translateY(0); }
+  .sheet-handle { width: 40px; height: 4px; background: #d8e8f5; border-radius: 2px; margin: 0 auto 16px; }
+  .sheet-title { font-size: 18px; font-weight: 800; color: #1B3957; margin-bottom: 12px; }
+  .sheet-progress { background: #EAF3FB; border-radius: 12px; padding: 12px; margin-bottom: 16px; }
+  .sheet-progress-text { font-size: 13px; font-weight: 700; color: #5A7794; margin-bottom: 6px; }
+  .sheet-section-title { font-size: 14px; font-weight: 700; color: #1B3957; margin: 12px 0 8px; }
+  .sheet-badges { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .sheet-badge { aspect-ratio: 1; background: #EAF3FB; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 28px; padding: 4px; }
+  .sheet-badge img.emoji { height: 32px; width: 32px; }
+  .sheet-badge.locked { filter: grayscale(1); opacity: 0.5; border: 2px dashed #a8c4dc; background: white; }
+  .sheet-badge .badge-label { font-size: 9px; color: #5A7794; margin-top: 4px; text-align: center; font-weight: 700; line-height: 1.1; }
+
+  .toast {
+    position: absolute; top: 80px; left: 20px; right: 20px;
+    background: rgba(27,57,87,0.95); color: white; padding: 12px 16px;
+    border-radius: 12px; text-align: center; font-weight: 600; font-size: 14px;
+    z-index: 110; opacity: 0; transition: opacity 0.3s; pointer-events: none;
+  }
+  .toast.active { opacity: 1; }
+
+  .game-screen { padding: 14px; }
+
+  img.emoji {
+    height: 1em; width: 1em;
+    margin: 0 .05em 0 .1em;
+    vertical-align: -0.1em;
+    display: inline-block;
+  }
+
+  @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+  @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+  @keyframes emojiFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+  @keyframes badgeBounce { 0% { transform: scale(0) rotate(-180deg); } 60% { transform: scale(1.2) rotate(20deg); } 100% { transform: scale(1) rotate(0deg); } }
+  @keyframes confettiFall { 0% { transform: translateY(0) rotate(0); opacity: 1; } 100% { transform: translateY(600px) rotate(720deg); opacity: 0; } }
+  @keyframes cardBounce { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.04); } }
+</style>
+</head>
+<body>
+
+<div class="device">
+  <div class="hud">
+    <button class="hud-btn" id="backBtn">←</button>
+    <div class="hud-score" id="hudScore">Skor: 0</div>
+    <button class="hud-btn hud-trophy" id="trophyBtn">🏆</button>
+  </div>
+  <div class="toast" id="toast"></div>
+
+  <div class="screen menu-screen active" id="menuScreen">
+    <div class="game-card" id="gameCard">
+      <div class="game-card-emoji">🔬</div>
+      <div class="game-card-title">Madde Atölyesi</div>
+      <div class="game-card-desc">Maddeyi tanı, özelliklerini keşfet, halleri ayır!</div>
+      <div class="progress-bar"><div class="progress-fill" id="menuProgress" style="width: 0%"></div></div>
+      <div class="progress-text" id="menuProgressText">0 / 4 rozet</div>
+      <button class="play-cta" id="playBtn">▶ Oyna</button>
+    </div>
+  </div>
+
+  <div class="screen" id="introScreen">
+    <div class="round-intro">
+      <div class="round-intro-num" id="introNum">ROUND 1</div>
+      <div class="round-intro-title" id="introTitle">Madde mi Değil mi?</div>
+      <div class="round-intro-emoji" id="introEmoji">🔬</div>
+      <div class="round-intro-desc" id="introDesc">Karşına çıkan şey madde mi, yoksa madde değil mi?</div>
+      <button class="round-intro-btn" id="introBtn">Başla! ▶</button>
+    </div>
+  </div>
+
+  <!-- Round 1 - Madde mi değil mi -->
+  <div class="screen game-screen" id="r1Screen">
+    <div class="stage-info"><div class="stage-counter" id="r1Counter">1 / 10</div></div>
+    <div class="instruction">Madde mi, madde değil mi?</div>
+    <div class="item-card" id="r1Card">
+      <div class="item-emoji-big" id="r1Emoji"></div>
+      <div class="item-label" id="r1Label"></div>
+      <div class="result-text" id="r1Result"></div>
+    </div>
+    <div class="bins-row">
+      <button class="bin-btn" id="r1BinMadde">
+        <span class="bin-emoji">📦</span>
+        <span>MADDE</span>
+      </button>
+      <button class="bin-btn" id="r1BinDegil">
+        <span class="bin-emoji">🔴</span>
+        <span>MADDE DEĞİL</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Round 2 - Hangi Duyu -->
+  <div class="screen game-screen" id="r2Screen">
+    <div class="stage-info"><div class="stage-counter" id="r2Counter">1 / 8</div></div>
+    <div class="instruction">Bu özelliği hangi duyu organımızla algılarız?</div>
+    <div class="property-card" id="r2Card">
+      <div class="property-title-small">ÖZELLİK</div>
+      <div class="property-text" id="r2PropText"></div>
+      <div class="result-text" id="r2Result"></div>
+    </div>
+    <div class="organ-grid" id="r2Organs"></div>
+  </div>
+
+  <!-- Round 3 - Karşıt Özellikler -->
+  <div class="screen game-screen" id="r3Screen">
+    <div class="stage-info"><div class="stage-counter" id="r3Counter">1 / 9</div></div>
+    <div class="instruction" id="r3Instruction">Hangi özelliğe sahip?</div>
+    <div class="item-card" id="r3Card">
+      <div class="item-emoji-big" id="r3Emoji"></div>
+      <div class="item-label" id="r3Label"></div>
+      <div class="result-text" id="r3Result"></div>
+    </div>
+    <div class="bins-row">
+      <button class="bin-btn" id="r3BinA">
+        <span class="bin-emoji" id="r3BinAEmoji"></span>
+        <span id="r3BinAText"></span>
+      </button>
+      <button class="bin-btn" id="r3BinB">
+        <span class="bin-emoji" id="r3BinBEmoji"></span>
+        <span id="r3BinBText"></span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Round 4 - Hal Atölyesi (Drag) -->
+  <div class="screen game-screen" id="r4Screen">
+    <div class="stage-info"><div class="stage-counter" id="r4Counter">1 / 3</div></div>
+    <div class="instruction">Maddeleri doğru hale sürükle!</div>
+    <div class="drag-pool" id="r4Pool"></div>
+    <div class="three-bins-row">
+      <div class="three-bin kati" data-bin="kati">
+        <span class="bin-emoji">🧊</span>
+        <span class="bin-name">KATI</span>
+      </div>
+      <div class="three-bin sivi" data-bin="sivi">
+        <span class="bin-emoji">💧</span>
+        <span class="bin-name">SIVI</span>
+      </div>
+      <div class="three-bin gaz" data-bin="gaz">
+        <span class="bin-emoji">💨</span>
+        <span class="bin-name">GAZ</span>
+      </div>
+    </div>
+    <div class="result-text" id="r4Result" style="text-align:center; margin-top:8px;"></div>
+  </div>
+
+  <div class="badge-overlay" id="badgeOverlay">
+    <div class="badge-emoji" id="badgeEmoji">🔍</div>
+    <div class="badge-name" id="badgeName">Madde Dedektifi</div>
+    <div class="badge-message" id="badgeMessage">Harika!</div>
+    <button class="badge-btn" id="badgeBtn">▶ Devam Et</button>
+  </div>
+
+  <div class="sheet-overlay" id="sheetOverlay"></div>
+  <div class="bottom-sheet" id="bottomSheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">🏆 Rozet Koleksiyonu</div>
+    <div class="sheet-progress">
+      <div class="sheet-progress-text" id="sheetProgressText">0 / 4 rozet</div>
+      <div class="progress-bar"><div class="progress-fill" id="sheetProgress" style="width: 0%"></div></div>
+    </div>
+    <div class="sheet-section-title">Kazandıkların</div>
+    <div class="sheet-badges" id="sheetEarned"></div>
+    <div class="sheet-section-title">Keşfedilmemiş</div>
+    <div class="sheet-badges" id="sheetLocked"></div>
+  </div>
+</div>
+
+<script>
+const state = {
+  currentScreen: 'menu',
+  earnedBadges: new Set(),
+  totalScore: 0,
+  pendingRoundStart: null,
+  r1: { qIndex: 0, locked: false, questions: [], wrongTimer: null },
+  r2: { qIndex: 0, locked: false, questions: [], wrongTimer: null },
+  r3: { qIndex: 0, locked: false, questions: [], wrongTimer: null },
+  r4: { qIndex: 0, locked: false, stages: [], dropped: {}, wrongTimer: null }
+};
+
+const ALL_BADGES = [
+  { id: 'madde_dedektifi', emoji: '🔍', name: 'Madde Dedektifi', desc: 'Maddeyi ve madde olmayanı ayırt ettin!' },
+  { id: 'duyu_ustasi',     emoji: '👀', name: 'Duyu Ustası',     desc: 'Beş duyunu ustaca kullandın!' },
+  { id: 'ozellik_avcisi',  emoji: '🪞', name: 'Özellik Avcısı',  desc: 'Karşıt özellikleri eksiksiz buldun!' },
+  { id: 'hal_sefi',        emoji: '🌡️', name: 'Hâl Şefi',        desc: 'Katı, sıvı, gazı doğru ayırdın!' }
+];
+
+// ============ ROUND 1 - MADDE Mİ DEĞİL Mİ ============
+// Madde: kütle ve hacim sahip, somut nesneler
+// Madde değil: soyut kavramlar, duygular, ses (dalga), düşünce
+const R1_QUESTIONS = [
+  { svg: 'kalem',    label: 'Kalem',    isMadde: true  },
+  { svg: 'kitap',    label: 'Kitap',    isMadde: true  },
+  { svg: 'sevgi',    label: 'Sevgi',    isMadde: false },
+  { svg: 'cicek',    label: 'Çiçek',    isMadde: true  },
+  { svg: 'su',       label: 'Su',       isMadde: true  },
+  { svg: 'dusunce',  label: 'Düşünce',  isMadde: false },
+  { svg: 'balon',    label: 'Balon',    isMadde: true  },
+  { svg: 'mutluluk', label: 'Mutluluk', isMadde: false },
+  { svg: 'tas',      label: 'Taş',      isMadde: true  },
+  { svg: 'ses',      label: 'Ses',      isMadde: false },
+  { svg: 'hava',     label: 'Hava',     isMadde: true  },
+  { svg: 'uzuntu',   label: 'Üzüntü',   isMadde: false }
+];
+
+// ============ ROUND 2 - HANGİ DUYU ============
+const ORGANS = [
+  { key: 'goz',   emoji: '👁️', name: 'Göz'   },
+  { key: 'kulak', emoji: '👂', name: 'Kulak' },
+  { key: 'burun', emoji: '👃', name: 'Burun' },
+  { key: 'dil',   emoji: '👅', name: 'Dil'   },
+  { key: 'el',    emoji: '✋', name: 'El (Deri)' }
+];
+
+const R2_QUESTIONS = [
+  { prop: 'Renk',                          correct: 'goz',   distractors: ['burun','dil','el'] },
+  { prop: 'Koku',                          correct: 'burun', distractors: ['goz','kulak','dil'] },
+  { prop: 'Ses',                           correct: 'kulak', distractors: ['goz','burun','dil'] },
+  { prop: 'Tat (acı, ekşi, tatlı, tuzlu)', correct: 'dil',   distractors: ['burun','kulak','el'] },
+  { prop: 'Şekil',                         correct: 'goz',   distractors: ['kulak','burun','dil'] },
+  { prop: 'Sert / Yumuşak',                correct: 'el',    distractors: ['goz','kulak','burun'] },
+  { prop: 'Pürüzlü / Pürüzsüz',            correct: 'el',    distractors: ['goz','dil','burun'] },
+  { prop: 'Esnek / Kırılgan',              correct: 'el',    distractors: ['goz','burun','kulak'] }
+];
+
+// ============ ROUND 3 - KARŞIT ÖZELLİKLER ============
+// Her soruda 2 karşıt seçenek (binA / binB), bir nesne, doğru karşıtı seç
+// Karşıt çiftler net olanlardan seçildi - bağlama bağlı değil
+// binAIcon / binBIcon: SVG_LIB anahtarları (özellik sembolleri - nesnelerle eşleşmez)
+const R3_QUESTIONS = [
+  // ESNEK vs KIRILGAN
+  { svg: 'balon_r3',   label: 'Balon',        binA: 'Esnek',     binB: 'Kırılgan',  correct: 'A',
+    binAIcon: 'icon_esnek', binBIcon: 'icon_kirilgan' },
+  { svg: 'ayna',       label: 'Ayna',         binA: 'Esnek',     binB: 'Kırılgan',  correct: 'B',
+    binAIcon: 'icon_esnek', binBIcon: 'icon_kirilgan' },
+  { svg: 'cam_bardak', label: 'Cam Bardak',   binA: 'Esnek',     binB: 'Kırılgan',  correct: 'B',
+    binAIcon: 'icon_esnek', binBIcon: 'icon_kirilgan' },
+  // PÜRÜZLÜ vs PÜRÜZSÜZ
+  { svg: 'agac_kabugu', label: 'Ağaç Kabuğu', binA: 'Pürüzlü',   binB: 'Pürüzsüz',  correct: 'A',
+    binAIcon: 'icon_puruzlu', binBIcon: 'icon_puruzsuz' },
+  { svg: 'yumurta',     label: 'Yumurta',     binA: 'Pürüzlü',   binB: 'Pürüzsüz',  correct: 'B',
+    binAIcon: 'icon_puruzlu', binBIcon: 'icon_puruzsuz' },
+  { svg: 'tugla',       label: 'Tuğla',       binA: 'Pürüzlü',   binB: 'Pürüzsüz',  correct: 'A',
+    binAIcon: 'icon_puruzlu', binBIcon: 'icon_puruzsuz' },
+  // ŞEFFAF vs OPAK
+  { svg: 'pencere_cami', label: 'Pencere Camı', binA: 'Şeffaf',   binB: 'Opak',     correct: 'A',
+    binAIcon: 'icon_seffaf', binBIcon: 'icon_opak' },
+  { svg: 'karton_kutu',  label: 'Karton Kutu',  binA: 'Şeffaf',   binB: 'Opak',     correct: 'B',
+    binAIcon: 'icon_seffaf', binBIcon: 'icon_opak' },
+  { svg: 'buz_kup',      label: 'Buz Küpü',     binA: 'Şeffaf',   binB: 'Opak',     correct: 'A',
+    binAIcon: 'icon_seffaf', binBIcon: 'icon_opak' }
+];
+
+// ============ ROUND 4 - HAL ATÖLYESİ ============
+const R4_STAGES = [
+  { items: [
+      { key: 'su',    svg: 'r4_su',    label: 'Portakal Suyu', bin: 'sivi' },
+      { key: 'tas',   svg: 'r4_tas',   label: 'Taş',    bin: 'kati' },
+      { key: 'hava',  svg: 'r4_hava',  label: 'Hava',   bin: 'gaz'  },
+      { key: 'kalem', svg: 'r4_kalem', label: 'Kalem',  bin: 'kati' }
+    ]
+  },
+  { items: [
+      { key: 'buhar',  svg: 'r4_buhar', label: 'Su Buharı', bin: 'gaz'  },
+      { key: 'kitap',  svg: 'r4_kitap', label: 'Kitap',     bin: 'kati' },
+      { key: 'sut',    svg: 'r4_sut',   label: 'Süt',       bin: 'sivi' },
+      { key: 'ayi',    svg: 'r4_ayi',   label: 'Ayı',       bin: 'kati' }
+    ]
+  },
+  { items: [
+      { key: 'yag',   svg: 'r4_yag',   label: 'Yağ',     bin: 'sivi' },
+      { key: 'duman', svg: 'r4_duman', label: 'Duman',   bin: 'gaz'  },
+      { key: 'top',   svg: 'r4_top',   label: 'Top',     bin: 'kati' },
+      { key: 'suyu',  svg: 'r4_kola',  label: 'Kola',    bin: 'sivi' }
+    ]
+  }
+];
+
+const $ = id => document.getElementById(id);
+
+// ============ CUSTOM INLINE SVG KÜTÜPHANESİ ============
+// Round 1 ve Round 3'ün üst kartındaki ana görseller için
+const SVG_LIB = {
+  // ===== Madde olanlar (Round 1) =====
+  kalem: `<svg viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg">
+    <g transform="rotate(-25 70 70)">
+      <rect x="50" y="20" width="40" height="80" fill="#FFD166" stroke="#1a1a1a" stroke-width="2.5"/>
+      <polygon points="50,100 90,100 70,128" fill="#f0e0c0" stroke="#1a1a1a" stroke-width="2.5"/>
+      <polygon points="60,118 80,118 70,128" fill="#1a1a1a"/>
+      <rect x="50" y="20" width="40" height="10" fill="#E36F4A" stroke="#1a1a1a" stroke-width="2.5"/>
+      <line x1="55" y1="40" x2="85" y2="40" stroke="#c89a30" stroke-width="1.5"/>
+      <line x1="55" y1="55" x2="85" y2="55" stroke="#c89a30" stroke-width="1.5"/>
+      <line x1="55" y1="70" x2="85" y2="70" stroke="#c89a30" stroke-width="1.5"/>
+      <line x1="55" y1="85" x2="85" y2="85" stroke="#c89a30" stroke-width="1.5"/>
+    </g>
+  </svg>`,
+
+  kitap: `<svg viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg">
+    <rect x="25" y="30" width="90" height="80" fill="#E36F4A" stroke="#1a1a1a" stroke-width="2.5" rx="3"/>
+    <rect x="32" y="38" width="76" height="64" fill="white" stroke="#1a1a1a" stroke-width="1.5"/>
+    <line x1="70" y1="30" x2="70" y2="110" stroke="#1a1a1a" stroke-width="2.5"/>
+    <line x1="38" y1="48" x2="64" y2="48" stroke="#888" stroke-width="1.5"/>
+    <line x1="38" y1="55" x2="64" y2="55" stroke="#888" stroke-width="1.5"/>
+    <line x1="38" y1="62" x2="60" y2="62" stroke="#888" stroke-width="1.5"/>
+    <line x1="38" y1="72" x2="64" y2="72" stroke="#888" stroke-width="1.5"/>
+    <line x1="38" y1="79" x2="64" y2="79" stroke="#888" stroke-width="1.5"/>
+    <line x1="38" y1="86" x2="58" y2="86" stroke="#888" stroke-width="1.5"/>
+    <line x1="76" y1="48" x2="102" y2="48" stroke="#888" stroke-width="1.5"/>
+    <line x1="76" y1="55" x2="102" y2="55" stroke="#888" stroke-width="1.5"/>
+    <line x1="76" y1="62" x2="98" y2="62" stroke="#888" stroke-width="1.5"/>
+    <line x1="76" y1="72" x2="102" y2="72" stroke="#888" stroke-width="1.5"/>
+    <line x1="76" y1="79" x2="100" y2="79" stroke="#888" stroke-width="1.5"/>
+  </svg>`,
+
+  cicek: `<svg viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg">
+    <line x1="70" y1="80" x2="70" y2="130" stroke="#3DAA68" stroke-width="4" stroke-linecap="round"/>
+    <ellipse cx="58" cy="105" rx="10" ry="6" fill="#3DAA68" stroke="#1a1a1a" stroke-width="1.5" transform="rotate(-25 58 105)"/>
+    <ellipse cx="82" cy="115" rx="10" ry="6" fill="#3DAA68" stroke="#1a1a1a" stroke-width="1.5" transform="rotate(30 82 115)"/>
+    <!-- Petals -->
+    <ellipse cx="70" cy="40" rx="12" ry="18" fill="#FF8AB0" stroke="#1a1a1a" stroke-width="2"/>
+    <ellipse cx="95" cy="55" rx="18" ry="12" fill="#FF8AB0" stroke="#1a1a1a" stroke-width="2"/>
+    <ellipse cx="45" cy="55" rx="18" ry="12" fill="#FF8AB0" stroke="#1a1a1a" stroke-width="2"/>
+    <ellipse cx="58" cy="80" rx="14" ry="14" fill="#FF8AB0" stroke="#1a1a1a" stroke-width="2"/>
+    <ellipse cx="82" cy="80" rx="14" ry="14" fill="#FF8AB0" stroke="#1a1a1a" stroke-width="2"/>
+    <!-- Center -->
+    <circle cx="70" cy="62" r="13" fill="#FFD166" stroke="#1a1a1a" stroke-width="2"/>
+    <circle cx="65" cy="58" r="2" fill="#c89a30"/>
+    <circle cx="75" cy="60" r="2" fill="#c89a30"/>
+    <circle cx="70" cy="68" r="2" fill="#c89a30"/>
+  </svg>`,
+
+  su: `<svg viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg">
+    <!-- Glass -->
+    <path d="M 40 35 L 100 35 L 95 115 L 45 115 Z" fill="none" stroke="#1a1a1a" stroke-width="2.5"/>
+    <!-- Water inside -->
+    <path d="M 44 60 L 96 60 L 94 113 L 46 113 Z" fill="#5DCFE6" stroke="#3D7DCA" stroke-width="1.5" opacity="0.85"/>
+    <!-- Water surface wave -->
+    <path d="M 44 60 Q 56 55 70 60 Q 84 65 96 60" fill="none" stroke="#3D7DCA" stroke-width="2"/>
+    <!-- Bubbles -->
+    <circle cx="58" cy="85" r="3" fill="white" opacity="0.7"/>
+    <circle cx="80" cy="95" r="2.5" fill="white" opacity="0.7"/>
+    <circle cx="65" cy="100" r="2" fill="white" opacity="0.7"/>
+  </svg>`,
+
+  balon: `<svg viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg">
+    <ellipse cx="70" cy="55" rx="35" ry="42" fill="#E36F4A" stroke="#1a1a1a" stroke-width="2.5"/>
+    <!-- Highlight -->
+    <ellipse cx="55" cy="40" rx="10" ry="14" fill="white" opacity="0.4"/>
+    <!-- Tie -->
+    <polygon points="65,95 75,95 70,103" fill="#1a1a1a" stroke="#1a1a1a" stroke-width="1.5"/>
+    <!-- String -->
+    <path d="M 70 103 Q 65 115 72 125 Q 78 130 70 135" fill="none" stroke="#1a1a1a" stroke-width="1.5"/>
+  </svg>`,
+
+  tas: `<svg viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg">
+    <path d="M 30 80 Q 25 60 40 45 Q 60 30 80 35 Q 105 40 110 65 Q 115 90 100 105 Q 75 115 50 110 Q 32 102 30 80 Z"
+          fill="#8a8a8a" stroke="#1a1a1a" stroke-width="2.5"/>
+    <!-- Highlight -->
+    <path d="M 45 55 Q 55 48 70 50" fill="none" stroke="#b0b0b0" stroke-width="3" stroke-linecap="round"/>
+    <!-- Speckles -->
+    <circle cx="60" cy="70" r="2" fill="#5a5a5a"/>
+    <circle cx="85" cy="80" r="2" fill="#5a5a5a"/>
+    <circle cx="75" cy="90" r="1.5" fill="#5a5a5a"/>
+    <circle cx="50" cy="85" r="1.5" fill="#5a5a5a"/>
+  </svg>`,
+
+  hava: `<svg viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg">
+    <!-- Wind swirls -->
+    <path d="M 25 50 Q 50 40 75 50 Q 95 55 110 45" fill="none" stroke="#5A7794" stroke-width="3" stroke-linecap="round"/>
+    <path d="M 105 45 Q 108 47 105 50" fill="none" stroke="#5A7794" stroke-width="3" stroke-linecap="round"/>
+    <path d="M 20 75 Q 50 65 85 75 Q 100 80 115 72" fill="none" stroke="#3D7DCA" stroke-width="4" stroke-linecap="round"/>
+    <path d="M 110 72 Q 114 75 110 78" fill="none" stroke="#3D7DCA" stroke-width="3" stroke-linecap="round"/>
+    <path d="M 30 100 Q 55 90 80 100 Q 95 105 105 98" fill="none" stroke="#5A7794" stroke-width="3" stroke-linecap="round"/>
+    <path d="M 100 98 Q 103 100 100 103" fill="none" stroke="#5A7794" stroke-width="3" stroke-linecap="round"/>
+  </svg>`,
+
+  // ===== Madde olmayanlar (Round 1) =====
+  sevgi: `<svg viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg">
+    <!-- Heart (dashed - intangible) -->
+    <path d="M 70 110 Q 35 80 30 55 Q 30 35 50 35 Q 65 35 70 55 Q 75 35 90 35 Q 110 35 110 55 Q 105 80 70 110 Z"
+          fill="#FF8AB0" stroke="#c44a8a" stroke-width="3" stroke-dasharray="6 3"/>
+    <!-- Small hearts around -->
+    <path d="M 25 25 Q 18 18 18 15 Q 18 10 23 10 Q 26 10 25 13 Q 27 10 30 10 Q 33 10 33 15 Q 33 18 25 25 Z" fill="#FF8AB0" opacity="0.6"/>
+    <path d="M 110 25 Q 103 18 103 15 Q 103 10 108 10 Q 111 10 110 13 Q 112 10 115 10 Q 118 10 118 15 Q 118 18 110 25 Z" fill="#FF8AB0" opacity="0.6"/>
+    <text x="70" y="72" font-size="22" text-anchor="middle" fill="#c44a8a">💗</text>
+  </svg>`,
+
+  dusunce: `<svg viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg">
+    <!-- Thought bubble cloud (dashed - intangible) -->
+    <ellipse cx="55" cy="55" rx="20" ry="14" fill="white" stroke="#5A7794" stroke-width="2.5" stroke-dasharray="5 3"/>
+    <ellipse cx="80" cy="50" rx="22" ry="16" fill="white" stroke="#5A7794" stroke-width="2.5" stroke-dasharray="5 3"/>
+    <ellipse cx="70" cy="72" rx="28" ry="14" fill="white" stroke="#5A7794" stroke-width="2.5" stroke-dasharray="5 3"/>
+    <!-- Question mark inside -->
+    <text x="70" y="72" font-size="32" text-anchor="middle" fill="#3D7DCA" font-weight="bold">?</text>
+    <!-- Trailing bubbles -->
+    <circle cx="55" cy="95" r="6" fill="white" stroke="#5A7794" stroke-width="2" stroke-dasharray="3 2"/>
+    <circle cx="48" cy="110" r="4" fill="white" stroke="#5A7794" stroke-width="1.5" stroke-dasharray="3 2"/>
+    <circle cx="43" cy="122" r="2.5" fill="white" stroke="#5A7794" stroke-width="1.5"/>
+  </svg>`,
+
+  mutluluk: `<svg viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg">
+    <!-- Sparkles scattered around (no sun rays) -->
+    <text x="18" y="35" font-size="18" fill="#FFD166">✨</text>
+    <text x="108" y="40" font-size="20" fill="#FFD166">✨</text>
+    <text x="15" y="105" font-size="16" fill="#FF8AB0">✦</text>
+    <text x="115" y="115" font-size="18" fill="#FFD166">⭐</text>
+    <text x="105" y="80" font-size="14" fill="#FF8AB0">✦</text>
+    <text x="20" y="75" font-size="14" fill="#5DCFE6">✦</text>
+    <text x="60" y="22" font-size="14" fill="#FF8AB0">✦</text>
+    <text x="85" y="22" font-size="12" fill="#5DCFE6">✦</text>
+    <!-- Happy smiley face (centered) -->
+    <circle cx="70" cy="70" r="34" fill="#FFD166" stroke="#1a1a1a" stroke-width="2.5"/>
+    <!-- Eyes (curved smile-eyes) -->
+    <path d="M 55 65 Q 60 60 65 65" fill="none" stroke="#1a1a1a" stroke-width="3" stroke-linecap="round"/>
+    <path d="M 75 65 Q 80 60 85 65" fill="none" stroke="#1a1a1a" stroke-width="3" stroke-linecap="round"/>
+    <!-- Big happy smile -->
+    <path d="M 52 78 Q 70 95 88 78" fill="none" stroke="#1a1a1a" stroke-width="3" stroke-linecap="round"/>
+    <!-- Rosy cheeks -->
+    <ellipse cx="55" cy="80" rx="5" ry="3" fill="#FF8AB0" opacity="0.6"/>
+    <ellipse cx="85" cy="80" rx="5" ry="3" fill="#FF8AB0" opacity="0.6"/>
+  </svg>`,
+
+  ses: `<svg viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg">
+    <!-- Speaker / sound waves (sound = energy wave, not matter) -->
+    <rect x="20" y="55" width="18" height="30" fill="#5A7794" stroke="#1a1a1a" stroke-width="2"/>
+    <polygon points="38,55 60,40 60,100 38,85" fill="#5A7794" stroke="#1a1a1a" stroke-width="2"/>
+    <!-- Sound waves (dashed - intangible) -->
+    <path d="M 68 50 Q 78 70 68 90" fill="none" stroke="#3D7DCA" stroke-width="3" stroke-linecap="round" stroke-dasharray="5 3"/>
+    <path d="M 82 40 Q 96 70 82 100" fill="none" stroke="#3D7DCA" stroke-width="3" stroke-linecap="round" stroke-dasharray="5 3"/>
+    <path d="M 96 30 Q 114 70 96 110" fill="none" stroke="#3D7DCA" stroke-width="3" stroke-linecap="round" stroke-dasharray="5 3"/>
+    <!-- Musical notes -->
+    <text x="105" y="55" font-size="16" fill="#3D7DCA">♪</text>
+    <text x="115" y="95" font-size="14" fill="#3D7DCA">♫</text>
+  </svg>`,
+
+  uzuntu: `<svg viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg">
+    <!-- Sad face emanation lines (intangible feeling) -->
+    <g stroke="#5A7794" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="5 3" fill="none">
+      <path d="M 25 30 Q 22 22 28 18"/>
+      <path d="M 115 30 Q 118 22 112 18"/>
+      <path d="M 20 70 L 30 70"/>
+      <path d="M 110 70 L 120 70"/>
+    </g>
+    <!-- Sad smiley face -->
+    <circle cx="70" cy="70" r="36" fill="#a8c4dc" stroke="#1a1a1a" stroke-width="2.5"/>
+    <!-- Sad eyebrows (angled down inwards) -->
+    <path d="M 53 55 L 64 60" stroke="#1a1a1a" stroke-width="3" stroke-linecap="round"/>
+    <path d="M 87 55 L 76 60" stroke="#1a1a1a" stroke-width="3" stroke-linecap="round"/>
+    <!-- Eyes -->
+    <circle cx="58" cy="68" r="3" fill="#1a1a1a"/>
+    <circle cx="82" cy="68" r="3" fill="#1a1a1a"/>
+    <!-- Frown (sad mouth - inverse curve) -->
+    <path d="M 56 90 Q 70 78 84 90" fill="none" stroke="#1a1a1a" stroke-width="3" stroke-linecap="round"/>
+    <!-- Big teardrop falling from eye -->
+    <path d="M 56 73 Q 52 88 54 96 Q 58 100 60 96 Q 62 88 58 73 Z" fill="#5DCFE6" stroke="#3D7DCA" stroke-width="1.5"/>
+    <!-- Small teardrop on other side -->
+    <path d="M 84 74 Q 82 82 84 88 Q 86 90 87 88 Q 88 82 86 74 Z" fill="#5DCFE6" stroke="#3D7DCA" stroke-width="1.5"/>
+  </svg>`,
+
+  // ===== Round 3 nesneleri =====
+  balon_r3: `<svg viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg">
+    <ellipse cx="70" cy="55" rx="35" ry="42" fill="#E36F4A" stroke="#1a1a1a" stroke-width="2.5"/>
+    <ellipse cx="55" cy="40" rx="10" ry="14" fill="white" opacity="0.4"/>
+    <polygon points="65,95 75,95 70,103" fill="#1a1a1a" stroke="#1a1a1a" stroke-width="1.5"/>
+    <path d="M 70 103 Q 65 115 72 125 Q 78 130 70 135" fill="none" stroke="#1a1a1a" stroke-width="1.5"/>
+  </svg>`,
+
+  ayna: `<svg viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg">
+    <!-- Hand mirror frame -->
+    <ellipse cx="70" cy="55" rx="32" ry="38" fill="#FFD166" stroke="#1a1a1a" stroke-width="2.5"/>
+    <ellipse cx="70" cy="55" rx="24" ry="30" fill="#CFE3F4" stroke="#1a1a1a" stroke-width="2"/>
+    <!-- Reflection highlight -->
+    <ellipse cx="60" cy="42" rx="6" ry="12" fill="white" opacity="0.7"/>
+    <!-- Handle -->
+    <rect x="64" y="93" width="12" height="35" rx="4" fill="#FFD166" stroke="#1a1a1a" stroke-width="2.5"/>
+    <rect x="66" y="120" width="8" height="6" fill="#c89a30" stroke="#1a1a1a" stroke-width="1.5"/>
+  </svg>`,
+
+  cam_bardak: `<svg viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg">
+    <!-- Glass cup -->
+    <path d="M 42 30 L 98 30 L 92 115 L 48 115 Z" fill="#e8f4fb" stroke="#1a1a1a" stroke-width="2.5" opacity="0.85"/>
+    <!-- Reflection shine -->
+    <path d="M 52 40 L 56 40 L 54 105 L 50 105 Z" fill="white" opacity="0.7"/>
+    <path d="M 85 40 L 87 40 L 86 105 L 84 105 Z" fill="white" opacity="0.5"/>
+    <!-- Rim -->
+    <ellipse cx="70" cy="30" rx="28" ry="4" fill="none" stroke="#1a1a1a" stroke-width="2.5"/>
+  </svg>`,
+
+  agac_kabugu: `<svg viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg">
+    <!-- Tree bark texture - rough surface -->
+    <rect x="30" y="20" width="80" height="100" fill="#8b5a2b" stroke="#1a1a1a" stroke-width="2.5" rx="6"/>
+    <!-- Vertical bark lines -->
+    <path d="M 42 22 Q 40 50 44 80 Q 42 100 45 118" fill="none" stroke="#5a3a1a" stroke-width="3" stroke-linecap="round"/>
+    <path d="M 58 22 Q 60 50 56 80 Q 58 100 55 118" fill="none" stroke="#5a3a1a" stroke-width="3" stroke-linecap="round"/>
+    <path d="M 72 22 Q 70 50 74 80 Q 72 100 75 118" fill="none" stroke="#5a3a1a" stroke-width="3" stroke-linecap="round"/>
+    <path d="M 88 22 Q 90 50 86 80 Q 88 100 85 118" fill="none" stroke="#5a3a1a" stroke-width="3" stroke-linecap="round"/>
+    <path d="M 100 22 Q 98 50 102 80 Q 100 100 103 118" fill="none" stroke="#5a3a1a" stroke-width="3" stroke-linecap="round"/>
+    <!-- Cross cracks (roughness) -->
+    <path d="M 35 45 Q 50 47 65 45" fill="none" stroke="#3a2a10" stroke-width="2"/>
+    <path d="M 70 75 Q 85 78 105 75" fill="none" stroke="#3a2a10" stroke-width="2"/>
+    <path d="M 40 95 Q 60 97 80 95" fill="none" stroke="#3a2a10" stroke-width="2"/>
+    <!-- Knot -->
+    <ellipse cx="80" cy="55" rx="6" ry="4" fill="#3a2a10" stroke="#1a1a1a" stroke-width="1.5"/>
+  </svg>`,
+
+  yumurta: `<svg viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg">
+    <!-- Egg shape - smooth surface -->
+    <ellipse cx="70" cy="75" rx="32" ry="42" fill="#fff8e0" stroke="#1a1a1a" stroke-width="2.5"/>
+    <!-- Subtle highlight for smoothness -->
+    <ellipse cx="58" cy="55" rx="10" ry="18" fill="white" opacity="0.6"/>
+    <ellipse cx="80" cy="100" rx="6" ry="10" fill="#f0e0c0" opacity="0.5"/>
+  </svg>`,
+
+  tugla: `<svg viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg">
+    <!-- Brick - rough rectangular block -->
+    <rect x="22" y="40" width="96" height="56" fill="#c44a3a" stroke="#1a1a1a" stroke-width="2.5"/>
+    <!-- Rough texture spots -->
+    <circle cx="35" cy="55" r="2" fill="#8a2a1a"/>
+    <circle cx="50" cy="60" r="1.5" fill="#8a2a1a"/>
+    <circle cx="65" cy="52" r="2" fill="#8a2a1a"/>
+    <circle cx="85" cy="58" r="1.8" fill="#8a2a1a"/>
+    <circle cx="100" cy="55" r="1.5" fill="#8a2a1a"/>
+    <circle cx="40" cy="75" r="1.8" fill="#8a2a1a"/>
+    <circle cx="60" cy="80" r="2" fill="#8a2a1a"/>
+    <circle cx="78" cy="78" r="1.5" fill="#8a2a1a"/>
+    <circle cx="95" cy="82" r="2" fill="#8a2a1a"/>
+    <circle cx="45" cy="88" r="1.5" fill="#8a2a1a"/>
+    <circle cx="70" cy="90" r="1.8" fill="#8a2a1a"/>
+    <circle cx="90" cy="65" r="1.5" fill="#8a2a1a"/>
+    <!-- Brick scratches -->
+    <path d="M 30 50 L 36 52" stroke="#8a2a1a" stroke-width="1.2"/>
+    <path d="M 70 65 L 78 67" stroke="#8a2a1a" stroke-width="1.2"/>
+    <path d="M 95 85 L 105 87" stroke="#8a2a1a" stroke-width="1.2"/>
+  </svg>`,
+
+  pencere_cami: `<svg viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg">
+    <!-- Window frame -->
+    <rect x="20" y="20" width="100" height="100" fill="none" stroke="#8b5a2b" stroke-width="6" rx="3"/>
+    <!-- Glass panels (transparent - very light blue) -->
+    <rect x="25" y="25" width="44" height="44" fill="#e8f4fb" opacity="0.5" stroke="#5A7794" stroke-width="1"/>
+    <rect x="71" y="25" width="44" height="44" fill="#e8f4fb" opacity="0.5" stroke="#5A7794" stroke-width="1"/>
+    <rect x="25" y="71" width="44" height="44" fill="#e8f4fb" opacity="0.5" stroke="#5A7794" stroke-width="1"/>
+    <rect x="71" y="71" width="44" height="44" fill="#e8f4fb" opacity="0.5" stroke="#5A7794" stroke-width="1"/>
+    <!-- Cross frame -->
+    <line x1="70" y1="20" x2="70" y2="120" stroke="#8b5a2b" stroke-width="4"/>
+    <line x1="20" y1="70" x2="120" y2="70" stroke="#8b5a2b" stroke-width="4"/>
+    <!-- Transparency hint: a tree visible through -->
+    <ellipse cx="40" cy="50" rx="6" ry="8" fill="#3DAA68" opacity="0.4"/>
+    <line x1="40" y1="55" x2="40" y2="60" stroke="#8b5a2b" stroke-width="1.5" opacity="0.4"/>
+    <!-- Reflection -->
+    <path d="M 30 30 L 35 30 L 32 50 L 27 50 Z" fill="white" opacity="0.7"/>
+    <path d="M 76 76 L 80 76 L 78 95 L 74 95 Z" fill="white" opacity="0.7"/>
+  </svg>`,
+
+  karton_kutu: `<svg viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg">
+    <!-- Closed cardboard box - 3D-ish -->
+    <polygon points="25,50 70,30 115,50 115,110 70,130 25,110" fill="#c89a5a" stroke="#1a1a1a" stroke-width="2.5"/>
+    <!-- Top face -->
+    <polygon points="25,50 70,30 115,50 70,70" fill="#d4a565" stroke="#1a1a1a" stroke-width="2"/>
+    <!-- Box tape on top -->
+    <polygon points="40,55 100,55 95,65 45,65" fill="#a07840" stroke="#5a3a1a" stroke-width="1.5"/>
+    <!-- Left shadow -->
+    <polygon points="25,50 25,110 70,130 70,70" fill="#a8814a" stroke="#1a1a1a" stroke-width="1.5" opacity="0.9"/>
+    <!-- Right side -->
+    <polygon points="70,70 115,50 115,110 70,130" fill="#b8915a" stroke="#1a1a1a" stroke-width="1.5"/>
+    <!-- Closure flap line -->
+    <line x1="70" y1="70" x2="70" y2="130" stroke="#5a3a1a" stroke-width="2"/>
+  </svg>`,
+
+  buz_kup: `<svg viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg">
+    <!-- Ice cube - cube shape with transparency -->
+    <polygon points="30,55 75,35 120,55 120,105 75,125 30,105" fill="#a8e0f5" stroke="#3D7DCA" stroke-width="2.5" opacity="0.85"/>
+    <!-- Top face (lighter, more transparent) -->
+    <polygon points="30,55 75,35 120,55 75,75" fill="#d0f0fa" stroke="#3D7DCA" stroke-width="2" opacity="0.7"/>
+    <!-- Right face -->
+    <polygon points="75,75 120,55 120,105 75,125" fill="#90ccdf" stroke="#3D7DCA" stroke-width="2" opacity="0.85"/>
+    <!-- Left face -->
+    <polygon points="30,55 30,105 75,125 75,75" fill="#a0d6e8" stroke="#3D7DCA" stroke-width="2" opacity="0.8"/>
+    <!-- Highlight on top -->
+    <ellipse cx="60" cy="55" rx="14" ry="6" fill="white" opacity="0.6"/>
+    <!-- Cool sparkles -->
+    <text x="100" y="80" font-size="14" fill="#5DCFE6">✦</text>
+    <text x="35" y="98" font-size="12" fill="#5DCFE6">✦</text>
+  </svg>`,
+
+  // ===== Özellik ikonları (Round 3 şıkları için - soyut semboller) =====
+  icon_esnek: `<svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+    <!-- Stretchy wavy line + arrows = esneme -->
+    <path d="M 6 20 Q 12 10 18 20 Q 24 30 30 20" fill="none" stroke="#3DAA68" stroke-width="3" stroke-linecap="round"/>
+    <polygon points="6,20 10,16 10,24" fill="#3DAA68"/>
+    <polygon points="34,20 30,16 30,24" fill="#3DAA68"/>
+  </svg>`,
+
+  icon_kirilgan: `<svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+    <!-- Cracked / broken pieces = kırılgan -->
+    <polygon points="20,6 13,18 18,22 12,32 22,22 18,18 26,8" fill="none" stroke="#E36F4A" stroke-width="2.5" stroke-linejoin="round"/>
+    <polygon points="22,12 28,18 24,24 30,30" fill="none" stroke="#E36F4A" stroke-width="2.5" stroke-linejoin="round"/>
+  </svg>`,
+
+  icon_puruzlu: `<svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+    <!-- Zigzag mountain peaks = pürüzlü yüzey -->
+    <path d="M 4 28 L 9 18 L 14 26 L 19 16 L 24 24 L 29 14 L 34 26 L 36 22" fill="none" stroke="#8b5a2b" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+  </svg>`,
+
+  icon_puruzsuz: `<svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+    <!-- Smooth flat line = pürüzsüz yüzey -->
+    <line x1="5" y1="20" x2="35" y2="20" stroke="#5DCFE6" stroke-width="4" stroke-linecap="round"/>
+    <!-- Highlight to suggest smoothness/glossiness -->
+    <line x1="10" y1="16" x2="22" y2="16" stroke="white" stroke-width="1.5" stroke-linecap="round" opacity="0.9"/>
+  </svg>`,
+
+  icon_seffaf: `<svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+    <!-- Open eye = içi görülebilir = şeffaf -->
+    <path d="M 6 20 Q 20 8 34 20 Q 20 32 6 20 Z" fill="none" stroke="#3D7DCA" stroke-width="2.5" stroke-linejoin="round"/>
+    <circle cx="20" cy="20" r="6" fill="none" stroke="#3D7DCA" stroke-width="2.5"/>
+    <circle cx="20" cy="20" r="2.5" fill="#3D7DCA"/>
+  </svg>`,
+
+  icon_opak: `<svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+    <!-- Open eye (same shape as şeffaf) -->
+    <path d="M 6 20 Q 20 8 34 20 Q 20 32 6 20 Z" fill="none" stroke="#5A7794" stroke-width="2.5" stroke-linejoin="round"/>
+    <circle cx="20" cy="20" r="6" fill="none" stroke="#5A7794" stroke-width="2.5"/>
+    <circle cx="20" cy="20" r="2.5" fill="#5A7794"/>
+    <!-- Diagonal strikethrough line - "can't see" -->
+    <line x1="6" y1="34" x2="34" y2="6" stroke="#E36F4A" stroke-width="3.5" stroke-linecap="round"/>
+  </svg>`,
+
+  // ===== Round 4 sürüklenebilir item SVG'leri (60x60 viewBox - küçük drag boyutu) =====
+  r4_su: `<svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+    <!-- Glass of orange juice -->
+    <path d="M 14 14 L 46 14 L 43 52 L 17 52 Z" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+    <!-- Juice inside (orange) -->
+    <path d="M 16 22 L 44 22 L 41 50 L 19 50 Z" fill="#FF8C42" stroke="#E36F4A" stroke-width="1.5"/>
+    <!-- Surface wave -->
+    <path d="M 16 22 Q 22 19 30 22 Q 38 25 44 22" fill="none" stroke="#E36F4A" stroke-width="1.5"/>
+    <!-- Orange slice on rim -->
+    <circle cx="44" cy="16" r="6" fill="#FFB84D" stroke="#1a1a1a" stroke-width="1.5"/>
+    <path d="M 44 10 L 44 22 M 38 16 L 50 16 M 40 12 L 48 20 M 48 12 L 40 20" stroke="#E36F4A" stroke-width="0.8"/>
+    <!-- Straw -->
+    <line x1="34" y1="10" x2="32" y2="50" stroke="#FFD166" stroke-width="3" stroke-linecap="round"/>
+    <line x1="34" y1="10" x2="32" y2="50" stroke="#1a1a1a" stroke-width="0.8" fill="none"/>
+    <!-- Glass highlight -->
+    <ellipse cx="22" cy="32" rx="1.5" ry="8" fill="white" opacity="0.6"/>
+  </svg>`,
+
+  r4_tas: `<svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+    <path d="M 12 35 Q 10 22 22 18 Q 35 14 45 22 Q 52 32 48 42 Q 38 50 25 48 Q 13 44 12 35 Z"
+          fill="#8a8a8a" stroke="#1a1a1a" stroke-width="2"/>
+    <circle cx="25" cy="30" r="1.5" fill="#5a5a5a"/>
+    <circle cx="38" cy="35" r="1.5" fill="#5a5a5a"/>
+  </svg>`,
+
+  r4_hava: `<svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+    <path d="M 8 20 Q 25 14 42 20 Q 50 24 48 28" fill="none" stroke="#5A7794" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M 8 32 Q 28 26 45 32 Q 52 36 48 40" fill="none" stroke="#3D7DCA" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M 12 44 Q 28 40 42 44" fill="none" stroke="#5A7794" stroke-width="2.5" stroke-linecap="round"/>
+  </svg>`,
+
+  r4_kalem: `<svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+    <g transform="rotate(-25 30 30)">
+      <rect x="22" y="10" width="16" height="38" fill="#FFD166" stroke="#1a1a1a" stroke-width="2"/>
+      <polygon points="22,48 38,48 30,58" fill="#f0e0c0" stroke="#1a1a1a" stroke-width="2"/>
+      <polygon points="26,55 34,55 30,58" fill="#1a1a1a"/>
+      <rect x="22" y="10" width="16" height="5" fill="#E36F4A" stroke="#1a1a1a" stroke-width="2"/>
+    </g>
+  </svg>`,
+
+  r4_kitap: `<svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+    <rect x="10" y="14" width="40" height="34" fill="#E36F4A" stroke="#1a1a1a" stroke-width="2" rx="2"/>
+    <rect x="14" y="18" width="32" height="26" fill="white" stroke="#1a1a1a" stroke-width="1"/>
+    <line x1="30" y1="14" x2="30" y2="48" stroke="#1a1a1a" stroke-width="2"/>
+    <line x1="17" y1="24" x2="27" y2="24" stroke="#888" stroke-width="1"/>
+    <line x1="17" y1="30" x2="27" y2="30" stroke="#888" stroke-width="1"/>
+    <line x1="33" y1="24" x2="43" y2="24" stroke="#888" stroke-width="1"/>
+    <line x1="33" y1="30" x2="43" y2="30" stroke="#888" stroke-width="1"/>
+  </svg>`,
+
+  r4_buhar: `<svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+    <!-- Cup base -->
+    <path d="M 18 38 L 42 38 L 40 52 L 20 52 Z" fill="white" stroke="#1a1a1a" stroke-width="2"/>
+    <ellipse cx="30" cy="38" rx="12" ry="3" fill="#e8f4fb" stroke="#1a1a1a" stroke-width="1.5"/>
+    <!-- Steam (wavy lines rising) -->
+    <path d="M 22 32 Q 20 26 24 22 Q 28 18 24 12" fill="none" stroke="#a8c4dc" stroke-width="2.5" stroke-linecap="round" opacity="0.8"/>
+    <path d="M 30 32 Q 28 26 32 22 Q 36 18 32 12" fill="none" stroke="#a8c4dc" stroke-width="2.5" stroke-linecap="round" opacity="0.8"/>
+    <path d="M 38 32 Q 36 26 40 22 Q 44 18 40 12" fill="none" stroke="#a8c4dc" stroke-width="2.5" stroke-linecap="round" opacity="0.8"/>
+  </svg>`,
+
+  r4_sut: `<svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+    <!-- Milk glass -->
+    <path d="M 18 14 L 42 14 L 40 50 L 20 50 Z" fill="white" stroke="#1a1a1a" stroke-width="2"/>
+    <path d="M 20 22 L 40 22 L 38 48 L 22 48 Z" fill="#fdfde0" stroke="#1a1a1a" stroke-width="1"/>
+    <path d="M 20 22 Q 25 19 30 22 Q 35 25 40 22" fill="none" stroke="#c89a30" stroke-width="1.5"/>
+    <ellipse cx="24" cy="30" rx="2" ry="6" fill="white" opacity="0.8"/>
+  </svg>`,
+
+  r4_ayi: `<svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+    <!-- Teddy bear head -->
+    <circle cx="22" cy="20" r="6" fill="#c89a5a" stroke="#1a1a1a" stroke-width="1.5"/>
+    <circle cx="38" cy="20" r="6" fill="#c89a5a" stroke="#1a1a1a" stroke-width="1.5"/>
+    <circle cx="30" cy="26" r="14" fill="#c89a5a" stroke="#1a1a1a" stroke-width="2"/>
+    <circle cx="25" cy="25" r="1.5" fill="#1a1a1a"/>
+    <circle cx="35" cy="25" r="1.5" fill="#1a1a1a"/>
+    <ellipse cx="30" cy="30" rx="3" ry="2" fill="#5a3a1a"/>
+    <!-- Body -->
+    <ellipse cx="30" cy="46" rx="12" ry="10" fill="#c89a5a" stroke="#1a1a1a" stroke-width="2"/>
+    <ellipse cx="30" cy="48" rx="6" ry="6" fill="#e0b878"/>
+  </svg>`,
+
+  r4_yag: `<svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+    <!-- Bottle of oil -->
+    <rect x="24" y="8" width="12" height="6" fill="#3DAA68" stroke="#1a1a1a" stroke-width="1.5"/>
+    <path d="M 20 16 L 40 16 L 42 22 L 42 52 L 18 52 L 18 22 Z" fill="#a8e068" stroke="#1a1a1a" stroke-width="2"/>
+    <rect x="22" y="28" width="16" height="14" fill="#fef5a8" stroke="#c89a30" stroke-width="1"/>
+    <text x="30" y="38" font-size="6" text-anchor="middle" fill="#5a3a1a" font-weight="bold">YAĞ</text>
+    <ellipse cx="22" cy="36" rx="1.5" ry="4" fill="white" opacity="0.7"/>
+  </svg>`,
+
+  r4_duman: `<svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+    <!-- Smoke clouds rising -->
+    <ellipse cx="20" cy="45" rx="10" ry="6" fill="#a8a8a8" stroke="#5a5a5a" stroke-width="1.5" opacity="0.85"/>
+    <ellipse cx="35" cy="42" rx="12" ry="7" fill="#a8a8a8" stroke="#5a5a5a" stroke-width="1.5" opacity="0.85"/>
+    <ellipse cx="25" cy="32" rx="9" ry="6" fill="#c8c8c8" stroke="#5a5a5a" stroke-width="1.5" opacity="0.8"/>
+    <ellipse cx="38" cy="25" rx="8" ry="5" fill="#c8c8c8" stroke="#5a5a5a" stroke-width="1.5" opacity="0.75"/>
+    <ellipse cx="28" cy="18" rx="6" ry="4" fill="#d8d8d8" stroke="#5a5a5a" stroke-width="1.5" opacity="0.7"/>
+    <ellipse cx="36" cy="12" rx="4" ry="3" fill="#e0e0e0" stroke="#5a5a5a" stroke-width="1.5" opacity="0.6"/>
+  </svg>`,
+
+  r4_top: `<svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+    <!-- Soccer ball -->
+    <circle cx="30" cy="30" r="20" fill="white" stroke="#1a1a1a" stroke-width="2"/>
+    <polygon points="30,18 36,22 34,30 26,30 24,22" fill="#1a1a1a"/>
+    <polygon points="15,28 22,24 24,30 20,36 14,34" fill="#1a1a1a"/>
+    <polygon points="45,28 46,34 40,36 36,30 38,24" fill="#1a1a1a"/>
+    <polygon points="22,42 28,38 32,42 28,46 22,46" fill="#1a1a1a"/>
+    <ellipse cx="22" cy="22" rx="3" ry="3" fill="white" opacity="0.5"/>
+  </svg>`,
+
+  r4_kola: `<svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+    <!-- Cola glass bottle silhouette -->
+    <path d="M 24 6 L 36 6 L 36 12 Q 36 14 38 16 Q 42 22 42 30 L 42 50 Q 42 54 38 54 L 22 54 Q 18 54 18 50 L 18 30 Q 18 22 22 16 Q 24 14 24 12 Z"
+          fill="#3a1a08" stroke="#1a1a1a" stroke-width="2"/>
+    <!-- Cap -->
+    <rect x="24" y="4" width="12" height="5" fill="#c44a3a" stroke="#1a1a1a" stroke-width="1.5"/>
+    <!-- Label area -->
+    <rect x="20" y="28" width="20" height="14" fill="#c44a3a" stroke="#8a2a1a" stroke-width="1"/>
+    <text x="30" y="38" font-size="6" text-anchor="middle" fill="white" font-weight="bold">KOLA</text>
+    <!-- Bottle highlight -->
+    <path d="M 22 20 L 23 20 L 24 50 L 23 50 Z" fill="white" opacity="0.4"/>
+    <!-- Bubbles inside -->
+    <circle cx="28" cy="22" r="1.2" fill="white" opacity="0.5"/>
+    <circle cx="33" cy="18" r="1" fill="white" opacity="0.5"/>
+    <circle cx="36" cy="24" r="0.9" fill="white" opacity="0.5"/>
+  </svg>`
+};
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  $(`${name}Screen`).classList.add('active');
+  state.currentScreen = name;
+}
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+function playSound(type) {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const o = ctx.createOscillator(); const g = ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    if (type === 'ding') {
+      o.frequency.value = 880; o.type = 'sine';
+      g.gain.setValueAtTime(0.15, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
+      o.start(); o.stop(ctx.currentTime + 0.2);
+    } else if (type === 'buzz') {
+      o.frequency.value = 180; o.type = 'sawtooth';
+      g.gain.setValueAtTime(0.1, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.18);
+      o.start(); o.stop(ctx.currentTime + 0.18);
+    } else if (type === 'pop') {
+      o.frequency.setValueAtTime(660, ctx.currentTime);
+      o.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.08);
+      o.type = 'sine';
+      g.gain.setValueAtTime(0.1, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.12);
+      o.start(); o.stop(ctx.currentTime + 0.12);
+    } else if (type === 'badge') {
+      o.frequency.setValueAtTime(523, ctx.currentTime);
+      o.frequency.setValueAtTime(659, ctx.currentTime + 0.1);
+      o.frequency.setValueAtTime(784, ctx.currentTime + 0.2);
+      o.type = 'triangle';
+      g.gain.setValueAtTime(0.15, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+      o.start(); o.stop(ctx.currentTime + 0.5);
+    }
+  } catch (e) {}
+}
+function spawnConfetti() {
+  const colors = ['#3D7DCA', '#FFD166', '#5cc77f', '#FF8C42', '#5DCFE6'];
+  const overlay = $('badgeOverlay');
+  for (let i = 0; i < 40; i++) {
+    const c = document.createElement('div');
+    c.className = 'confetti';
+    c.style.background = colors[Math.floor(Math.random() * colors.length)];
+    c.style.left = Math.random() * 100 + '%';
+    c.style.top = '-20px';
+    c.style.animation = `confettiFall ${1 + Math.random() * 1.5}s ease-out forwards`;
+    c.style.animationDelay = Math.random() * 0.3 + 's';
+    overlay.appendChild(c);
+    setTimeout(() => c.remove(), 2500);
+  }
+}
+
+function applyTwemoji(rootEl) {
+  if (window.twemoji) {
+    twemoji.parse(rootEl || document.body, {
+      folder: 'svg', ext: '.svg',
+      base: 'https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/'
+    });
+  }
+}
+
+function updateMenu() {
+  const earned = state.earnedBadges.size;
+  $('menuProgress').style.width = (earned / ALL_BADGES.length * 100) + '%';
+  $('menuProgressText').textContent = `${earned} / ${ALL_BADGES.length} rozet`;
+}
+
+$('playBtn').addEventListener('click', () => {
+  if (state.earnedBadges.size === ALL_BADGES.length) {
+    state.earnedBadges.clear();
+    state.totalScore = 0;
+    $('hudScore').textContent = 'Skor: 0';
+    updateMenu();
+  }
+  if (!state.earnedBadges.has('madde_dedektifi'))      showRoundIntro(1);
+  else if (!state.earnedBadges.has('duyu_ustasi'))     showRoundIntro(2);
+  else if (!state.earnedBadges.has('ozellik_avcisi'))  showRoundIntro(3);
+  else if (!state.earnedBadges.has('hal_sefi'))        showRoundIntro(4);
+});
+$('gameCard').addEventListener('click', e => { if (e.target.id !== 'playBtn') $('playBtn').click(); });
+
+$('backBtn').addEventListener('click', () => { showScreen('menu'); updateMenu(); });
+$('trophyBtn').addEventListener('click', () => {
+  renderBottomSheet();
+  $('sheetOverlay').classList.add('active');
+  $('bottomSheet').classList.add('active');
+});
+$('sheetOverlay').addEventListener('click', () => {
+  $('sheetOverlay').classList.remove('active');
+  $('bottomSheet').classList.remove('active');
+});
+function renderBottomSheet() {
+  const earned = ALL_BADGES.filter(b => state.earnedBadges.has(b.id));
+  const locked = ALL_BADGES.filter(b => !state.earnedBadges.has(b.id));
+  $('sheetProgress').style.width = (earned.length / ALL_BADGES.length * 100) + '%';
+  $('sheetProgressText').textContent = `${earned.length} / ${ALL_BADGES.length} rozet`;
+  $('sheetEarned').innerHTML = earned.length
+    ? earned.map(b => `<div class="sheet-badge"><div>${b.emoji}</div><div class="badge-label">${b.name}</div></div>`).join('')
+    : '<div style="grid-column: 1/-1; color: #5A7794; font-size: 13px; padding: 8px;">Henüz rozet yok. Oyna!</div>';
+  $('sheetLocked').innerHTML = locked.length
+    ? locked.map(b => `<div class="sheet-badge locked"><div>🔒</div><div class="badge-label">${b.name}</div></div>`).join('')
+    : '<div style="grid-column: 1/-1; color: #3DAA68; font-size: 13px; padding: 8px; font-weight: 700;">Tamamlandı! 🎉</div>';
+  applyTwemoji($('bottomSheet'));
+}
+
+function showRoundIntro(roundNum) {
+  state.pendingRoundStart = roundNum;
+  const intros = {
+    1: { num: 'ROUND 1', title: 'Madde mi Değil mi?', emoji: '🔬',
+         desc: 'Karşına çıkan şey madde mi, yoksa madde değil mi?' },
+    2: { num: 'ROUND 2', title: 'Hangi Duyu?', emoji: '👀',
+         desc: 'Bu özelliği hangi duyu organımızla algılarız?' },
+    3: { num: 'ROUND 3', title: 'Karşıt Özellikler', emoji: '🪞',
+         desc: 'Esnek mi kırılgan mı, pürüzlü mü pürüzsüz mü, şeffaf mı opak mı?' },
+    4: { num: 'ROUND 4', title: 'Hâl Atölyesi', emoji: '🌡️',
+         desc: 'Maddeleri katı, sıvı, gaz hâllerine doğru yerleştir!' }
+  };
+  const info = intros[roundNum];
+  $('introNum').textContent = info.num;
+  $('introTitle').textContent = info.title;
+  $('introEmoji').textContent = info.emoji;
+  $('introDesc').textContent = info.desc;
+  showScreen('intro');
+  applyTwemoji($('introScreen'));
+}
+$('introBtn').addEventListener('click', () => {
+  if (state.pendingRoundStart === 1) startR1();
+  else if (state.pendingRoundStart === 2) startR2();
+  else if (state.pendingRoundStart === 3) startR3();
+  else if (state.pendingRoundStart === 4) startR4();
+});
+
+// ============ ROUND 1 ============
+function startR1() {
+  state.r1.qIndex = 0;
+  state.r1.questions = shuffle(R1_QUESTIONS).slice(0, 10);
+  loadR1Question();
+  showScreen('r1');
+}
+function loadR1Question() {
+  const q = state.r1.questions[state.r1.qIndex];
+  state.r1.locked = false;
+  $('r1Counter').textContent = `${state.r1.qIndex + 1} / ${state.r1.questions.length}`;
+  $('r1Emoji').innerHTML = SVG_LIB[q.svg] || '';
+  $('r1Label').textContent = q.label;
+  $('r1Result').textContent = '';
+  $('r1Result').classList.remove('visible', 'correct', 'wrong');
+  document.querySelectorAll('#r1Screen .bin-btn').forEach(b => {
+    b.disabled = false;
+    b.classList.remove('flash-correct', 'flash-wrong');
+  });
+  applyTwemoji($('r1Card'));
+}
+function onR1Pick(picked, btn) {
+  if (state.r1.locked) return;
+  const q = state.r1.questions[state.r1.qIndex];
+  const correct = (picked === 'madde' && q.isMadde) || (picked === 'degil' && !q.isMadde);
+  $('r1Card').classList.add('bounce');
+  setTimeout(() => $('r1Card').classList.remove('bounce'), 500);
+  if (correct) {
+    state.r1.locked = true;
+    if (state.r1.wrongTimer) { clearTimeout(state.r1.wrongTimer); state.r1.wrongTimer = null; }
+    document.querySelectorAll('#r1Screen .bin-btn').forEach(b => b.classList.remove('flash-wrong'));
+    $('r1Result').classList.remove('wrong');
+    playSound('ding');
+    btn.classList.add('flash-correct');
+    document.querySelectorAll('#r1Screen .bin-btn').forEach(b => b.disabled = true);
+    $('r1Result').textContent = '✓ Doğru!';
+    $('r1Result').classList.add('visible', 'correct');
+    state.totalScore += 10;
+    $('hudScore').textContent = `Skor: ${state.totalScore}`;
+    setTimeout(() => {
+      state.r1.qIndex++;
+      if (state.r1.qIndex >= state.r1.questions.length) {
+        awardBadge('madde_dedektifi', () => showRoundIntro(2));
+      } else {
+        loadR1Question();
+      }
+    }, 1200);
+  } else {
+    playSound('buzz');
+    btn.classList.add('flash-wrong');
+    $('r1Result').textContent = 'Tekrar dene!';
+    $('r1Result').classList.remove('correct');
+    $('r1Result').classList.add('visible', 'wrong');
+    if (state.r1.wrongTimer) clearTimeout(state.r1.wrongTimer);
+    state.r1.wrongTimer = setTimeout(() => {
+      btn.classList.remove('flash-wrong');
+      $('r1Result').textContent = '';
+      $('r1Result').classList.remove('visible', 'wrong');
+      state.r1.wrongTimer = null;
+    }, 1100);
+  }
+}
+$('r1BinMadde').addEventListener('click', (e) => onR1Pick('madde', e.currentTarget));
+$('r1BinDegil').addEventListener('click', (e) => onR1Pick('degil', e.currentTarget));
+
+// ============ ROUND 2 ============
+function startR2() {
+  state.r2.qIndex = 0;
+  state.r2.questions = shuffle(R2_QUESTIONS);
+  loadR2Question();
+  showScreen('r2');
+}
+function loadR2Question() {
+  const q = state.r2.questions[state.r2.qIndex];
+  state.r2.locked = false;
+  $('r2Counter').textContent = `${state.r2.qIndex + 1} / ${state.r2.questions.length}`;
+  $('r2PropText').textContent = q.prop;
+  $('r2Result').textContent = '';
+  $('r2Result').classList.remove('visible', 'correct', 'wrong');
+
+  const options = shuffle([q.correct, ...q.distractors]);
+  const grid = $('r2Organs');
+  grid.innerHTML = '';
+  options.forEach(orgKey => {
+    const org = ORGANS.find(o => o.key === orgKey);
+    const b = document.createElement('button');
+    b.className = 'organ-btn';
+    b.innerHTML = `<span class="organ-emoji">${org.emoji}</span><span class="organ-name">${org.name}</span>`;
+    b.addEventListener('click', () => onR2Pick(orgKey === q.correct, b));
+    grid.appendChild(b);
+  });
+  applyTwemoji($('r2Screen'));
+}
+function onR2Pick(correct, btn) {
+  if (state.r2.locked) return;
+  $('r2Card').classList.add('bounce');
+  setTimeout(() => $('r2Card').classList.remove('bounce'), 500);
+  if (correct) {
+    state.r2.locked = true;
+    if (state.r2.wrongTimer) { clearTimeout(state.r2.wrongTimer); state.r2.wrongTimer = null; }
+    document.querySelectorAll('#r2Organs .organ-btn').forEach(b => b.classList.remove('flash-wrong'));
+    $('r2Result').classList.remove('wrong');
+    playSound('ding');
+    btn.classList.add('flash-correct');
+    document.querySelectorAll('#r2Organs .organ-btn').forEach(b => b.disabled = true);
+    $('r2Result').textContent = '✓ Doğru!';
+    $('r2Result').classList.add('visible', 'correct');
+    state.totalScore += 10;
+    $('hudScore').textContent = `Skor: ${state.totalScore}`;
+    setTimeout(() => {
+      state.r2.qIndex++;
+      if (state.r2.qIndex >= state.r2.questions.length) {
+        awardBadge('duyu_ustasi', () => showRoundIntro(3));
+      } else {
+        loadR2Question();
+      }
+    }, 1200);
+  } else {
+    playSound('buzz');
+    btn.classList.add('flash-wrong');
+    $('r2Result').textContent = 'Tekrar dene!';
+    $('r2Result').classList.remove('correct');
+    $('r2Result').classList.add('visible', 'wrong');
+    if (state.r2.wrongTimer) clearTimeout(state.r2.wrongTimer);
+    state.r2.wrongTimer = setTimeout(() => {
+      btn.classList.remove('flash-wrong');
+      $('r2Result').textContent = '';
+      $('r2Result').classList.remove('visible', 'wrong');
+      state.r2.wrongTimer = null;
+    }, 1100);
+  }
+}
+
+// ============ ROUND 3 ============
+function startR3() {
+  state.r3.qIndex = 0;
+  state.r3.questions = shuffle(R3_QUESTIONS);
+  loadR3Question();
+  showScreen('r3');
+}
+function loadR3Question() {
+  const q = state.r3.questions[state.r3.qIndex];
+  state.r3.locked = false;
+  $('r3Counter').textContent = `${state.r3.qIndex + 1} / ${state.r3.questions.length}`;
+  $('r3Emoji').innerHTML = SVG_LIB[q.svg] || '';
+  $('r3Label').textContent = q.label;
+  $('r3BinAText').textContent = q.binA;
+  $('r3BinBText').textContent = q.binB;
+  $('r3BinAEmoji').innerHTML = SVG_LIB[q.binAIcon] || '';
+  $('r3BinBEmoji').innerHTML = SVG_LIB[q.binBIcon] || '';
+  $('r3Result').textContent = '';
+  $('r3Result').classList.remove('visible', 'correct', 'wrong');
+  document.querySelectorAll('#r3Screen .bin-btn').forEach(b => {
+    b.disabled = false;
+    b.classList.remove('flash-correct', 'flash-wrong');
+  });
+  applyTwemoji($('r3Screen'));
+}
+function onR3Pick(pickedSide, btn) {
+  if (state.r3.locked) return;
+  const q = state.r3.questions[state.r3.qIndex];
+  const correct = pickedSide === q.correct;
+  $('r3Card').classList.add('bounce');
+  setTimeout(() => $('r3Card').classList.remove('bounce'), 500);
+  if (correct) {
+    state.r3.locked = true;
+    if (state.r3.wrongTimer) { clearTimeout(state.r3.wrongTimer); state.r3.wrongTimer = null; }
+    document.querySelectorAll('#r3Screen .bin-btn').forEach(b => b.classList.remove('flash-wrong'));
+    $('r3Result').classList.remove('wrong');
+    playSound('ding');
+    btn.classList.add('flash-correct');
+    document.querySelectorAll('#r3Screen .bin-btn').forEach(b => b.disabled = true);
+    $('r3Result').textContent = '✓ Doğru!';
+    $('r3Result').classList.add('visible', 'correct');
+    state.totalScore += 10;
+    $('hudScore').textContent = `Skor: ${state.totalScore}`;
+    setTimeout(() => {
+      state.r3.qIndex++;
+      if (state.r3.qIndex >= state.r3.questions.length) {
+        awardBadge('ozellik_avcisi', () => showRoundIntro(4));
+      } else {
+        loadR3Question();
+      }
+    }, 1200);
+  } else {
+    playSound('buzz');
+    btn.classList.add('flash-wrong');
+    $('r3Result').textContent = 'Tekrar dene!';
+    $('r3Result').classList.remove('correct');
+    $('r3Result').classList.add('visible', 'wrong');
+    if (state.r3.wrongTimer) clearTimeout(state.r3.wrongTimer);
+    state.r3.wrongTimer = setTimeout(() => {
+      btn.classList.remove('flash-wrong');
+      $('r3Result').textContent = '';
+      $('r3Result').classList.remove('visible', 'wrong');
+      state.r3.wrongTimer = null;
+    }, 1100);
+  }
+}
+$('r3BinA').addEventListener('click', (e) => onR3Pick('A', e.currentTarget));
+$('r3BinB').addEventListener('click', (e) => onR3Pick('B', e.currentTarget));
+
+// ============ ROUND 4 - DRAG ============
+function startR4() {
+  state.r4.qIndex = 0;
+  state.r4.stages = R4_STAGES;
+  loadR4Stage();
+  showScreen('r4');
+}
+function loadR4Stage() {
+  const stage = state.r4.stages[state.r4.qIndex];
+  state.r4.locked = false;
+  state.r4.dropped = {};
+  $('r4Counter').textContent = `${state.r4.qIndex + 1} / ${state.r4.stages.length}`;
+  $('r4Result').textContent = '';
+  $('r4Result').classList.remove('visible', 'correct', 'wrong');
+
+  const pool = $('r4Pool');
+  pool.innerHTML = '';
+  const items = shuffle(stage.items);
+  items.forEach(item => {
+    const el = document.createElement('div');
+    el.className = 'draggable-item';
+    el.dataset.key = item.key;
+    el.dataset.bin = item.bin;
+    el.innerHTML = `<span class="item-emoji-small">${SVG_LIB[item.svg] || ''}</span><span class="item-name">${item.label}</span>`;
+    attachR4Drag(el);
+    pool.appendChild(el);
+  });
+  applyTwemoji($('r4Screen'));
+}
+function attachR4Drag(card) {
+  let dragging = false, startX, startY, origLeft, origTop, ghost = null;
+  const onStart = (e) => {
+    if (state.r4.locked) return;
+    e.preventDefault();
+    const p = e.touches ? e.touches[0] : e;
+    startX = p.clientX; startY = p.clientY;
+    const rect = card.getBoundingClientRect();
+    origLeft = rect.left; origTop = rect.top;
+    ghost = card.cloneNode(true);
+    ghost.classList.add('dragging');
+    ghost.style.position = 'fixed';
+    ghost.style.left = rect.left + 'px';
+    ghost.style.top = rect.top + 'px';
+    ghost.style.width = rect.width + 'px';
+    ghost.style.pointerEvents = 'none';
+    ghost.style.zIndex = '200';
+    document.body.appendChild(ghost);
+    applyTwemoji(ghost);
+    card.style.opacity = '0.3';
+    dragging = true;
+  };
+  const onMove = (e) => {
+    if (!dragging || !ghost) return;
+    e.preventDefault();
+    const p = e.touches ? e.touches[0] : e;
+    ghost.style.left = (origLeft + p.clientX - startX) + 'px';
+    ghost.style.top = (origTop + p.clientY - startY) + 'px';
+    const elBelow = document.elementFromPoint(p.clientX, p.clientY);
+    document.querySelectorAll('.three-bin').forEach(b => b.classList.remove('drag-over'));
+    if (elBelow) {
+      const bin = elBelow.closest('.three-bin');
+      if (bin) bin.classList.add('drag-over');
+    }
+  };
+  const onEnd = (e) => {
+    if (!dragging) return;
+    dragging = false;
+    const p = e.changedTouches ? e.changedTouches[0] : e;
+    const elBelow = document.elementFromPoint(p.clientX, p.clientY);
+    const bin = elBelow ? elBelow.closest('.three-bin') : null;
+    document.querySelectorAll('.three-bin').forEach(b => b.classList.remove('drag-over'));
+    if (ghost) { ghost.remove(); ghost = null; }
+    card.style.opacity = '';
+    if (bin) handleR4Drop(card, bin);
+  };
+  card.addEventListener('touchstart', onStart, { passive: false });
+  card.addEventListener('touchmove', onMove, { passive: false });
+  card.addEventListener('touchend', onEnd);
+  card.addEventListener('mousedown', onStart);
+  document.addEventListener('mousemove', onMove);
+  document.addEventListener('mouseup', onEnd);
+}
+function handleR4Drop(card, bin) {
+  if (state.r4.locked) return;
+  const expectedBin = card.dataset.bin;
+  const droppedBin = bin.dataset.bin;
+  if (expectedBin === droppedBin) {
+    playSound('pop');
+    bin.classList.add('flash-correct');
+    setTimeout(() => bin.classList.remove('flash-correct'), 700);
+    state.r4.dropped[card.dataset.key] = true;
+    card.remove();
+    state.totalScore += 5;
+    $('hudScore').textContent = `Skor: ${state.totalScore}`;
+
+    // Check stage completion
+    const stage = state.r4.stages[state.r4.qIndex];
+    if (Object.keys(state.r4.dropped).length === stage.items.length) {
+      state.r4.locked = true;
+      $('r4Result').textContent = '✓ Hepsi doğru!';
+      $('r4Result').classList.add('visible', 'correct');
+      playSound('ding');
+      setTimeout(() => {
+        state.r4.qIndex++;
+        if (state.r4.qIndex >= state.r4.stages.length) {
+          awardBadge('hal_sefi', () => { showScreen('menu'); updateMenu(); });
+        } else {
+          loadR4Stage();
+        }
+      }, 1300);
+    }
+  } else {
+    playSound('buzz');
+    bin.classList.add('flash-wrong');
+    setTimeout(() => bin.classList.remove('flash-wrong'), 600);
+    $('r4Result').textContent = 'Tekrar dene!';
+    $('r4Result').classList.remove('correct');
+    $('r4Result').classList.add('visible', 'wrong');
+    if (state.r4.wrongTimer) clearTimeout(state.r4.wrongTimer);
+    state.r4.wrongTimer = setTimeout(() => {
+      $('r4Result').textContent = '';
+      $('r4Result').classList.remove('visible', 'wrong');
+      state.r4.wrongTimer = null;
+    }, 1100);
+  }
+}
+
+let badgeContinueCallback = null;
+function awardBadge(id, onContinue) {
+  const b = ALL_BADGES.find(x => x.id === id);
+  if (!b) { if (onContinue) onContinue(); return; }
+  state.earnedBadges.add(id);
+  $('badgeEmoji').textContent = b.emoji;
+  $('badgeName').textContent = b.name;
+  $('badgeMessage').textContent = b.desc;
+  badgeContinueCallback = onContinue;
+  $('badgeOverlay').classList.add('active');
+  playSound('badge');
+  spawnConfetti();
+  applyTwemoji($('badgeOverlay'));
+}
+$('badgeBtn').addEventListener('click', () => {
+  $('badgeOverlay').classList.remove('active');
+  const cb = badgeContinueCallback;
+  badgeContinueCallback = null;
+  if (cb) cb();
+});
+
+updateMenu();
+if (window.twemoji) applyTwemoji(document.body);
+else window.addEventListener('load', () => applyTwemoji(document.body));
+</script>
+
+</body>
+</html>

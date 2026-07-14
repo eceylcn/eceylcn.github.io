@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🧩 Zıt Anlamlılar Bulmacası</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fredoka+One&display=swap" rel="stylesheet">
+<style>
+:root {
+  --purple: #7c3aed; --purple-light: #ede9fe; --purple-dark: #5b21b6;
+  --green: #16a34a; --green-light: #dcfce7;
+  --orange: #ea580c; --orange-light: #fff7ed;
+  --yellow: #ca8a04; --yellow-light: #fefce8;
+  --red: #dc2626; --red-light: #fef2f2;
+  --gray: #6b7280; --dark: #1f2937; --light: #f9fafb;
+  --radius: 16px; --shadow: 0 4px 20px rgba(0,0,0,0.1);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: 'Nunito', sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  display: flex; align-items: center; justify-content: center;
+}
+
+.container {
+  width: min(480px, 100vw);
+  min-height: 100vh;
+  background: #f8f7ff;
+  display: flex; flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ── SCREENS ── */
+.screen { display:none; flex-direction:column; flex:1; }
+.screen.active { display:flex; }
+
+/* ── MENU ── */
+#menu {
+  background: linear-gradient(160deg, #7c3aed 0%, #4f46e5 100%);
+  align-items: center; justify-content: center;
+  padding: 40px 24px; gap: 20px;
+}
+.menu-logo { font-size: 4rem; animation: float 3s ease-in-out infinite; }
+@keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+.menu-title { font-family:'Fredoka One',cursive; font-size:2.2rem; color:white; text-align:center; text-shadow:0 4px 12px rgba(0,0,0,0.2); }
+.menu-sub { color:rgba(255,255,255,0.8); font-size:0.95rem; text-align:center; font-weight:600; }
+.menu-info {
+  background: rgba(255,255,255,0.15); border-radius:var(--radius);
+  padding: 16px 20px; width:100%; backdrop-filter:blur(10px);
+  border: 1px solid rgba(255,255,255,0.25);
+}
+.menu-info-row { display:flex; align-items:center; gap:10px; color:white; font-size:0.9rem; font-weight:600; padding:4px 0; }
+.start-btn {
+  background:white; color:var(--purple-dark); border:none;
+  border-radius:50px; padding:16px 48px;
+  font-family:'Fredoka One',cursive; font-size:1.4rem;
+  cursor:pointer; box-shadow:0 8px 24px rgba(0,0,0,0.2);
+  transition:transform 0.15s, box-shadow 0.15s; width:100%;
+}
+.start-btn:hover { transform:translateY(-2px); box-shadow:0 12px 32px rgba(0,0,0,0.25); }
+
+/* ── GAME HEADER ── */
+.game-header {
+  background: var(--purple);
+  padding: 14px 20px;
+  display: flex; align-items:center; justify-content:space-between;
+}
+.round-info { color:white; font-weight:800; font-size:0.95rem; }
+.progress-dots { display:flex; gap:6px; }
+.dot { width:10px; height:10px; border-radius:50%; background:rgba(255,255,255,0.3); transition:background 0.3s; }
+.dot.done { background:white; }
+.dot.active { background:#fbbf24; }
+
+/* ── PUZZLE AREA ── */
+.puzzle-area {
+  padding: 16px;
+  display: flex; flex-direction:column; gap:12px; flex:1;
+}
+
+.puzzle-loading {
+  flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px;
+}
+.spinner {
+  width:48px; height:48px; border:4px solid #ede9fe;
+  border-top:4px solid var(--purple); border-radius:50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to{transform:rotate(360deg)} }
+.loading-text { color:var(--purple); font-weight:700; font-size:0.95rem; }
+
+/* ── GRID ── */
+.grid-wrapper {
+  background: white; border-radius:var(--radius);
+  padding: 12px; box-shadow:var(--shadow);
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 3px;
+  user-select: none;
+}
+.cell {
+  aspect-ratio: 1;
+  background: #f3f4f6;
+  border-radius: 6px;
+  display: flex; align-items:center; justify-content:center;
+  font-family:'Fredoka One',cursive;
+  font-size: clamp(0.85rem, 3vw, 1.1rem);
+  color: var(--dark);
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: all 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.cell:hover { background:#ede9fe; border-color:var(--purple); }
+.cell.selected { background:var(--purple-light); border-color:var(--purple); color:var(--purple-dark); transform:scale(1.05); }
+.cell.correct { background:var(--green-light); border-color:var(--green); color:var(--green); }
+.cell.shake { animation: shake 0.4s; }
+@keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-5px)} 40%{transform:translateX(5px)} 60%{transform:translateX(-4px)} 80%{transform:translateX(4px)} }
+
+/* ── SELECTED WORD DISPLAY ── */
+.selected-word-bar {
+  background: var(--purple-light); border-radius:12px;
+  padding: 10px 16px; text-align:center;
+  font-family:'Fredoka One',cursive; font-size:1.2rem;
+  color:var(--purple-dark); min-height:44px;
+  border: 2px solid #c4b5fd;
+  letter-spacing:4px;
+}
+
+/* ── CLUE CARDS ── */
+.clue-cards { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.clue-card {
+  background:white; border-radius:var(--radius);
+  padding:14px 12px; text-align:center;
+  box-shadow:var(--shadow); border:3px solid transparent;
+  cursor:pointer; transition:all 0.2s; position:relative;
+}
+.clue-card.active-clue { border-color:var(--purple); background:var(--purple-light); }
+.clue-card.solved { border-color:var(--green); background:var(--green-light); pointer-events:none; }
+.clue-card .clue-word {
+  font-family:'Fredoka One',cursive; font-size:1.4rem;
+  color:var(--dark); margin-bottom:4px;
+}
+.clue-card .clue-hint { font-size:0.75rem; color:var(--gray); font-weight:600; }
+.clue-card .solved-check { font-size:1.5rem; position:absolute; top:8px; right:10px; }
+
+/* ── INSTRUCTION ── */
+.instruction-bar {
+  background:var(--orange-light); border-radius:12px;
+  padding:10px 14px; text-align:center;
+  font-size:0.85rem; font-weight:700; color:var(--orange);
+  border:1px solid #fed7aa;
+}
+
+/* ── TOAST ── */
+.toast {
+  position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(80px);
+  background:#1f2937; color:white; padding:12px 24px; border-radius:50px;
+  font-weight:700; font-size:0.9rem; z-index:999;
+  transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+  white-space:nowrap; box-shadow:0 8px 24px rgba(0,0,0,0.2);
+}
+.toast.show { transform:translateX(-50%) translateY(0); }
+.toast.success { background:#166534; }
+.toast.error { background:#991b1b; }
+
+/* ── BADGE OVERLAY ── */
+#badge-overlay {
+  display:none; position:fixed; inset:0;
+  background:rgba(0,0,0,0.75); backdrop-filter:blur(8px);
+  z-index:2000; align-items:center; justify-content:center;
+}
+#badge-overlay.show { display:flex; }
+.badge-box {
+  background:white; border-radius:28px; padding:36px 40px;
+  text-align:center; max-width:300px; width:90%;
+  box-shadow:0 24px 64px rgba(0,0,0,0.3);
+  animation:badge-pop 0.6s cubic-bezier(0.34,1.56,0.64,1);
+}
+@keyframes badge-pop { from{transform:scale(0.2) rotate(-15deg);opacity:0} to{transform:scale(1) rotate(0);opacity:1} }
+.badge-icon { font-size:5rem; display:block; animation:bounce-b 1.2s ease-in-out infinite; }
+@keyframes bounce-b { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
+.badge-name { font-family:'Fredoka One',cursive; font-size:1.5rem; color:var(--dark); margin:12px 0 6px; }
+.badge-msg { color:var(--gray); font-size:0.85rem; font-weight:600; margin-bottom:20px; line-height:1.5; }
+.badge-btn {
+  background:linear-gradient(135deg,#7c3aed,#4f46e5); color:white; border:none;
+  border-radius:50px; padding:12px 32px;
+  font-family:'Fredoka One',cursive; font-size:1.1rem;
+  cursor:pointer; box-shadow:0 6px 20px rgba(124,58,237,0.4);
+  transition:transform 0.15s;
+}
+.badge-btn:hover { transform:scale(1.05); }
+
+/* ── CONFETTI ── */
+.confetti-p {
+  position:fixed; top:-20px; border-radius:2px;
+  animation:cffall linear forwards; z-index:1999;
+}
+@keyframes cffall { 0%{transform:translateY(0) rotate(0);opacity:1} 100%{transform:translateY(110vh) rotate(720deg);opacity:0} }
+
+/* ── FINAL ── */
+#final {
+  background:linear-gradient(160deg,#7c3aed,#4f46e5);
+  align-items:center; justify-content:center;
+  padding:40px 24px; gap:20px; text-align:center;
+}
+.final-emoji { font-size:4rem; animation:float 2s ease-in-out infinite; }
+.final-title { font-family:'Fredoka One',cursive; font-size:2rem; color:white; }
+.final-sub { color:rgba(255,255,255,0.85); font-size:0.95rem; font-weight:600; }
+.final-badges { display:flex; gap:16px; justify-content:center; }
+.final-badge {
+  background:white; border-radius:20px; padding:16px 12px; text-align:center;
+  animation:badge-pop 0.5s cubic-bezier(0.34,1.56,0.64,1) both;
+  min-width:80px;
+}
+.final-badge:nth-child(2){animation-delay:0.15s} .final-badge:nth-child(3){animation-delay:0.3s}
+.final-badge .fb-icon { font-size:2rem; }
+.final-badge .fb-name { font-size:0.65rem; font-weight:800; color:var(--dark); margin-top:4px; }
+.menu-back-btn {
+  background:white; color:var(--purple-dark); border:none;
+  border-radius:50px; padding:14px 40px;
+  font-family:'Fredoka One',cursive; font-size:1.3rem;
+  cursor:pointer; box-shadow:0 8px 24px rgba(0,0,0,0.2);
+  transition:transform 0.15s; width:100%;
+}
+.menu-back-btn:hover { transform:scale(1.03); }
+
+/* ── ERROR STATE ── */
+.error-box {
+  background:#fef2f2; border:2px solid #fecaca; border-radius:12px;
+  padding:16px; text-align:center; color:#991b1b; font-weight:700; font-size:0.85rem;
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- MENU -->
+  <div class="screen active" id="menu">
+    <div class="menu-logo">🧩</div>
+    <div class="menu-title">Zıt Anlamlılar Bulmacası</div>
+    <div class="menu-sub">Her bulmaca yapay zeka tarafından oluşturulur!</div>
+    <div class="menu-info">
+      <div class="menu-info-row">🔁 Her oturumda farklı bulmaca</div>
+      <div class="menu-info-row">🧩 20 bulmaca = oyun tamamlandı</div>
+      <div class="menu-info-row">🏅 Her 5 bulmacada 1 rozet</div>
+    </div>
+    <button class="start-btn" onclick="startGame()">Oynayalım! 🎮</button>
+  </div>
+
+  <!-- GAME -->
+  <div class="screen" id="game">
+    <div class="game-header">
+      <div class="round-info" id="round-info">Round 1 / 20</div>
+      <div class="progress-dots" id="progress-dots"></div>
+    </div>
+
+    <div class="puzzle-area" id="puzzle-area">
+      <div class="puzzle-loading" id="loading">
+        <div class="spinner"></div>
+        <div class="loading-text">Bulmaca oluşturuluyor...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FINAL -->
+  <div class="screen" id="final">
+    <div class="final-emoji">🎉</div>
+    <div class="final-title">Tebrikler!</div>
+    <div class="final-sub">20 bulmacayı tamamladın!<br>Kazandığın rozetler:</div>
+    <div class="final-badges" id="final-badges"></div>
+    <button class="menu-back-btn" onclick="goMenu()">Menüye Dön 🏠</button>
+  </div>
+</div>
+
+<!-- BADGE OVERLAY -->
+<div id="badge-overlay">
+  <div class="badge-box">
+    <span class="badge-icon" id="badge-icon">🔭</span>
+    <div class="badge-name" id="badge-name">Kelime Kaşifi</div>
+    <div class="badge-msg" id="badge-msg">Tebrikler!</div>
+    <button class="badge-btn" id="badge-btn">Devam Et! →</button>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+// ── KELIME HAVUZU ──
+const WORD_PAIRS = [
+  ['BÜYÜK','KÜÇÜK'],['ÖNCE','SONRA'],['UZAK','YAKIN'],['KOLAY','ZOR'],
+  ['KIŞ','YAZ'],['AZ','ÇOK'],['SOĞUK','SICAK'],['AŞAĞI','YUKARI'],
+  ['TEMİZ','KİRLİ'],['TATLI','ACI'],['YÜKSEK','ALÇAK'],['DOĞRU','YANLIŞ'],
+  ['SEYREK','SIK'],['BAYAT','TAZE'],['USTA','ACEMİ'],['EVCİL','YABANİ'],
+  ['YAŞ','KURU'],['ZENGİN','FAKİR'],['ÇALIŞKAN','TEMBELs'],['KORKAK','CESUR'],
+  ['KALIN','İNCE'],['UZUN','KISA'],['CİMRİ','CÖMERT'],['PAHALI','UCUZ'],
+  ['HIZLI','YAVAŞ'],['SAVAŞ','BARIŞ'],['AYDINLIK','KARANLIK'],['GÜNDÜZ','GECE'],
+  ['BEYAZ','SİYAH'],['DOST','DÜŞMAN'],['GELİR','GİDER'],['İLERİ','GERİ'],
+  ['CEVAP','SORU'],['GELMEK','GİTMEK'],
+];
+// Fix typo
+WORD_PAIRS[18][1] = 'TEMBEL';
+
+const BADGES = [
+  { icon:'🔭', name:'Kelime Kaşifi', msg:'Tebrikler! 5 bulmacayı çözdün.\nKelime hazineni genişletiyorsun!' },
+  { icon:'📚', name:'Dil Ustası',    msg:'Harika! 10 bulmaca çözdün.\nArtık gerçek bir dil ustasısın!' },
+  { icon:'🧠', name:'Zıt Anlamlı Deha', msg:'Muhteşem! 15 bulmaca çözdün.\nSen bir dehasın!' },
+];
+
+const TR_LETTERS = 'ABCÇDEFGĞHIİJKLMNOÖPRSŞTUÜVYZ';
+
+// ── STATE ──
+let roundNum = 1;
+const MAX_ROUNDS = 20;
+let usedPairIndices = [];
+let currentPuzzle = null;
+let selectedCells = [];
+let activeClueIdx = 0; // 0 or 1
+let solvedClues = [false, false];
+let earnedBadges = [];
+
+// ── UTILS ──
+function speak(t) {
+  if (!window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(t);
+  u.lang = 'tr-TR'; u.rate = 0.9;
+  window.speechSynthesis.speak(u);
+}
+function toast(msg, type='') {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.className = 'toast '+type+' show';
+  setTimeout(() => el.classList.remove('show'), 2200);
+}
+function confetti() {
+  const cols = ['#f59e0b','#ef4444','#22c55e','#3b82f6','#a855f7','#ec4899','#f97316'];
+  for (let i=0;i<40;i++) {
+    const c=document.createElement('div'); c.className='confetti-p';
+    c.style.left=Math.random()*100+'vw';
+    c.style.background=cols[Math.floor(Math.random()*cols.length)];
+    c.style.width=(8+Math.random()*8)+'px'; c.style.height=(8+Math.random()*12)+'px';
+    c.style.animationDuration=(1.5+Math.random()*2)+'s';
+    c.style.animationDelay=Math.random()*0.6+'s';
+    c.style.borderRadius=Math.random()>.5?'50%':'2px';
+    document.body.appendChild(c); setTimeout(()=>c.remove(),4000);
+  }
+}
+function showBadge(idx, cb) {
+  confetti();
+  const b = BADGES[idx];
+  document.getElementById('badge-icon').textContent = b.icon;
+  document.getElementById('badge-name').textContent = b.name;
+  document.getElementById('badge-msg').textContent = b.msg;
+  const ov = document.getElementById('badge-overlay');
+  ov.classList.add('show');
+  document.getElementById('badge-btn').onclick = () => { ov.classList.remove('show'); cb(); };
+  speak('Bir rozet kazandın! ' + b.name);
+}
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+function shuffle(arr) {
+  const a=[...arr];
+  for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
+  return a;
+}
+function rand(n){return Math.floor(Math.random()*n);}
+function randLetter(){return TR_LETTERS[rand(TR_LETTERS.length)];}
+
+// ── GAME START ──
+function startGame() {
+  roundNum=1; usedPairIndices=[]; earnedBadges=[];
+  solvedClues=[false,false]; selectedCells=[]; activeClueIdx=0;
+  showScreen('game');
+  loadRound();
+}
+function goMenu() { showScreen('menu'); }
+
+// ── ROUND LOADING ──
+async function loadRound() {
+  updateHeader();
+  const area = document.getElementById('puzzle-area');
+  area.innerHTML = `<div class="puzzle-loading" id="loading"><div class="spinner"></div><div class="loading-text">Bulmaca oluşturuluyor...</div></div>`;
+  solvedClues=[false,false]; selectedCells=[]; activeClueIdx=0;
+
+  // Pick 2 unused pairs
+  const available = WORD_PAIRS.map((_,i)=>i).filter(i=>!usedPairIndices.includes(i));
+  const shuffled = shuffle(available);
+  const pairIdx1 = shuffled[0], pairIdx2 = shuffled[1];
+  usedPairIndices.push(pairIdx1, pairIdx2);
+
+  const pair1 = WORD_PAIRS[pairIdx1];
+  const pair2 = WORD_PAIRS[pairIdx2];
+  // clue = the shown word, answer = what they find in puzzle
+  const clues = [
+    { clue: pair1[0], answer: pair1[1] },
+    { clue: pair2[0], answer: pair2[1] },
+  ];
+
+  try {
+    const puzzle = await fetchPuzzleFromAI(clues);
+    currentPuzzle = puzzle;
+    renderRound(puzzle, clues);
+  } catch(e) {
+    const puzzle = buildFallbackPuzzle(clues);
+    currentPuzzle = puzzle;
+    renderRound(puzzle, clues);
+  }
+}
+
+// ── AI PUZZLE FETCH ──
+async function fetchPuzzleFromAI(clues) {
+  const word1 = clues[0].answer;
+  const word2 = clues[1].answer;
+
+  const prompt = `Sen bir ilkokul 2. sınıf Türkçe öğretmenisin. Aşağıdaki iki Türkçe kelimeyi içeren bir kelime bulmacası oluştur.
+
+Kelimeler: "${word1}" ve "${word2}"
+
+Kurallar:
+- 8 sütun, 8 satır ızgara (her satır tam 8 harf)
+- Her iki kelime de bulmacada yer almalı
+- "${word1}" yatay (H) veya dikey (V) olabilir
+- "${word2}" yatay (H) veya dikey (V) olabilir
+- Diğer hücreler rastgele Türkçe harflerle dolu olmalı (A,B,C,Ç,D,E,F,G,Ğ,H,I,İ,K,L,M,N,O,Ö,P,R,S,Ş,T,U,Ü,V,Y,Z)
+- Kelimeler ızgara sınırları içinde kalmalı
+
+SADECE şu JSON formatında yanıt ver, başka hiçbir şey yazma:
+{"grid":[["H","A","R","F","L","E","R","X"],...],"words":[{"word":"${word1}","row":0,"col":0,"dir":"H"},{"word":"${word2}","row":3,"col":2,"dir":"V"}]}
+
+grid: 8 elemanlı 8 dizi (büyük harf Türkçe)
+words: her kelime için row(0-7), col(0-7), dir("H" yatay veya "V" dikey)`;
+
+  const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 1000,
+      messages: [{ role: 'user', content: prompt }]
+    })
+  });
+  const data = await resp.json();
+  const text = data.content?.find(b=>b.type==='text')?.text || '';
+  const jsonMatch = text.match(/\{[\s\S]*\}/);
+  if (!jsonMatch) throw new Error('No JSON');
+  const parsed = JSON.parse(jsonMatch[0]);
+
+  // Validate
+  if (!parsed.grid || parsed.grid.length !== 8 || !parsed.words || parsed.words.length < 2) throw new Error('Bad format');
+
+  // Place words into grid to ensure correctness
+  const grid = parsed.grid.map(row => [...row]);
+  parsed.words.forEach(w => {
+    const word = w.word.toUpperCase();
+    for (let i=0; i<word.length; i++) {
+      const r = w.dir==='H' ? w.row : w.row+i;
+      const c = w.dir==='H' ? w.col+i : w.col;
+      if (r>=0&&r<8&&c>=0&&c<8) grid[r][c] = word[i];
+    }
+  });
+
+  return { grid, words: parsed.words };
+}
+
+// ── FALLBACK PUZZLE BUILDER ──
+function buildFallbackPuzzle(clues) {
+  // Build 8x8 grid and place words manually
+  const grid = Array.from({length:8}, () => Array.from({length:8}, randLetter));
+  const words = [];
+
+  const placeWord = (word, attempt=0) => {
+    if (attempt > 50) return null;
+    const dir = Math.random()>.5?'H':'V';
+    const maxR = dir==='H'?7:8-word.length;
+    const maxC = dir==='H'?8-word.length:7;
+    const row = rand(maxR+1);
+    const col = rand(maxC+1);
+    // Check no overlap conflict
+    for (let i=0;i<word.length;i++) {
+      const r=dir==='H'?row:row+i, c=dir==='H'?col+i:col;
+      if (grid[r][c]!==word[i] && grid[r][c]!==randLetter()) {/* allow */}
+    }
+    for (let i=0;i<word.length;i++) {
+      const r=dir==='H'?row:row+i, c=dir==='H'?col+i:col;
+      grid[r][c]=word[i];
+    }
+    return {word, row, col, dir};
+  };
+
+  clues.forEach(cl => {
+    const placed = placeWord(cl.answer);
+    if (placed) words.push(placed);
+    else {
+      // Force place horizontally in a random row
+      const row=rand(8); const col=Math.min(0,8-cl.answer.length);
+      for(let i=0;i<cl.answer.length&&col+i<8;i++) grid[row][col+i]=cl.answer[i];
+      words.push({word:cl.answer,row,col,dir:'H'});
+    }
+  });
+
+  return { grid, words };
+}
+
+// ── RENDER ROUND ──
+function renderRound(puzzle, clues) {
+  const area = document.getElementById('puzzle-area');
+  area.innerHTML = '';
+
+  // Instruction
+  const inst = document.createElement('div');
+  inst.className='instruction-bar';
+  inst.textContent='👇 Kelime kartına tıkla, sonra bulmacada harfleri seç!';
+  area.appendChild(inst);
+
+  // Grid
+  const gridWrap = document.createElement('div'); gridWrap.className='grid-wrapper';
+  const gridEl = document.createElement('div'); gridEl.className='grid'; gridEl.id='grid';
+  puzzle.grid.forEach((row,r) => row.forEach((letter,c) => {
+    const cell=document.createElement('div');
+    cell.className='cell'; cell.textContent=letter;
+    cell.dataset.r=r; cell.dataset.c=c;
+    cell.onclick=()=>onCellClick(r,c,cell);
+    gridEl.appendChild(cell);
+  }));
+  gridWrap.appendChild(gridEl);
+  area.appendChild(gridWrap);
+
+  // Selected word display
+  const wordBar=document.createElement('div');
+  wordBar.className='selected-word-bar'; wordBar.id='word-bar';
+  wordBar.textContent='...';
+  area.appendChild(wordBar);
+
+  // Clue cards
+  const cardsEl=document.createElement('div'); cardsEl.className='clue-cards';
+  clues.forEach((cl,i)=>{
+    const card=document.createElement('div');
+    card.className='clue-card'+(i===0?' active-clue':'');
+    card.id='clue-'+i;
+    card.innerHTML=`<div class="clue-word">${cl.clue}</div><div class="clue-hint">zıt anlamlısını bul</div>`;
+    card.onclick=()=>selectClue(i);
+    cardsEl.appendChild(card);
+  });
+  area.appendChild(cardsEl);
+
+  activeClueIdx=0;
+  speak(clues[0].clue + ' ve ' + clues[1].clue + ' kelimelerinin zıt anlamlılarını bulmacada bul!');
+}
+
+// ── CLUE SELECTION ──
+function selectClue(idx) {
+  if (solvedClues[idx]) return;
+  activeClueIdx=idx;
+  clearSelection();
+  document.querySelectorAll('.clue-card').forEach((c,i)=>{
+    c.classList.toggle('active-clue', i===idx && !solvedClues[i]);
+  });
+  const word=currentPuzzle.words?.[idx]?.word||'';
+  speak(currentPuzzle.words[idx]?.word ? 'Yeni kelime seçildi' : '');
+}
+
+// ── CELL CLICK ──
+function onCellClick(r,c,cell) {
+  if (cell.classList.contains('correct')) return;
+
+  const key=r+','+c;
+  const already=selectedCells.findIndex(s=>s.key===key);
+  if (already!==-1) {
+    // Deselect last if it's this cell
+    if (already===selectedCells.length-1) {
+      selectedCells.pop();
+      cell.classList.remove('selected');
+      updateWordBar();
+      return;
+    }
+  }
+
+  // Check adjacency (must be in line with existing selection)
+  if (selectedCells.length>0) {
+    if (!isValidNext(r,c)) {
+      shakeSelected(); clearSelection();
+      return;
+    }
+  }
+
+  selectedCells.push({r,c,key,cell,letter:cell.textContent});
+  cell.classList.add('selected');
+  updateWordBar();
+
+  // Auto check if length matches target
+  const target = currentPuzzle.words?.[activeClueIdx]?.word;
+  if (target && selectedCells.length===target.length) {
+    setTimeout(()=>checkAnswer(),150);
+  }
+}
+
+function isValidNext(r,c) {
+  if (selectedCells.length===0) return true;
+  const last=selectedCells[selectedCells.length-1];
+  const dr=Math.abs(r-last.r), dc=Math.abs(c-last.c);
+  if (dr>1||dc>1||(dr===1&&dc===1)) return false;
+  // Must maintain direction
+  if (selectedCells.length>=2) {
+    const first=selectedCells[0];
+    const isH=first.r===last.r;
+    const isV=first.c===last.c;
+    if (isH && r!==first.r) return false;
+    if (isV && c!==first.c) return false;
+  }
+  return true;
+}
+
+function updateWordBar() {
+  const bar=document.getElementById('word-bar');
+  if (!bar) return;
+  bar.textContent=selectedCells.map(s=>s.letter).join('') || '...';
+}
+
+function clearSelection() {
+  selectedCells.forEach(s=>s.cell.classList.remove('selected'));
+  selectedCells=[];
+  updateWordBar();
+}
+
+function shakeSelected() {
+  selectedCells.forEach(s=>{
+    s.cell.classList.add('shake');
+    setTimeout(()=>s.cell.classList.remove('shake'),500);
+  });
+}
+
+function checkAnswer() {
+  const formed=selectedCells.map(s=>s.letter).join('');
+  const target=currentPuzzle.words[activeClueIdx]?.word;
+  if (!target) return;
+
+  if (formed===target) {
+    // Correct!
+    selectedCells.forEach(s=>{ s.cell.classList.remove('selected'); s.cell.classList.add('correct'); });
+    solvedClues[activeClueIdx]=true;
+    const card=document.getElementById('clue-'+activeClueIdx);
+    if (card) {
+      card.classList.remove('active-clue');
+      card.classList.add('solved');
+      card.innerHTML+=`<div class="solved-check">✅</div>`;
+    }
+    toast('✅ Aferin! ' + formed + ' doğru!', 'success');
+    speak('Aferin! ' + formed + ' doğru!');
+    selectedCells=[];
+    updateWordBar();
+
+    // Check if both solved
+    if (solvedClues[0]&&solvedClues[1]) {
+      setTimeout(()=>completeRound(), 600);
+    } else {
+      // Switch to unsolved clue
+      const next=solvedClues[0]?1:0;
+      setTimeout(()=>selectClue(next),400);
+    }
+  } else {
+    shakeSelected();
+    toast('❌ Bu kelime değil, tekrar dene!', 'error');
+    speak('Bu kelime değil. Tekrar dene!');
+    setTimeout(()=>clearSelection(),400);
+  }
+}
+
+// ── ROUND COMPLETE ──
+function completeRound() {
+  const badgeMilestone = roundNum % 5 === 0 && roundNum <= 15;
+  const badgeIdx = roundNum/5 - 1;
+
+  if (roundNum >= MAX_ROUNDS) {
+    // Game over
+    if (badgeMilestone) {
+      earnedBadges.push(badgeIdx);
+      showBadge(badgeIdx, ()=>showFinalScreen());
+    } else {
+      showFinalScreen();
+    }
+    return;
+  }
+
+  roundNum++;
+
+  if (badgeMilestone) {
+    earnedBadges.push(badgeIdx);
+    showBadge(badgeIdx, ()=>loadRound());
+  } else {
+    loadRound();
+  }
+}
+
+function showFinalScreen() {
+  showScreen('final');
+  confetti();
+  const row=document.getElementById('final-badges');
+  row.innerHTML=earnedBadges.map(i=>`
+    <div class="final-badge">
+      <div class="fb-icon">${BADGES[i].icon}</div>
+      <div class="fb-name">${BADGES[i].name}</div>
+    </div>`).join('');
+  speak('Tebrikler! 20 bulmacayı tamamladın!');
+}
+
+// ── HEADER ──
+function updateHeader() {
+  document.getElementById('round-info').textContent=`Round ${roundNum} / ${MAX_ROUNDS}`;
+  const dots=document.getElementById('progress-dots');
+  const inGroup=((roundNum-1)%5); // 0-4 position in current group
+  dots.innerHTML=[0,1,2,3,4].map(i=>`<div class="dot ${i<inGroup?'done':i===inGroup?'active':''}"></div>`).join('');
+}
+</script>
+</body>
+</html>

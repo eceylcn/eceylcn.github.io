@@ -1,0 +1,1285 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Basamak Kulesi</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; user-select: none; }
+  body {
+    display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(135deg, #2a1f4a 0%, #1a1530 100%);
+    min-height: 100vh; padding: 20px;
+  }
+  .device {
+    width: 390px; height: 780px; max-height: 95vh;
+    background: linear-gradient(180deg, #f0e8fa 0%, #d8cef0 100%);
+    border-radius: 36px; overflow: hidden; position: relative;
+    box-shadow: 0 25px 60px rgba(0,0,0,0.4);
+  }
+  .hud {
+    position: absolute; top: 0; left: 0; right: 0; height: 60px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 16px; z-index: 100;
+    background: rgba(255,255,255,0.5); backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255,255,255,0.5);
+  }
+  .hud-btn {
+    width: 40px; height: 40px; border-radius: 50%; border: none; cursor: pointer;
+    background: rgba(255,255,255,0.8);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; color: #4a3870; transition: transform 0.15s;
+  }
+  .hud-btn:active { transform: scale(0.92); }
+  .hud-score {
+    font-weight: 700; color: #4a3870; font-size: 16px;
+    background: rgba(255,255,255,0.8); padding: 8px 16px; border-radius: 20px;
+  }
+  .hud-trophy { font-size: 22px; }
+  .screen {
+    position: absolute; top: 60px; left: 0; right: 0; bottom: 0;
+    overflow-y: auto; overflow-x: hidden; display: none; flex-direction: column;
+  }
+  .screen.active { display: flex; }
+  .menu-screen { padding: 24px 20px; }
+  .menu-screen.active { justify-content: center; }
+  .game-card {
+    background: white; border-radius: 24px; padding: 24px;
+    box-shadow: 0 8px 24px rgba(74, 56, 112, 0.15);
+    border: 3px solid #7b5fc4; cursor: pointer; transition: transform 0.2s;
+  }
+  .game-card:active { transform: scale(0.97); }
+  .game-card-emoji { font-size: 56px; text-align: center; margin-bottom: 12px; }
+  .game-card-title { font-size: 22px; font-weight: 700; color: #4a3870; text-align: center; margin-bottom: 6px; }
+  .game-card-desc { font-size: 13px; color: #6b5a8a; text-align: center; margin-bottom: 16px; }
+  .progress-bar { height: 10px; background: #e5dff5; border-radius: 5px; overflow: hidden; margin-bottom: 8px; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, #7b5fc4, #a085d6); border-radius: 5px; transition: width 0.5s; }
+  .progress-text { font-size: 12px; color: #6b5a8a; text-align: center; }
+  .play-cta {
+    margin-top: 20px; padding: 14px; background: #7b5fc4; color: white;
+    border: none; border-radius: 16px; font-size: 16px; font-weight: 700;
+    width: 100%; cursor: pointer;
+  }
+  .play-cta:active { transform: scale(0.97); }
+
+  .round-intro {
+    padding: 40px 24px; text-align: center;
+    display: flex; flex-direction: column; justify-content: center; height: 100%;
+  }
+  .round-intro-num { font-size: 14px; color: #7b5fc4; font-weight: 700; letter-spacing: 2px; }
+  .round-intro-title { font-size: 30px; font-weight: 800; color: #4a3870; margin: 8px 0 20px; }
+  .round-intro-emoji { font-size: 100px; margin: 24px 0; animation: bounce 1.2s ease-in-out infinite; }
+  .round-intro-desc { font-size: 16px; color: #4a3870; margin-bottom: 32px; line-height: 1.5; padding: 0 12px; }
+  .round-intro-btn {
+    padding: 16px 40px; background: #7b5fc4; color: white; border: none;
+    border-radius: 20px; font-size: 18px; font-weight: 700; cursor: pointer;
+    box-shadow: 0 6px 20px rgba(123, 95, 196, 0.4);
+  }
+  .round-intro-btn:active { transform: scale(0.96); }
+
+  .stage-info {
+    background: white; padding: 10px 14px; border-radius: 14px; margin-bottom: 10px;
+    display: flex; justify-content: center; align-items: center;
+  }
+  .stage-counter { background: #7b5fc4; color: white; padding: 6px 16px; border-radius: 12px; font-weight: 700; font-size: 13px; }
+  .instruction {
+    background: linear-gradient(135deg, #ffd966, #ffb84d);
+    color: #4a3870; padding: 10px 14px; border-radius: 12px; margin-bottom: 12px;
+    font-size: 14px; font-weight: 700; text-align: center; line-height: 1.3;
+  }
+  .instruction b { color: #c44; }
+
+  /* ============ ROUND 1 - BASAMAK MİMARİ ============ */
+  .r1-number-card {
+    background: white; border-radius: 22px; padding: 16px;
+    box-shadow: 0 8px 20px rgba(74, 56, 112, 0.12);
+    margin-bottom: 12px; text-align: center;
+    border: 3px solid #7b5fc4;
+    transition: transform 0.3s;
+  }
+  .r1-number-card.bounce { animation: cardBounce 0.5s; }
+  .big-number {
+    font-size: 42px; font-weight: 800; color: #4a3870;
+    letter-spacing: 2px; margin-bottom: 12px;
+    font-family: 'SF Mono', Menlo, Consolas, monospace;
+  }
+  .big-number .highlight {
+    background: #ffd966; padding: 0 6px; border-radius: 6px;
+    box-shadow: 0 0 10px rgba(255, 217, 102, 0.6);
+  }
+  .tower-svg-wrap {
+    display: flex; justify-content: center;
+    min-height: 180px;
+  }
+  .result-text {
+    font-size: 13px; color: #6b5a8a; margin-top: 8px; font-weight: 700;
+    opacity: 0; transition: opacity 0.4s; min-height: 18px;
+  }
+  .result-text.visible { opacity: 1; }
+  .result-text.correct { color: #3a9d5c; }
+  .result-text.wrong { color: #c44; }
+
+  .options-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+  }
+  .opt-btn {
+    background: white; border: 2px solid transparent;
+    border-radius: 14px; padding: 14px 8px; cursor: pointer;
+    font-size: 14px; font-weight: 700; color: #4a3870;
+    box-shadow: 0 4px 12px rgba(74, 56, 112, 0.1);
+    transition: transform 0.15s, box-shadow 0.3s;
+    line-height: 1.3;
+  }
+  .opt-btn:active:not(:disabled) { transform: scale(0.96); }
+  .opt-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .opt-btn.flash-correct { box-shadow: 0 0 20px #5cc77f; border-color: #5cc77f; background: #d4edd9; }
+  .opt-btn.flash-wrong { box-shadow: 0 0 20px #e57373; border-color: #e57373; animation: shake 0.5s; background: #ffd0d0; }
+
+  /* ============ ROUND 2 - SAYI TARTISI ============ */
+  .number-line-card {
+    background: white; border-radius: 22px; padding: 18px;
+    box-shadow: 0 8px 20px rgba(74, 56, 112, 0.12);
+    margin-bottom: 12px;
+    border: 3px solid #7b5fc4;
+  }
+  .number-line-card .big-number { text-align: center; margin-bottom: 12px; }
+  .number-line-svg { display: flex; justify-content: center; }
+  .number-line-svg svg { width: 100%; max-width: 320px; height: 80px; }
+
+  .sort-card {
+    background: white; border-radius: 22px; padding: 16px;
+    box-shadow: 0 8px 20px rgba(74, 56, 112, 0.12);
+    margin-bottom: 12px;
+    border: 3px solid #7b5fc4;
+  }
+  .sort-pool {
+    display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;
+    margin-bottom: 16px; min-height: 70px;
+    padding: 10px; background: #f5f1fb; border-radius: 12px;
+  }
+  .sort-slots {
+    display: flex; gap: 6px; justify-content: center; align-items: center;
+    flex-wrap: nowrap;
+  }
+  .sort-slot {
+    width: 88px; height: 60px; border: 2px dashed #7b5fc4;
+    border-radius: 10px; background: white;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; font-weight: 800; color: #4a3870;
+    font-family: 'SF Mono', Menlo, monospace;
+    transition: background 0.3s, border 0.3s;
+  }
+  .sort-slot.drag-over { background: #fff3d6; border-style: solid; border-color: #ffd966; }
+  .sort-slot.filled { background: #e8e0f5; border-style: solid; }
+  .sort-slot.correct { background: #c8f0d4; border-color: #5cc77f; animation: cardBounce 0.4s; }
+  .sort-slot.wrong { background: #ffc8c8; border-color: #e57373; animation: shake 0.4s; }
+  .sort-arrow {
+    font-size: 20px; color: #7b5fc4; font-weight: 800;
+  }
+  .num-tile {
+    background: white; padding: 12px 14px; border-radius: 12px;
+    font-size: 17px; font-weight: 800; color: #4a3870;
+    font-family: 'SF Mono', Menlo, monospace;
+    box-shadow: 0 4px 10px rgba(74, 56, 112, 0.18);
+    border: 2px solid #7b5fc4;
+    cursor: grab; touch-action: none;
+    transition: transform 0.3s, opacity 0.3s;
+  }
+  .num-tile:active { cursor: grabbing; }
+  .num-tile.dragging { opacity: 0.4; }
+  .num-tile.placed { display: none; }
+
+  /* ============ ROUND 3 - ÖRÜNTÜ YOLU ============ */
+  .pattern-card {
+    background: white; border-radius: 22px; padding: 16px;
+    box-shadow: 0 8px 20px rgba(74, 56, 112, 0.12);
+    margin-bottom: 14px;
+    border: 3px solid #7b5fc4;
+    position: relative;
+  }
+  .rule-badge {
+    position: absolute; top: 10px; right: 12px;
+    background: #ffd966; color: #4a3870;
+    padding: 4px 10px; border-radius: 10px;
+    font-size: 11px; font-weight: 800;
+    opacity: 0; transition: opacity 0.5s, transform 0.5s;
+    transform: scale(0.7);
+  }
+  .rule-badge.visible { opacity: 1; transform: scale(1); }
+  .pattern-row {
+    display: flex; gap: 4px; justify-content: center; align-items: center;
+    flex-wrap: nowrap; padding: 14px 2px;
+    overflow: hidden;
+  }
+  .stone {
+    min-width: 0; flex: 1 1 0; max-width: 56px; height: 48px;
+    background: linear-gradient(180deg, #d4c7eb 0%, #b8a3dc 100%);
+    border-radius: 50% 50% 30% 30% / 60% 60% 40% 40%;
+    display: flex; align-items: center; justify-content: center;
+    color: #4a3870; font-weight: 800; font-size: 13px;
+    font-family: 'SF Mono', Menlo, monospace;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.15), inset 0 -3px 4px rgba(0,0,0,0.1);
+    cursor: default; transition: transform 0.15s, background 0.3s;
+    padding: 0 4px;
+  }
+  .stone.empty {
+    background: linear-gradient(180deg, #fff8e0 0%, #ffd966 100%);
+    color: #c89a30; cursor: pointer; font-size: 18px;
+  }
+  .stone.empty.selected {
+    box-shadow: 0 0 0 3px #ff8a65, 0 3px 6px rgba(0,0,0,0.15);
+    transform: scale(1.05);
+  }
+  .stone.empty.filled-by-user {
+    background: linear-gradient(180deg, #d4c7eb 0%, #b8a3dc 100%);
+    color: #4a3870; font-size: 13px;
+  }
+  .stone.flash-correct { background: linear-gradient(180deg, #c8f0d4 0%, #5cc77f 100%); animation: cardBounce 0.4s; }
+  .stone.flash-wrong { background: linear-gradient(180deg, #ffc8c8 0%, #e57373 100%); animation: shake 0.4s; }
+
+  .numpad {
+    display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px;
+    background: rgba(255,255,255,0.7); padding: 10px; border-radius: 16px;
+    margin-top: 8px;
+  }
+  .numpad-btn {
+    background: white; padding: 12px 6px; border: 2px solid #7b5fc4;
+    border-radius: 10px; font-size: 18px; font-weight: 800;
+    color: #4a3870; cursor: pointer;
+    transition: transform 0.1s;
+  }
+  .numpad-btn:active { transform: scale(0.92); }
+  .numpad-btn.del { background: #e57373; color: white; border-color: #c44; font-size: 14px; }
+
+  /* ============ BADGE & SHEET ============ */
+  .badge-overlay {
+    position: absolute; inset: 0; z-index: 200;
+    background: rgba(42, 31, 74, 0.85); backdrop-filter: blur(8px);
+    display: none; flex-direction: column; align-items: center; justify-content: center;
+    padding: 24px;
+  }
+  .badge-overlay.active { display: flex; }
+  .badge-emoji {
+    font-size: 110px; animation: badgeBounce 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+    margin-bottom: 16px; filter: drop-shadow(0 8px 20px rgba(255,217,102,0.5));
+  }
+  .badge-name { font-size: 26px; font-weight: 800; color: white; margin-bottom: 8px; text-align: center; }
+  .badge-message { font-size: 15px; color: #d8d0f0; margin-bottom: 28px; text-align: center; line-height: 1.5; padding: 0 12px; }
+  .badge-btn {
+    padding: 14px 36px; background: #7b5fc4; color: white; border: none;
+    border-radius: 18px; font-size: 16px; font-weight: 700; cursor: pointer;
+    box-shadow: 0 6px 20px rgba(123, 95, 196, 0.5);
+  }
+  .badge-btn:active { transform: scale(0.96); }
+  .confetti { position: absolute; width: 8px; height: 8px; pointer-events: none; z-index: 199; }
+
+  .sheet-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.4); z-index: 150; display: none; }
+  .sheet-overlay.active { display: block; }
+  .bottom-sheet {
+    position: absolute; bottom: 0; left: 0; right: 0; max-height: 70%;
+    background: white; border-radius: 24px 24px 0 0; padding: 20px;
+    z-index: 151; transform: translateY(100%); transition: transform 0.3s;
+    overflow-y: auto;
+  }
+  .bottom-sheet.active { transform: translateY(0); }
+  .sheet-handle { width: 40px; height: 4px; background: #d8d0f0; border-radius: 2px; margin: 0 auto 16px; }
+  .sheet-title { font-size: 18px; font-weight: 800; color: #4a3870; margin-bottom: 12px; }
+  .sheet-progress { background: #f5f1fb; border-radius: 12px; padding: 12px; margin-bottom: 16px; }
+  .sheet-progress-text { font-size: 13px; font-weight: 700; color: #6b5a8a; margin-bottom: 6px; }
+  .sheet-section-title { font-size: 14px; font-weight: 700; color: #4a3870; margin: 12px 0 8px; }
+  .sheet-badges { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .sheet-badge { aspect-ratio: 1; background: #f5f1fb; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 28px; padding: 4px; }
+  .sheet-badge.locked { filter: grayscale(1); opacity: 0.5; border: 2px dashed #b8a4d0; background: white; }
+  .sheet-badge .badge-label { font-size: 9px; color: #6b5a8a; margin-top: 4px; text-align: center; font-weight: 700; line-height: 1.1; }
+
+  .toast {
+    position: absolute; top: 80px; left: 20px; right: 20px;
+    background: rgba(74, 56, 112, 0.95); color: white; padding: 12px 16px;
+    border-radius: 12px; text-align: center; font-weight: 600; font-size: 14px;
+    z-index: 110; opacity: 0; transition: opacity 0.3s; pointer-events: none;
+  }
+  .toast.active { opacity: 1; }
+
+  /* Game container padding */
+  .game-screen { padding: 14px; }
+
+  @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+  @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+  @keyframes badgeBounce { 0% { transform: scale(0) rotate(-180deg); } 60% { transform: scale(1.2) rotate(20deg); } 100% { transform: scale(1) rotate(0deg); } }
+  @keyframes confettiFall { 0% { transform: translateY(0) rotate(0); opacity: 1; } 100% { transform: translateY(600px) rotate(720deg); opacity: 0; } }
+  @keyframes cardBounce { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.04); } }
+</style>
+</head>
+<body>
+
+<div class="device" id="device">
+  <div class="hud" id="hud">
+    <button class="hud-btn" id="backBtn">←</button>
+    <div class="hud-score" id="hudScore">Skor: 0</div>
+    <button class="hud-btn hud-trophy" id="trophyBtn">🏆</button>
+  </div>
+  <div class="toast" id="toast"></div>
+
+  <!-- Menu -->
+  <div class="screen menu-screen active" id="menuScreen">
+    <div class="game-card" id="gameCard">
+      <div class="game-card-emoji">🏗️</div>
+      <div class="game-card-title">Basamak Kulesi</div>
+      <div class="game-card-desc">Basamakları tanı, sayıları sırala, örüntüleri çöz!</div>
+      <div class="progress-bar"><div class="progress-fill" id="menuProgress" style="width: 0%"></div></div>
+      <div class="progress-text" id="menuProgressText">0 / 3 rozet</div>
+      <button class="play-cta" id="playBtn">▶ Oyna</button>
+    </div>
+  </div>
+
+  <!-- Round Intro -->
+  <div class="screen" id="introScreen">
+    <div class="round-intro">
+      <div class="round-intro-num" id="introNum">ROUND 1</div>
+      <div class="round-intro-title" id="introTitle">Basamak Mimarı</div>
+      <div class="round-intro-emoji" id="introEmoji">🏗️</div>
+      <div class="round-intro-desc" id="introDesc">Sayıların basamaklarını ve değerlerini keşfet!</div>
+      <button class="round-intro-btn" id="introBtn">Başla! ▶</button>
+    </div>
+  </div>
+
+  <!-- Round 1 -->
+  <div class="screen game-screen" id="r1Screen">
+    <div class="stage-info"><div class="stage-counter" id="r1Counter">1 / 6</div></div>
+    <div class="instruction" id="r1Instr">Soru</div>
+    <div class="r1-number-card" id="r1Card">
+      <div class="big-number" id="r1Number"></div>
+      <div class="tower-svg-wrap" id="r1Tower"></div>
+      <div class="result-text" id="r1Result"></div>
+    </div>
+    <div class="options-grid" id="r1Options"></div>
+  </div>
+
+  <!-- Round 2 -->
+  <div class="screen game-screen" id="r2Screen">
+    <div class="stage-info"><div class="stage-counter" id="r2Counter">1 / 6</div></div>
+    <div class="instruction" id="r2Instr"></div>
+    <!-- Container that switches between round/sort -->
+    <div id="r2Content"></div>
+  </div>
+
+  <!-- Round 3 -->
+  <div class="screen game-screen" id="r3Screen">
+    <div class="stage-info"><div class="stage-counter" id="r3Counter">1 / 6</div></div>
+    <div class="instruction" id="r3Instr">Boş taşlara doğru sayıları yaz!</div>
+    <div class="pattern-card">
+      <div class="pattern-row" id="r3Pattern"></div>
+      <div class="result-text" id="r3Result"></div>
+    </div>
+    <div class="numpad" id="r3Numpad"></div>
+  </div>
+
+  <!-- Badge -->
+  <div class="badge-overlay" id="badgeOverlay">
+    <div class="badge-emoji" id="badgeEmoji">🏗️</div>
+    <div class="badge-name" id="badgeName">Basamak Mimarı</div>
+    <div class="badge-message" id="badgeMessage">Harika!</div>
+    <button class="badge-btn" id="badgeBtn">▶ Devam Et</button>
+  </div>
+
+  <!-- Sheet -->
+  <div class="sheet-overlay" id="sheetOverlay"></div>
+  <div class="bottom-sheet" id="bottomSheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">🏆 Rozet Koleksiyonu</div>
+    <div class="sheet-progress">
+      <div class="sheet-progress-text" id="sheetProgressText">0 / 3 rozet</div>
+      <div class="progress-bar"><div class="progress-fill" id="sheetProgress" style="width: 0%"></div></div>
+    </div>
+    <div class="sheet-section-title">Kazandıkların</div>
+    <div class="sheet-badges" id="sheetEarned"></div>
+    <div class="sheet-section-title">Keşfedilmemiş</div>
+    <div class="sheet-badges" id="sheetLocked"></div>
+  </div>
+</div>
+
+<script>
+const state = {
+  currentScreen: 'menu',
+  earnedBadges: new Set(),
+  totalScore: 0,
+  pendingRoundStart: null,
+  r1: { qIndex: 0, locked: false, questions: [] },
+  r2: { qIndex: 0, locked: false, questions: [], currentSort: null },
+  r3: { qIndex: 0, locked: false, questions: [], selectedStoneIdx: null, filled: {} }
+};
+
+const ALL_BADGES = [
+  { id: 'mimar',  emoji: '🏗️', name: 'Basamak Mimarı', desc: 'Her basamağı tanıdın! Kule sapasağlam.' },
+  { id: 'tartici', emoji: '⚖️', name: 'Sayı Tartıcısı',  desc: 'Sayıları tarttın, sıraladın, yuvarladın. Sen bir tartıcısın!' },
+  { id: 'oruntu', emoji: '🧩', name: 'Örüntü Avcısı',   desc: 'Kuralları çözdün, yolun sonuna ulaştın!' }
+];
+
+// ============ BASAMAK İSİMLERİ ============
+const PLACE_NAMES = ['Birler', 'Onlar', 'Yüzler', 'Binler', 'On binler', 'Yüz binler'];
+
+// ============ ROUND 1 SORULAR ============
+const R1_QUESTIONS = [
+  // Tip A: basamak değeri
+  { type: 'place', number: 4567,   digit: 4, place: 3, q: '<b>4</b> hangi basamakta?' },
+  { type: 'place', number: 56789,  digit: 5, place: 4, q: '<b>5</b> hangi basamakta?' },
+  { type: 'place', number: 230456, digit: 3, place: 4, q: '<b>3</b> hangi basamakta?' },
+  { type: 'place', number: 6732,   digit: 7, place: 2, q: '<b>7</b> hangi basamakta?' },
+  // Tip B: çözümleme
+  { type: 'decompose', number: 3250, q: 'Çözümlenmiş hâli hangisi?',
+    correct: '3000 + 200 + 50',
+    distractors: ['3000 + 25 + 0', '300 + 200 + 50', '3000 + 2000 + 50'] },
+  { type: 'decompose', number: 12408, q: 'Çözümlenmiş hâli hangisi?',
+    correct: '10000 + 2000 + 400 + 8',
+    distractors: ['1000 + 200 + 40 + 8', '10000 + 200 + 40 + 8', '10000 + 2000 + 40 + 8'] }
+];
+
+// ============ ROUND 2 SORULAR ============
+const R2_QUESTIONS = [
+  // Yuvarlama
+  { type: 'round', number: 4567,  toPlace: 100, q: '<b>4.567</b> sayısını en yakın <b>yüzlüğe</b> yuvarla!',
+    correct: 4600, options: [4500, 4600, 4560, 4570] },
+  { type: 'round', number: 8342,  toPlace: 10,  q: '<b>8.342</b> sayısını en yakın <b>onluğa</b> yuvarla!',
+    correct: 8340, options: [8330, 8340, 8350, 8400] },
+  { type: 'round', number: 25890, toPlace: 100, q: '<b>25.890</b> sayısını en yakın <b>yüzlüğe</b> yuvarla!',
+    correct: 25900, options: [25800, 25890, 25900, 26000] },
+  // Sıralama
+  { type: 'sort', nums: [45678, 4987, 456321],   dir: 'asc', q: 'Sayıları <b>küçükten büyüğe</b> sırala!' },
+  { type: 'sort', nums: [123456, 213000, 99999], dir: 'desc', q: 'Sayıları <b>büyükten küçüğe</b> sırala!' },
+  { type: 'sort', nums: [8765, 8756, 8567],      dir: 'asc', q: 'Sayıları <b>küçükten büyüğe</b> sırala!' }
+];
+
+// ============ ROUND 3 ÖRÜNTÜLER ============
+// 2 tip: 'fill' (eksik doldur) ve 'rule' (kuralı seç)
+const R3_QUESTIONS = [
+  // Tip 1: Eksik doldur (tırtıl tarzı, 4 sayı verili, 2 boş)
+  { type: 'fill', seq: [65, 71, 77, 83, null, null],   answer: { 4: 89, 5: 95 },     rule: '+6' },
+  { type: 'fill', seq: [37, 46, 55, 64, null, null],   answer: { 4: 73, 5: 82 },     rule: '+9' },
+  { type: 'fill', seq: [674, 664, 654, 644, null, null], answer: { 4: 634, 5: 624 }, rule: '-10' },
+  // Tip 2: Kuralı seç (sayılar tam, kuralı seçmek)
+  { type: 'rule', seq: [87, 91, 95, 99, 103, 107], correct: "4'er artıyor",
+    options: ["4'er artıyor", "8'er artıyor", "5'er azalıyor", "10'ar artıyor"] },
+  { type: 'rule', seq: [280, 275, 270, 265, 260],  correct: "5'er azalıyor",
+    options: ["3'er azalıyor", "5'er azalıyor", "10'ar azalıyor", "5'er artıyor"] },
+  { type: 'rule', seq: [346, 354, 362, 370, 378],  correct: "8'er artıyor",
+    options: ["6'şar artıyor", "7'şer artıyor", "8'er artıyor", "9'ar artıyor"] }
+];
+
+// ============ TOWER SVG ============
+// Basamak kulesi: number'ın basamaklarını kule katları olarak çizer
+// Top = en yüksek basamak (yüz binler), bottom = birler
+// Sorulan basamak (highlightPlace) sarı yanar
+function buildTower(number, highlightPlace) {
+  const digits = String(number).split('').map(Number);
+  const places = digits.length; // 4, 5, 6 olabilir
+  const W = 240, floorH = 28;
+  const totalH = places * floorH + 20;
+  const baseY = totalH - 6;
+
+  let svg = `<svg viewBox="0 0 ${W} ${totalH}" xmlns="http://www.w3.org/2000/svg" style="height:${totalH}px; max-width:${W}px">`;
+  // Ground
+  svg += `<line x1="0" y1="${baseY}" x2="${W}" y2="${baseY}" stroke="#a085d6" stroke-width="2"/>`;
+
+  digits.forEach((d, i) => {
+    // i=0 en soldaki rakam (en yüksek basamak)
+    // place index: places-1-i (birler = 0)
+    const placeIdx = places - 1 - i;
+    const floorTop = baseY - 6 - (placeIdx + 1) * floorH;
+    const floorBottom = floorTop + floorH - 4;
+    const isHighlight = placeIdx === highlightPlace;
+    const fill = isHighlight ? '#ffd966' : '#e5dff5';
+    const stroke = isHighlight ? '#c89a30' : '#7b5fc4';
+    const textColor = isHighlight ? '#4a3870' : '#4a3870';
+    const floorW = 100 + placeIdx * 16; // alt katlar daha geniş (kule görseli için ters? - aslında üst dar olsa daha güzel olur)
+    // Aktually: alt kat geniş, üst kat dar -> alt = birler, üst = en yüksek basamak. Görsel olarak ters çevirelim:
+    // alt geniş (birler kalın), üst dar (yüz binler ince)? Ama mantık: büyük sayılar üstte küçük altta gibi olabilir.
+    // En mantıklı: tüm katlar aynı genişlikte, kule düzgün. Önyargısız.
+    const sameW = 160;
+    const x = (W - sameW) / 2;
+    svg += `<rect x="${x}" y="${floorTop}" width="${sameW}" height="${floorH - 4}" rx="4"
+              fill="${fill}" stroke="${stroke}" stroke-width="2"/>`;
+    // Rakam (ortada büyük)
+    svg += `<text x="${x + sameW/2}" y="${floorTop + floorH/2 + 1}" font-size="18" fill="${textColor}"
+              font-weight="800" dominant-baseline="middle" text-anchor="middle"
+              font-family="SF Mono, monospace">${d}</text>`;
+  });
+
+  svg += '</svg>';
+  return svg;
+}
+
+// ============ NUMBER LINE SVG ============
+// rangeStart - rangeEnd arası, number'ın konumunu işaretler
+function buildNumberLine(number, toPlace) {
+  // toPlace: 10 ya da 100
+  const lower = Math.floor(number / toPlace) * toPlace;
+  const upper = lower + toPlace;
+  const W = 320, H = 80;
+  const midY = 38;
+  const xStart = 30, xEnd = W - 30;
+  const ratio = (number - lower) / toPlace;
+  const numX = xStart + ratio * (xEnd - xStart);
+
+  // Mid marker (orta nokta)
+  const midNum = lower + toPlace / 2;
+  const midX = xStart + 0.5 * (xEnd - xStart);
+
+  let svg = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">`;
+  // Line
+  svg += `<line x1="${xStart}" y1="${midY}" x2="${xEnd}" y2="${midY}" stroke="#7b5fc4" stroke-width="3"/>`;
+  // Ticks
+  svg += `<line x1="${xStart}" y1="${midY - 8}" x2="${xStart}" y2="${midY + 8}" stroke="#7b5fc4" stroke-width="3"/>`;
+  svg += `<line x1="${xEnd}" y1="${midY - 8}" x2="${xEnd}" y2="${midY + 8}" stroke="#7b5fc4" stroke-width="3"/>`;
+  svg += `<line x1="${midX}" y1="${midY - 5}" x2="${midX}" y2="${midY + 5}" stroke="#b8a4d0" stroke-width="2" stroke-dasharray="2 2"/>`;
+  // Labels
+  svg += `<text x="${xStart}" y="${midY + 24}" font-size="12" fill="#4a3870" font-weight="700" text-anchor="middle" font-family="SF Mono, monospace">${lower.toLocaleString('tr-TR')}</text>`;
+  svg += `<text x="${xEnd}" y="${midY + 24}" font-size="12" fill="#4a3870" font-weight="700" text-anchor="middle" font-family="SF Mono, monospace">${upper.toLocaleString('tr-TR')}</text>`;
+  svg += `<text x="${midX}" y="${midY + 24}" font-size="10" fill="#8a7aa6" font-weight="600" text-anchor="middle">orta</text>`;
+  // Marker (büyük nokta + sayı)
+  svg += `<circle cx="${numX}" cy="${midY}" r="6" fill="#ff8a65" stroke="#c44" stroke-width="2"/>`;
+  svg += `<text x="${numX}" y="${midY - 14}" font-size="12" fill="#c44" font-weight="800" text-anchor="middle" font-family="SF Mono, monospace">${number.toLocaleString('tr-TR')}</text>`;
+
+  svg += '</svg>';
+  return svg;
+}
+
+// ============ UTILS ============
+const $ = id => document.getElementById(id);
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  $(`${name}Screen`).classList.add('active');
+  state.currentScreen = name;
+}
+function fmt(n) { return n.toLocaleString('tr-TR'); }
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+function showToast(msg, ms = 1800) {
+  const t = $('toast'); t.textContent = msg; t.classList.add('active');
+  setTimeout(() => t.classList.remove('active'), ms);
+}
+function playSound(type) {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const o = ctx.createOscillator(); const g = ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    if (type === 'ding') {
+      o.frequency.value = 880; o.type = 'sine';
+      g.gain.setValueAtTime(0.15, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
+      o.start(); o.stop(ctx.currentTime + 0.2);
+    } else if (type === 'buzz') {
+      o.frequency.value = 180; o.type = 'sawtooth';
+      g.gain.setValueAtTime(0.1, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.18);
+      o.start(); o.stop(ctx.currentTime + 0.18);
+    } else if (type === 'pop') {
+      o.frequency.setValueAtTime(660, ctx.currentTime);
+      o.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.08);
+      o.type = 'sine';
+      g.gain.setValueAtTime(0.1, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.12);
+      o.start(); o.stop(ctx.currentTime + 0.12);
+    } else if (type === 'badge') {
+      o.frequency.setValueAtTime(523, ctx.currentTime);
+      o.frequency.setValueAtTime(659, ctx.currentTime + 0.1);
+      o.frequency.setValueAtTime(784, ctx.currentTime + 0.2);
+      o.type = 'triangle';
+      g.gain.setValueAtTime(0.15, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+      o.start(); o.stop(ctx.currentTime + 0.5);
+    }
+  } catch (e) {}
+}
+function spawnConfetti() {
+  const colors = ['#7b5fc4', '#ffd966', '#5cc77f', '#ff8a65', '#5fb3e0'];
+  const overlay = $('badgeOverlay');
+  for (let i = 0; i < 40; i++) {
+    const c = document.createElement('div');
+    c.className = 'confetti';
+    c.style.background = colors[Math.floor(Math.random() * colors.length)];
+    c.style.left = Math.random() * 100 + '%';
+    c.style.top = '-20px';
+    c.style.animation = `confettiFall ${1 + Math.random() * 1.5}s ease-out forwards`;
+    c.style.animationDelay = Math.random() * 0.3 + 's';
+    overlay.appendChild(c);
+    setTimeout(() => c.remove(), 2500);
+  }
+}
+
+function updateMenu() {
+  const earned = state.earnedBadges.size;
+  $('menuProgress').style.width = (earned / ALL_BADGES.length * 100) + '%';
+  $('menuProgressText').textContent = `${earned} / ${ALL_BADGES.length} rozet`;
+}
+
+$('playBtn').addEventListener('click', () => {
+  // Reset if completed
+  if (state.earnedBadges.size === ALL_BADGES.length) {
+    state.earnedBadges.clear();
+    state.totalScore = 0;
+    $('hudScore').textContent = 'Skor: 0';
+    updateMenu();
+  }
+  if (!state.earnedBadges.has('mimar')) showRoundIntro(1);
+  else if (!state.earnedBadges.has('tartici')) showRoundIntro(2);
+  else if (!state.earnedBadges.has('oruntu')) showRoundIntro(3);
+});
+$('gameCard').addEventListener('click', e => { if (e.target.id !== 'playBtn') $('playBtn').click(); });
+
+$('backBtn').addEventListener('click', () => { showScreen('menu'); updateMenu(); });
+$('trophyBtn').addEventListener('click', () => {
+  renderBottomSheet();
+  $('sheetOverlay').classList.add('active');
+  $('bottomSheet').classList.add('active');
+});
+$('sheetOverlay').addEventListener('click', () => {
+  $('sheetOverlay').classList.remove('active');
+  $('bottomSheet').classList.remove('active');
+});
+function renderBottomSheet() {
+  const earned = ALL_BADGES.filter(b => state.earnedBadges.has(b.id));
+  const locked = ALL_BADGES.filter(b => !state.earnedBadges.has(b.id));
+  $('sheetProgress').style.width = (earned.length / ALL_BADGES.length * 100) + '%';
+  $('sheetProgressText').textContent = `${earned.length} / ${ALL_BADGES.length} rozet`;
+  $('sheetEarned').innerHTML = earned.length
+    ? earned.map(b => `<div class="sheet-badge"><div>${b.emoji}</div><div class="badge-label">${b.name}</div></div>`).join('')
+    : '<div style="grid-column: 1/-1; color: #8a7aa6; font-size: 13px; padding: 8px;">Henüz rozet yok. Oyna!</div>';
+  $('sheetLocked').innerHTML = locked.length
+    ? locked.map(b => `<div class="sheet-badge locked"><div>🔒</div><div class="badge-label">${b.name}</div></div>`).join('')
+    : '<div style="grid-column: 1/-1; color: #5cc77f; font-size: 13px; padding: 8px; font-weight: 700;">Tamamlandı! 🎉</div>';
+}
+
+function showRoundIntro(roundNum) {
+  state.pendingRoundStart = roundNum;
+  const intros = {
+    1: { num: 'ROUND 1', title: 'Basamak Mimarı', emoji: '🏗️',
+         desc: 'Sayıların basamaklarını ve değerlerini keşfet!' },
+    2: { num: 'ROUND 2', title: 'Sayı Tartısı', emoji: '⚖️',
+         desc: 'Sayıları yuvarla, küçükten büyüğe sırala!' },
+    3: { num: 'ROUND 3', title: 'Örüntü Yolu', emoji: '🧩',
+         desc: 'Sayıların kuralını bul, eksik taşları doldur!' }
+  };
+  const info = intros[roundNum];
+  $('introNum').textContent = info.num;
+  $('introTitle').textContent = info.title;
+  $('introEmoji').textContent = info.emoji;
+  $('introDesc').textContent = info.desc;
+  showScreen('intro');
+}
+$('introBtn').addEventListener('click', () => {
+  const r = state.pendingRoundStart;
+  if (r === 1) startR1();
+  else if (r === 2) startR2();
+  else if (r === 3) startR3();
+});
+
+// ============ ROUND 1 ============
+function startR1() {
+  state.r1.qIndex = 0;
+  state.r1.questions = shuffle(R1_QUESTIONS);
+  loadR1Question();
+  showScreen('r1');
+}
+
+function loadR1Question() {
+  const q = state.r1.questions[state.r1.qIndex];
+  state.r1.locked = false;
+  $('r1Counter').textContent = `${state.r1.qIndex + 1} / ${state.r1.questions.length}`;
+  $('r1Instr').innerHTML = q.q;
+  $('r1Result').textContent = '';
+  $('r1Result').classList.remove('visible', 'correct', 'wrong');
+
+  // Render big number with highlight on the asked digit
+  if (q.type === 'place') {
+    const digits = String(q.number).split('');
+    const places = digits.length;
+    let html = '';
+    digits.forEach((d, i) => {
+      const placeIdx = places - 1 - i;
+      // basamak ayırıcı 3'erli gruplama (sondan)
+      if (placeIdx === 2 || placeIdx === 5) {
+        // ayırıcı ekleme: 3 ve 6 basamak konumlarından önce nokta (yani index 1, 4 sonrasında)
+      }
+      const isHigh = placeIdx === q.place;
+      html += `<span${isHigh ? ' class="highlight"' : ''}>${d}</span>`;
+      // Basamak ayırıcı
+      if (placeIdx === 3 && i < digits.length - 1) html += '.';
+    });
+    $('r1Number').innerHTML = html;
+    $('r1Tower').innerHTML = buildTower(q.number, q.place);
+  } else {
+    // decompose
+    $('r1Number').textContent = fmt(q.number);
+    $('r1Tower').innerHTML = buildTower(q.number, -1);
+  }
+
+  // Build options
+  const optsEl = $('r1Options');
+  optsEl.innerHTML = '';
+  let options;
+  if (q.type === 'place') {
+    const places = String(q.number).length;
+    // doğru + 3 yakın basamak (yan basamaklar)
+    const correct = PLACE_NAMES[q.place];
+    const all = PLACE_NAMES.slice(0, Math.max(places + 1, 5));
+    const wrongs = all.filter(p => p !== correct);
+    const distractors = shuffle(wrongs).slice(0, 3);
+    options = shuffle([correct, ...distractors]);
+    options.forEach(opt => {
+      const b = document.createElement('button');
+      b.className = 'opt-btn';
+      b.textContent = opt;
+      b.dataset.value = opt;
+      b.addEventListener('click', () => onR1Pick(opt === correct, b));
+      optsEl.appendChild(b);
+    });
+  } else {
+    options = shuffle([q.correct, ...q.distractors]);
+    options.forEach(opt => {
+      const b = document.createElement('button');
+      b.className = 'opt-btn';
+      b.textContent = opt;
+      b.dataset.value = opt;
+      b.addEventListener('click', () => onR1Pick(opt === q.correct, b));
+      optsEl.appendChild(b);
+    });
+  }
+}
+
+function onR1Pick(correct, btn) {
+  if (state.r1.locked) return;
+  $('r1Card').classList.add('bounce');
+  setTimeout(() => $('r1Card').classList.remove('bounce'), 500);
+  if (correct) {
+    state.r1.locked = true;
+    if (state.r1.wrongTimer) { clearTimeout(state.r1.wrongTimer); state.r1.wrongTimer = null; }
+    document.querySelectorAll('#r1Options .opt-btn').forEach(b => b.classList.remove('flash-wrong'));
+    $('r1Result').classList.remove('wrong');
+    playSound('ding');
+    btn.classList.add('flash-correct');
+    document.querySelectorAll('#r1Options .opt-btn').forEach(b => b.disabled = true);
+    $('r1Result').textContent = '✓ Doğru!';
+    $('r1Result').classList.add('visible', 'correct');
+    state.totalScore += 10;
+    $('hudScore').textContent = `Skor: ${state.totalScore}`;
+    setTimeout(() => {
+      state.r1.qIndex++;
+      if (state.r1.qIndex >= state.r1.questions.length) {
+        awardBadge('mimar', () => showRoundIntro(2));
+      } else {
+        loadR1Question();
+      }
+    }, 1200);
+  } else {
+    playSound('buzz');
+    btn.classList.add('flash-wrong');
+    $('r1Result').textContent = 'Tekrar dene!';
+    $('r1Result').classList.remove('correct');
+    $('r1Result').classList.add('visible', 'wrong');
+    if (state.r1.wrongTimer) clearTimeout(state.r1.wrongTimer);
+    state.r1.wrongTimer = setTimeout(() => {
+      btn.classList.remove('flash-wrong');
+      $('r1Result').textContent = '';
+      $('r1Result').classList.remove('visible', 'wrong');
+      state.r1.wrongTimer = null;
+    }, 1100);
+  }
+}
+
+// ============ ROUND 2 ============
+function startR2() {
+  state.r2.qIndex = 0;
+  state.r2.questions = shuffle(R2_QUESTIONS);
+  loadR2Question();
+  showScreen('r2');
+}
+
+function loadR2Question() {
+  const q = state.r2.questions[state.r2.qIndex];
+  state.r2.locked = false;
+  $('r2Counter').textContent = `${state.r2.qIndex + 1} / ${state.r2.questions.length}`;
+  $('r2Instr').innerHTML = q.q;
+
+  const container = $('r2Content');
+  container.innerHTML = '';
+
+  if (q.type === 'round') {
+    // Yuvarlama görünümü
+    container.innerHTML = `
+      <div class="number-line-card">
+        <div class="big-number">${fmt(q.number)}</div>
+        <div class="number-line-svg">${buildNumberLine(q.number, q.toPlace)}</div>
+        <div class="result-text" id="r2RoundResult"></div>
+      </div>
+      <div class="options-grid" id="r2Options"></div>
+    `;
+    const optsEl = $('r2Options');
+    const options = shuffle(q.options);
+    options.forEach(opt => {
+      const b = document.createElement('button');
+      b.className = 'opt-btn';
+      b.textContent = fmt(opt);
+      b.dataset.value = opt;
+      b.addEventListener('click', () => onR2RoundPick(opt === q.correct, b));
+      optsEl.appendChild(b);
+    });
+  } else {
+    // Sıralama görünümü
+    const order = q.dir === 'asc' ? '<' : '>';
+    container.innerHTML = `
+      <div class="sort-card">
+        <div class="sort-pool" id="sortPool"></div>
+        <div class="sort-slots" id="sortSlots"></div>
+        <div class="result-text" id="r2SortResult"></div>
+      </div>
+    `;
+    state.r2.currentSort = {
+      nums: q.nums,
+      dir: q.dir,
+      placed: [null, null, null],
+      correctOrder: q.dir === 'asc'
+        ? [...q.nums].sort((a, b) => a - b)
+        : [...q.nums].sort((a, b) => b - a)
+    };
+    const poolEl = $('sortPool');
+    // Pool sırası doğru cevap sırasıyla aynı olmasın
+    const correctSorted = state.r2.currentSort.correctOrder;
+    let poolOrder;
+    do {
+      poolOrder = shuffle(q.nums);
+    } while (poolOrder.every((n, i) => n === correctSorted[i]));
+    poolOrder.forEach(n => {
+      const tile = document.createElement('div');
+      tile.className = 'num-tile';
+      tile.textContent = fmt(n);
+      tile.dataset.value = n;
+      attachTileDrag(tile);
+      poolEl.appendChild(tile);
+    });
+    const slotsEl = $('sortSlots');
+    for (let i = 0; i < 3; i++) {
+      const s = document.createElement('div');
+      s.className = 'sort-slot';
+      s.dataset.idx = i;
+      slotsEl.appendChild(s);
+      if (i < 2) {
+        const arr = document.createElement('div');
+        arr.className = 'sort-arrow';
+        arr.textContent = order;
+        slotsEl.appendChild(arr);
+      }
+    }
+  }
+}
+
+function onR2RoundPick(correct, btn) {
+  if (state.r2.locked) return;
+  const resEl = $('r2RoundResult');
+  if (correct) {
+    state.r2.locked = true;
+    if (state.r2.wrongTimer) { clearTimeout(state.r2.wrongTimer); state.r2.wrongTimer = null; }
+    document.querySelectorAll('#r2Options .opt-btn').forEach(b => b.classList.remove('flash-wrong'));
+    resEl.classList.remove('wrong');
+    playSound('ding');
+    btn.classList.add('flash-correct');
+    document.querySelectorAll('#r2Options .opt-btn').forEach(b => b.disabled = true);
+    resEl.textContent = '✓ Doğru!';
+    resEl.classList.add('visible', 'correct');
+    state.totalScore += 10;
+    $('hudScore').textContent = `Skor: ${state.totalScore}`;
+    setTimeout(advanceR2, 1200);
+  } else {
+    playSound('buzz');
+    btn.classList.add('flash-wrong');
+    resEl.textContent = 'Tekrar dene!';
+    resEl.classList.remove('correct');
+    resEl.classList.add('visible', 'wrong');
+    if (state.r2.wrongTimer) clearTimeout(state.r2.wrongTimer);
+    state.r2.wrongTimer = setTimeout(() => {
+      btn.classList.remove('flash-wrong');
+      resEl.textContent = '';
+      resEl.classList.remove('visible', 'wrong');
+      state.r2.wrongTimer = null;
+    }, 1100);
+  }
+}
+
+function attachTileDrag(tile) {
+  let dragging = false, startX, startY, origLeft, origTop, ghost = null;
+  const onStart = (e) => {
+    if (state.r2.locked) return;
+    if (state.currentScreen !== 'r2') return;
+    if (tile.classList.contains('placed')) return;
+    e.preventDefault();
+    const point = e.touches ? e.touches[0] : e;
+    startX = point.clientX; startY = point.clientY;
+    const rect = tile.getBoundingClientRect();
+    origLeft = rect.left; origTop = rect.top;
+    ghost = tile.cloneNode(true);
+    ghost.classList.add('dragging');
+    ghost.style.position = 'fixed';
+    ghost.style.left = rect.left + 'px';
+    ghost.style.top = rect.top + 'px';
+    ghost.style.width = rect.width + 'px';
+    ghost.style.pointerEvents = 'none';
+    ghost.style.zIndex = '200';
+    document.body.appendChild(ghost);
+    tile.style.opacity = '0.3';
+    dragging = true;
+  };
+  const onMove = (e) => {
+    if (!dragging || !ghost) return;
+    e.preventDefault();
+    const point = e.touches ? e.touches[0] : e;
+    ghost.style.left = (origLeft + point.clientX - startX) + 'px';
+    ghost.style.top = (origTop + point.clientY - startY) + 'px';
+    const elBelow = document.elementFromPoint(point.clientX, point.clientY);
+    document.querySelectorAll('.sort-slot').forEach(s => s.classList.remove('drag-over'));
+    if (elBelow) {
+      const slot = elBelow.closest('.sort-slot');
+      if (slot && !slot.classList.contains('filled')) slot.classList.add('drag-over');
+    }
+  };
+  const onEnd = (e) => {
+    if (!dragging) return;
+    dragging = false;
+    const point = e.changedTouches ? e.changedTouches[0] : e;
+    const elBelow = document.elementFromPoint(point.clientX, point.clientY);
+    const slot = elBelow ? elBelow.closest('.sort-slot') : null;
+    document.querySelectorAll('.sort-slot').forEach(s => s.classList.remove('drag-over'));
+    if (ghost) { ghost.remove(); ghost = null; }
+    tile.style.opacity = '';
+    if (slot && !slot.classList.contains('filled')) {
+      handleTileDrop(tile, slot);
+    }
+  };
+  tile.addEventListener('touchstart', onStart, { passive: false });
+  tile.addEventListener('touchmove', onMove, { passive: false });
+  tile.addEventListener('touchend', onEnd);
+  tile.addEventListener('mousedown', onStart);
+  document.addEventListener('mousemove', onMove);
+  document.addEventListener('mouseup', onEnd);
+}
+
+function handleTileDrop(tile, slot) {
+  const value = parseInt(tile.dataset.value, 10);
+  const slotIdx = parseInt(slot.dataset.idx, 10);
+  const sortState = state.r2.currentSort;
+  sortState.placed[slotIdx] = value;
+  slot.textContent = fmt(value);
+  slot.classList.add('filled');
+  slot.dataset.value = value;
+  tile.classList.add('placed');
+  playSound('pop');
+
+  // Tüm slotlar dolduysa kontrol
+  if (sortState.placed.every(v => v !== null)) {
+    setTimeout(checkSort, 300);
+  }
+}
+
+function checkSort() {
+  const sortState = state.r2.currentSort;
+  const slots = document.querySelectorAll('.sort-slot');
+  const isCorrect = sortState.placed.every((v, i) => v === sortState.correctOrder[i]);
+  const resEl = $('r2SortResult');
+
+  if (isCorrect) {
+    state.r2.locked = true;
+    playSound('ding');
+    slots.forEach((s, i) => {
+      setTimeout(() => s.classList.add('correct'), i * 100);
+    });
+    resEl.textContent = '✓ Doğru sıralama!';
+    resEl.classList.add('visible', 'correct');
+    state.totalScore += 15;
+    $('hudScore').textContent = `Skor: ${state.totalScore}`;
+    setTimeout(advanceR2, 1500);
+  } else {
+    state.r2.locked = true;
+    playSound('buzz');
+    slots.forEach(s => s.classList.add('wrong'));
+    resEl.textContent = 'Tekrar dene!';
+    resEl.classList.add('visible', 'wrong');
+    setTimeout(() => {
+      // Reset
+      slots.forEach(s => {
+        s.classList.remove('wrong', 'filled');
+        s.textContent = '';
+        delete s.dataset.value;
+      });
+      document.querySelectorAll('.num-tile').forEach(t => t.classList.remove('placed'));
+      sortState.placed = [null, null, null];
+      resEl.textContent = '';
+      resEl.classList.remove('visible', 'wrong');
+      state.r2.locked = false;
+    }, 1400);
+  }
+}
+
+function advanceR2() {
+  state.r2.qIndex++;
+  if (state.r2.qIndex >= state.r2.questions.length) {
+    awardBadge('tartici', () => showRoundIntro(3));
+  } else {
+    loadR2Question();
+  }
+}
+
+// ============ ROUND 3 ============
+function startR3() {
+  state.r3.qIndex = 0;
+  state.r3.questions = shuffle(R3_QUESTIONS);
+  loadR3Question();
+  showScreen('r3');
+}
+
+function loadR3Question() {
+  const q = state.r3.questions[state.r3.qIndex];
+  state.r3.locked = false;
+  state.r3.selectedStoneIdx = null;
+  state.r3.filled = {}; // index → string
+  $('r3Counter').textContent = `${state.r3.qIndex + 1} / ${state.r3.questions.length}`;
+  $('r3Result').textContent = '';
+  $('r3Result').classList.remove('visible', 'correct', 'wrong');
+
+  const row = $('r3Pattern');
+  row.innerHTML = '';
+  q.seq.forEach((val, i) => {
+    const stone = document.createElement('div');
+    stone.className = 'stone';
+    stone.dataset.idx = i;
+    if (val === null) {
+      stone.classList.add('empty');
+      stone.textContent = '?';
+      stone.addEventListener('click', () => selectStone(i));
+    } else {
+      stone.textContent = fmt(val);
+    }
+    row.appendChild(stone);
+  });
+
+  const np = $('r3Numpad');
+  np.innerHTML = '';
+
+  if (q.type === 'fill') {
+    // Talimat
+    $('r3Instr').textContent = 'Eksik sayıları yaz!';
+    // Numpad göster
+    np.className = 'numpad';
+    for (let n = 1; n <= 9; n++) {
+      const b = document.createElement('button');
+      b.className = 'numpad-btn';
+      b.textContent = n;
+      b.addEventListener('click', () => onNumpadPress(String(n)));
+      np.appendChild(b);
+    }
+    const zero = document.createElement('button');
+    zero.className = 'numpad-btn';
+    zero.textContent = '0';
+    zero.addEventListener('click', () => onNumpadPress('0'));
+    np.appendChild(zero);
+    const del = document.createElement('button');
+    del.className = 'numpad-btn del';
+    del.textContent = 'Sil';
+    del.addEventListener('click', () => onNumpadPress('del'));
+    np.appendChild(del);
+
+    // İlk boş taşı otomatik seç
+    const firstEmptyIdx = q.seq.findIndex(v => v === null);
+    if (firstEmptyIdx >= 0) selectStone(firstEmptyIdx);
+  } else if (q.type === 'rule') {
+    // Talimat
+    $('r3Instr').textContent = 'Kuralı bul! Sayılar nasıl ilerliyor?';
+    // Options grid göster
+    np.className = 'options-grid';
+    const options = shuffle(q.options);
+    options.forEach(opt => {
+      const b = document.createElement('button');
+      b.className = 'opt-btn';
+      b.textContent = opt;
+      b.addEventListener('click', () => onRulePick(opt === q.correct, b, opt));
+      np.appendChild(b);
+    });
+  }
+}
+
+function onRulePick(correct, btn, picked) {
+  if (state.r3.locked) return;
+  const q = state.r3.questions[state.r3.qIndex];
+  if (correct) {
+    state.r3.locked = true;
+    // Önceki yanlış cevabın timer'ını iptal et
+    if (state.r3.wrongTimer) {
+      clearTimeout(state.r3.wrongTimer);
+      state.r3.wrongTimer = null;
+    }
+    // Önceki yanlış işaretlerini temizle
+    document.querySelectorAll('#r3Numpad .opt-btn').forEach(b => b.classList.remove('flash-wrong'));
+    $('r3Result').classList.remove('wrong');
+    playSound('ding');
+    btn.classList.add('flash-correct');
+    document.querySelectorAll('#r3Numpad .opt-btn').forEach(b => b.disabled = true);
+    $('r3Result').textContent = '✓ Doğru!';
+    $('r3Result').classList.add('visible', 'correct');
+    state.totalScore += 10;
+    $('hudScore').textContent = `Skor: ${state.totalScore}`;
+    setTimeout(() => {
+      state.r3.qIndex++;
+      if (state.r3.qIndex >= state.r3.questions.length) {
+        awardBadge('oruntu', () => { showScreen('menu'); updateMenu(); });
+      } else {
+        loadR3Question();
+      }
+    }, 1400);
+  } else {
+    playSound('buzz');
+    btn.classList.add('flash-wrong');
+    $('r3Result').textContent = 'Tekrar dene!';
+    $('r3Result').classList.remove('correct');
+    $('r3Result').classList.add('visible', 'wrong');
+    // Önceki timer varsa iptal et
+    if (state.r3.wrongTimer) clearTimeout(state.r3.wrongTimer);
+    state.r3.wrongTimer = setTimeout(() => {
+      btn.classList.remove('flash-wrong');
+      $('r3Result').textContent = '';
+      $('r3Result').classList.remove('visible', 'wrong');
+      state.r3.wrongTimer = null;
+    }, 1100);
+  }
+}
+
+function selectStone(idx) {
+  if (state.r3.locked) return;
+  state.r3.selectedStoneIdx = idx;
+  document.querySelectorAll('#r3Pattern .stone.empty').forEach(s => s.classList.remove('selected'));
+  const stones = document.querySelectorAll('#r3Pattern .stone');
+  if (stones[idx]) stones[idx].classList.add('selected');
+}
+
+function onNumpadPress(key) {
+  if (state.r3.locked) return;
+  const idx = state.r3.selectedStoneIdx;
+  if (idx === null) {
+    showToast('Önce bir taş seç!');
+    return;
+  }
+  const q = state.r3.questions[state.r3.qIndex];
+  const stones = document.querySelectorAll('#r3Pattern .stone');
+  const stone = stones[idx];
+  let current = state.r3.filled[idx] || '';
+  const expectedLen = String(q.answer[idx]).length;
+
+  if (key === 'del') {
+    current = current.slice(0, -1);
+  } else {
+    if (current.length >= expectedLen) return; // beklenen uzunluğa ulaşılmışsa daha fazla rakam alma
+    current += key;
+  }
+  state.r3.filled[idx] = current;
+  playSound('pop');
+  if (current === '') {
+    stone.textContent = '?';
+    stone.classList.remove('filled-by-user');
+  } else {
+    stone.textContent = fmt(parseInt(current, 10));
+    stone.classList.add('filled-by-user');
+  }
+
+  // Bu taş beklenen uzunluğa ulaştıysa → o taşı kontrol et
+  if (current.length === expectedLen) {
+    const userVal = parseInt(current, 10);
+    const correctVal = q.answer[idx];
+    if (userVal === correctVal) {
+      // O taş DOĞRU - yeşil flash + sonraki boş taşa geç
+      state.r3.locked = true;
+      playSound('ding');
+      stone.classList.remove('selected', 'empty');
+      stone.classList.add('flash-correct');
+      setTimeout(() => {
+        stone.classList.remove('flash-correct');
+        state.r3.locked = false;
+        // Sonraki boş taş?
+        const emptyIndices = q.seq.map((v, i) => v === null ? i : -1).filter(i => i >= 0);
+        const nextEmpty = emptyIndices.find(i => {
+          if (i === idx) return false;
+          const filledVal = state.r3.filled[i] || '';
+          return filledVal.length < String(q.answer[i]).length;
+        });
+        if (nextEmpty !== undefined) {
+          selectStone(nextEmpty);
+        } else {
+          // Tüm boş taşlar doğru tamamlandı - aşamayı bitir
+          finishR3Stage();
+        }
+      }, 700);
+    } else {
+      // O taş YANLIŞ - kırmızı flash + sıfırla + aynı taş seçili kalsın
+      state.r3.locked = true;
+      playSound('buzz');
+      stone.classList.add('flash-wrong');
+      $('r3Result').textContent = 'Tekrar dene!';
+      $('r3Result').classList.add('visible', 'wrong');
+      setTimeout(() => {
+        stone.classList.remove('flash-wrong', 'filled-by-user');
+        stone.textContent = '?';
+        delete state.r3.filled[idx];
+        $('r3Result').textContent = '';
+        $('r3Result').classList.remove('visible', 'wrong');
+        state.r3.locked = false;
+        // Aynı taş seçili kalsın
+        selectStone(idx);
+      }, 1100);
+    }
+  }
+}
+
+function finishR3Stage() {
+  const q = state.r3.questions[state.r3.qIndex];
+  $('r3Result').textContent = '✓ Doğru!';
+  $('r3Result').classList.add('visible', 'correct');
+  state.totalScore += 15;
+  $('hudScore').textContent = `Skor: ${state.totalScore}`;
+  setTimeout(() => {
+    state.r3.qIndex++;
+    if (state.r3.qIndex >= state.r3.questions.length) {
+      awardBadge('oruntu', () => { showScreen('menu'); updateMenu(); });
+    } else {
+      loadR3Question();
+    }
+  }, 1700);
+}
+
+// ============ BADGE ============
+let badgeContinueCallback = null;
+function awardBadge(id, onContinue) {
+  const b = ALL_BADGES.find(x => x.id === id);
+  if (!b) { if (onContinue) onContinue(); return; }
+  state.earnedBadges.add(id);
+  $('badgeEmoji').textContent = b.emoji;
+  $('badgeName').textContent = b.name;
+  $('badgeMessage').textContent = b.desc;
+  badgeContinueCallback = onContinue;
+  $('badgeOverlay').classList.add('active');
+  playSound('badge');
+  spawnConfetti();
+}
+$('badgeBtn').addEventListener('click', () => {
+  $('badgeOverlay').classList.remove('active');
+  const cb = badgeContinueCallback;
+  badgeContinueCallback = null;
+  if (cb) cb();
+});
+
+updateMenu();
+</script>
+
+</body>
+</html>

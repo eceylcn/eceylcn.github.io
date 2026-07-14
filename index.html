@@ -1,0 +1,1405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ece Yalçın · Learning Game Portfolio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;0,9..144,800;0,9..144,900;1,9..144,400;1,9..144,500;1,9..144,600;1,9..144,700&family=Lora:ital,wght@1,400;1,600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F5EDE0;
+    --cream:#F5EDE0;
+    --bg2:#ffffff;
+    --ink:#3A2A21;
+    --ink2:#6B5647;
+    --muted:#9C8879;
+    --line:#E7D9C3;
+    --line2:#DAC6A6;
+    --accent:#C1503F;
+    --accent-ink:#fff;
+    --pink:#F0AAB6;
+    --mustard:#E8C468;
+    --crimson:#A51C30;
+    --boun:#005BAA;
+    --soft:0 1px 2px rgba(58,32,18,.05), 0 10px 26px rgba(58,32,18,.08);
+    --soft-h:0 2px 6px rgba(58,32,18,.08), 0 26px 50px rgba(58,32,18,.16);
+    --serif:'Fraunces',Georgia,serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{font-family:"Inter",-apple-system,BlinkMacSystemFont,sans-serif;
+    background:var(--bg);color:var(--ink);line-height:1.55;
+    -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+  a{color:inherit;text-decoration:none}
+  #fx{position:fixed;inset:0;z-index:0;pointer-events:none}
+  #home,#about-page{position:relative;z-index:1}
+  #about-page{display:none}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+  .eyebrow{font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#fff;
+    background:var(--accent);display:inline-flex;padding:6px 14px;border-radius:8px;
+    box-shadow:0 3px 0 rgba(58,32,18,.12);transform:rotate(-1.2deg)}
+
+  /* NAV */
+  nav{position:sticky;top:16px;z-index:60;background:transparent;border-bottom:none;padding:0 24px}
+  .nav-in{max-width:900px;margin:0 auto;padding:10px 10px 10px 20px;display:flex;align-items:center;justify-content:space-between;
+    background:#fff;border-radius:999px;border:1.5px solid var(--ink);box-shadow:0 4px 0 rgba(58,32,18,.14)}
+  .brand{display:flex;align-items:center;gap:11px;cursor:pointer}
+  .brand .mk{width:32px;height:32px;border-radius:50%;background:#fff;border:1.5px solid var(--ink);overflow:hidden;flex-shrink:0}
+  .brand .mk img{width:100%;height:100%;object-fit:cover;object-position:50% 22%;display:block}
+  .brand .nm{font-family:var(--serif);font-weight:700;font-size:16px;letter-spacing:-.01em;white-space:nowrap}
+  .nav-links{display:flex;gap:4px;align-items:center}
+  .nav-links a{font-size:14px;font-weight:600;color:var(--ink2);padding:9px 16px;border-radius:999px;cursor:pointer;transition:.15s;white-space:nowrap}
+  .nav-links a:hover{background:var(--cream);color:var(--ink)}
+  .nav-links a.cta{background:var(--accent);color:#fff;border:1.5px solid var(--ink)}
+  .nav-links a.cta:hover{background:#A83F30}
+  .nav-cv{display:inline-flex!important;align-items:center;gap:6px}
+  .cv-dl-icon{width:13px;height:13px;flex-shrink:0}
+  .nav-short{display:none}
+  @media(max-width:480px){
+    nav{padding:0 12px}
+    .nav-in{padding:8px 8px 8px 14px}
+    .brand .mk{width:28px;height:28px}
+    .brand .nm{font-size:14px}
+    .nav-links{gap:2px}
+    .nav-links a{font-size:13px;padding:8px 10px}
+    .nav-full{display:none}
+    .nav-short{display:inline}
+    .cv-dl-icon{display:none}
+    .nav-cv{gap:0}
+  }
+
+  .btn{font-weight:700;font-size:15px;border:1.5px solid var(--ink);cursor:pointer;padding:13px 26px;border-radius:999px;
+    transition:transform .14s ease,box-shadow .2s,background .15s;display:inline-flex;align-items:center;gap:8px}
+  .btn:active{transform:scale(.98)}
+  .btn-dark{background:var(--accent);color:#fff;box-shadow:0 4px 0 rgba(58,32,18,.18)}
+  .btn-dark:hover{background:#A83F30;transform:translateY(-2px);box-shadow:0 6px 0 rgba(58,32,18,.18)}
+  .btn-outline{background:#fff;color:var(--ink);border:1.5px solid var(--ink);box-shadow:0 4px 0 rgba(58,32,18,.1)}
+  .btn-outline:hover{background:var(--cream);transform:translateY(-2px)}
+  .btn-soft{background:var(--mustard);color:var(--ink);border:1.5px solid var(--ink)}
+  .btn-soft:hover{background:#E0B855;transform:translateY(-2px)}
+
+  footer{border-top:1.5px solid var(--line);margin-top:40px;padding:34px 0 60px;color:var(--muted);font-weight:500;font-size:13.5px}
+  footer .fl{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:center}
+  footer b{color:var(--ink);font-weight:700}
+
+  /* ===== HOME ===== */
+  .hero{padding:56px 0 44px}
+  .hero-inner{display:grid;grid-template-columns:6fr 4fr;gap:44px;align-items:center}
+  @media(max-width:860px){.hero-inner{grid-template-columns:1fr}}
+  .hero h1{font-family:var(--serif);font-size:clamp(30px,4.2vw,54px);font-weight:600;
+    letter-spacing:-.01em;line-height:1.14;margin:16px 0 20px;color:var(--ink)}
+  .hero .sub{font-size:15px;color:var(--ink2);font-weight:500;max-width:420px;margin-bottom:28px;line-height:1.65}
+  .hero-cta{display:flex;gap:12px;flex-wrap:wrap}
+  .hero-brain{display:flex;align-items:center;justify-content:center;position:relative;padding:40px}
+  .hero-brain::before{content:"";position:absolute;inset:6%;background:var(--pink);
+    border:2px solid var(--ink);border-radius:24px;transform:rotate(2.5deg);z-index:0;
+    box-shadow:0 6px 0 rgba(58,32,18,.14)}
+  #brainCanvas{display:block;position:relative;z-index:1}
+  .hb-chip{position:absolute;font-weight:800;letter-spacing:-.01em;white-space:nowrap;
+    border:1.5px solid var(--ink);border-radius:8px;box-shadow:0 3px 0 rgba(58,32,18,.14);
+    z-index:3;animation:hbFloat ease-in-out infinite}
+  .hb-chip-1{top:2px;left:-6px;font-size:11.5px;padding:6px 13px;background:#fff;color:var(--ink);
+    transform:rotate(-7deg);animation-duration:5.6s}
+  .hb-chip-2{bottom:8px;left:2%;font-size:15px;padding:10px 19px;background:var(--mustard);color:#7A5A16;
+    transform:rotate(4deg);animation-duration:6.4s;animation-delay:.4s}
+  .hb-chip-3{top:14%;right:-14px;font-size:11px;padding:6px 12px;background:var(--accent);color:#fff;
+    transform:rotate(8deg);animation-duration:5s;animation-delay:.8s}
+  .hb-chip-4{bottom:16%;right:-18px;font-size:13px;padding:8px 16px;background:#fff;color:var(--ink);
+    transform:rotate(-5deg);animation-duration:6s;animation-delay:1.1s}
+  .hb-chip-5{top:42%;left:-26px;font-size:12px;padding:7px 14px;background:#C9B6E4;color:#4A2E7A;
+    transform:rotate(-6deg);animation-duration:5.4s;animation-delay:.65s}
+  @keyframes hbFloat{0%,100%{translate:0 0}50%{translate:0 -7px}}
+  @media(max-width:520px){.hb-chip{display:none}}
+  @media(max-width:860px){.hero-brain{display:none}}
+  .section{padding:60px 0}
+  /* ===== PROJECT PAGE ===== */
+  .proj-back-bar{padding:20px 0 0}
+  .proj-back-btn{background:#fff;border:1.5px solid var(--ink);border-radius:999px;font-size:13px;font-weight:700;color:var(--ink);cursor:pointer;padding:8px 18px;letter-spacing:-.01em;transition:transform .15s,box-shadow .15s;box-shadow:0 3px 0 rgba(58,32,18,.12)}
+  .proj-back-btn:hover{transform:translateY(-2px)}
+  .proj-page-wrap{padding-top:18px;padding-bottom:64px}
+  .proj-info{margin-bottom:36px}
+  .proj-page-title{font-family:var(--serif);font-size:clamp(26px,4vw,42px);font-weight:600;letter-spacing:-.01em;margin:0;color:var(--ink)}
+  .proj-title-row{display:flex;align-items:center;gap:16px;margin:10px 0 14px}
+  .proj-icon{width:56px;height:56px;border-radius:14px;overflow:hidden;flex-shrink:0;background:var(--cream);border:1.5px solid var(--ink);display:none}
+  .proj-icon.vis{display:block}
+  .proj-icon img{width:100%;height:100%;object-fit:cover;display:block}
+  .proj-page-desc{font-size:15px;color:var(--ink2);font-weight:500;line-height:1.7}
+  .proj-embed-outer{border-radius:18px;overflow:hidden;border:1.5px solid var(--ink);box-shadow:0 4px 0 rgba(58,32,18,.12)}
+  .proj-embed-notice{display:flex;align-items:center;gap:10px;padding:13px 20px;background:var(--mustard);border-bottom:1.5px solid var(--ink);font-size:13px;font-weight:600;color:var(--ink);line-height:1.5}
+  .proj-embed-notice .flag{font-size:17px;line-height:1;flex-shrink:0}
+  .proj-mobile-warning{display:none}
+  @media(max-width:640px){
+    .proj-mobile-warning{display:flex;align-items:center;gap:10px;padding:13px 20px;background:#F8D7DA;
+      border-bottom:1.5px solid var(--ink);font-size:13px;font-weight:600;color:#7A2A2A;line-height:1.5}
+    .proj-mobile-warning .flag{font-size:17px;line-height:1;flex-shrink:0}
+  }
+  .proj-embed-wrap{aspect-ratio:4/3;width:100%}
+  .proj-embed-wrap iframe{width:100%;height:100%;border:none;display:block}
+  /* Project details box (above iframe) */
+  .proj-details-box{width:100%;margin-bottom:28px;display:flex;flex-direction:column;gap:16px}
+  .pd-title{font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+  .pd-row{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  @media(max-width:700px){.pd-row{grid-template-columns:1fr}}
+  .pd-box{background:#fff;border:1.5px solid var(--ink);border-radius:14px;padding:16px 18px;display:flex;flex-direction:column;gap:6px;box-shadow:0 3px 0 rgba(58,32,18,.1)}
+  .pd-label{font-size:11px;font-weight:700;letter-spacing:.05em;color:var(--muted);text-transform:uppercase}
+  .pd-value{font-size:14px;font-weight:600;color:var(--ink);line-height:1.55}
+  .pd-obj-box{background:var(--pink);border:1.5px solid var(--ink);border-radius:14px;padding:18px 20px;display:flex;flex-direction:column;gap:6px;box-shadow:0 3px 0 rgba(58,32,18,.1)}
+  .pd-obj-box .pd-label{color:#8A3226}
+  .pd-obj-box .pd-value{color:#5C2118}
+  /* Extra content below iframe (methodology deep-dive) */
+  .proj-extra{margin-top:52px;display:flex;flex-direction:column;gap:52px;width:100%}
+  .pe-h2{font-family:var(--serif);font-size:clamp(21px,2.8vw,32px);font-weight:600;letter-spacing:-.01em;margin-top:8px;margin-bottom:22px;color:var(--ink)}
+  .pe-sections{display:flex;flex-direction:column;gap:16px}
+  .pe-section{display:flex;gap:16px;background:#fff;border:1.5px solid var(--ink);border-radius:16px;padding:20px 22px;box-shadow:0 3px 0 rgba(58,32,18,.1)}
+  .pe-num{flex-shrink:0;width:30px;height:30px;border-radius:50%;background:var(--accent);color:#fff;font-weight:800;font-size:13px;display:grid;place-items:center}
+  .pe-text h3{font-size:15px;font-weight:800;letter-spacing:-.01em;margin-bottom:6px;color:var(--ink)}
+  .pe-text p{font-size:13.5px;color:var(--ink2);font-weight:500;line-height:1.68}
+  .pe-text p+p{margin-top:8px}
+  .pe-intro{font-size:14px;color:var(--ink2);font-weight:500;line-height:1.68;margin-bottom:20px}
+  .pe-terms{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  @media(max-width:760px){.pe-terms{grid-template-columns:1fr}}
+  .pe-term-item{background:var(--cream);border:1.5px solid var(--ink);border-radius:14px;padding:18px 20px}
+  .pe-term-item h4{font-size:13px;font-weight:800;margin-bottom:6px;color:var(--ink)}
+  .pe-term-item p{font-size:12.5px;color:var(--ink2);font-weight:500;line-height:1.62}
+  /* ===== WORK SECTION ===== */
+  .work-section{padding:72px 0 96px;border-top:1.5px solid var(--line)}
+  .work-header{margin-bottom:56px}
+  .work-title{font-family:var(--serif);font-size:clamp(30px,4vw,50px);font-weight:600;letter-spacing:-.01em;margin-top:8px;color:var(--ink)}
+  .work-block{margin-bottom:64px}
+  .work-block:last-child{margin-bottom:0}
+  .work-block-head{display:flex;align-items:baseline;gap:16px;margin-bottom:24px;padding-bottom:16px;border-bottom:1.5px dashed var(--line2)}
+  .work-block-head h3{font-size:20px;font-weight:800;letter-spacing:-.02em;color:var(--ink)}
+  .work-block-num{font-size:12px;font-weight:800;letter-spacing:.1em;color:var(--accent);flex-shrink:0}
+  .work-block-desc{font-size:14px;color:var(--ink2);font-weight:500;line-height:1.65;margin:-8px 0 22px}
+  /* placeholder shared */
+  .ph-thumb{background:var(--cream);border:1px dashed var(--line2);border-radius:10px}
+  /* ID cards — horizontal split */
+  .id-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+  @media(max-width:900px){.id-grid{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:560px){.id-grid{grid-template-columns:1fr}}
+  .id-card{background:#fff;border:1.5px solid var(--ink);border-radius:20px;overflow:hidden;box-shadow:0 4px 0 rgba(58,32,18,.12);display:flex;flex-direction:column;
+    transition:transform .18s,box-shadow .18s}
+  .id-card:hover{transform:translateY(-3px) rotate(-.4deg);box-shadow:0 7px 0 rgba(58,32,18,.14)}
+  .id-card-thumb{position:relative;width:100%;height:172px;background:var(--cream);border-bottom:1.5px solid var(--ink);flex-shrink:0;overflow:hidden}
+  .id-card-tag{position:absolute;top:10px;left:10px;z-index:2;font-size:10.5px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--ink);background:var(--mustard);border:1.5px solid var(--ink);padding:5px 10px;border-radius:7px;transform:rotate(-2deg)}
+  .id-card-body{padding:16px 18px;flex:1;display:flex;flex-direction:column;gap:6px}
+  .id-card-body h4{font-size:14px;font-weight:800;letter-spacing:-.01em;color:var(--ink)}
+  .id-card-body p{font-size:12.5px;color:var(--ink2);font-weight:500;line-height:1.6}
+  .id-card-year{font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--muted);margin-top:auto;padding-top:8px;display:block}
+  .games-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  @media(max-width:760px){.games-grid{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:480px){.games-grid{grid-template-columns:1fr}}
+  .game-card{background:#fff;border:1.5px solid var(--ink);border-radius:16px;padding:14px 16px;
+    box-shadow:0 3px 0 rgba(58,32,18,.12);display:flex;align-items:center;gap:14px;cursor:pointer;
+    transition:box-shadow .18s,transform .18s;text-align:left}
+  .game-card:hover{box-shadow:0 5px 0 rgba(58,32,18,.14);transform:translateY(-2px) rotate(.4deg)}
+  .game-card-icon{width:56px;height:56px;border-radius:12px;overflow:hidden;flex-shrink:0;
+    background:var(--cream);border:1.5px solid var(--ink)}
+  .game-card-icon img{width:100%;height:100%;object-fit:cover;display:block}
+  .game-card-info{min-width:0}
+  .game-card-info h4{font-size:13px;font-weight:800;letter-spacing:-.01em;color:var(--ink);margin-bottom:3px}
+  .game-card-info p{font-size:11.5px;color:var(--ink2);font-weight:500;line-height:1.5}
+  .game-tag{font-size:9.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;
+    padding:4px 9px;border-radius:7px;border:1.5px solid var(--ink);white-space:nowrap;
+    flex-shrink:0;align-self:flex-start;margin-left:auto;transform:rotate(-2deg)}
+  .game-tag-math{background:var(--mustard);color:#7A5A16}
+  .game-tag-science{background:var(--accent);color:#fff}
+  .game-tag-turkish{background:var(--crimson);color:#fff}
+  .game-tag-english{background:var(--pink);color:#8A3226}
+  .game-tag-social{background:var(--boun);color:#fff}
+  .sec-top{margin-bottom:30px}
+  .sec-top h2{font-family:var(--serif);font-size:clamp(28px,4vw,42px);font-weight:600;letter-spacing:-.01em;margin-top:10px;color:var(--ink)}
+  .sec-top p{color:var(--ink2);font-weight:500;font-size:16px;margin-top:8px;max-width:480px}
+  #about{scroll-margin-top:80px}
+  .about-grid{display:grid;grid-template-columns:1.25fr 1fr;gap:36px;align-items:start}
+  @media(max-width:760px){.about-grid{grid-template-columns:1fr;gap:24px}}
+  .about-grid p{color:var(--ink2);font-weight:500;font-size:16px;margin-bottom:14px;max-width:560px}
+  .about-grid p b{color:var(--ink);font-weight:700}
+  .bring{background:#fff;border:1.5px solid var(--ink);border-radius:20px;padding:8px 22px;box-shadow:0 4px 0 rgba(58,32,18,.1)}
+  .bring .row{padding:18px 0;border-bottom:1.5px dashed var(--line2)}
+  .bring .row:last-child{border:none}
+  .bring .row .h{font-weight:800;font-size:15px;display:flex;align-items:center;gap:10px}
+  .bring .row .h .bi{width:30px;height:30px;border-radius:50%;background:var(--pink);border:1.5px solid var(--ink);display:grid;place-items:center}
+  .bring .row .h .bi svg{width:16px;height:16px;color:var(--ink)}
+  .bring .row .d{font-size:13.5px;color:var(--ink2);font-weight:500;margin-top:6px;margin-left:40px}
+
+  /* ===== ABOUT PAGE ===== */
+
+  /* Scene hero */
+  .ab-hero{padding:52px 0 28px}
+  .ab-scene{position:relative;height:480px;max-width:860px;margin:0 auto}
+
+  /* Photo */
+  .ab-photo-c{position:absolute;left:50%;top:50%;
+    transform:translate(-50%,-50%) scale(0.88);opacity:0;z-index:10;
+    transition:opacity .65s ease,transform .65s cubic-bezier(.22,1,.36,1)}
+  .ab-photo-c.vis{opacity:1;transform:translate(-50%,-50%) scale(1);
+    animation:floatPhoto 8s ease-in-out .7s infinite}
+  .ab-photo-c img{width:190px;height:248px;border-radius:22px;border:2.5px solid var(--ink);
+    object-fit:cover;object-position:center top;display:block;transform:rotate(-2deg);
+    box-shadow:0 10px 0 rgba(58,32,18,.14),0 4px 12px rgba(58,32,18,.1)}
+  @keyframes floatPhoto{
+    0%,100%{transform:translate(-50%,-50%) translateY(0)}
+    50%{transform:translate(-50%,-50%) translateY(-9px)}}
+
+  /* Logos */
+  .ab-logo-l{position:absolute;left:2%;top:calc(50% - 38px);opacity:0;transform:translateX(-60px);
+    transition:opacity .6s ease .38s,transform .6s cubic-bezier(.22,1,.36,1) .38s}
+  .ab-logo-r{position:absolute;right:2%;top:calc(50% - 38px);opacity:0;transform:translateX(60px);
+    transition:opacity .6s ease .54s,transform .6s cubic-bezier(.22,1,.36,1) .54s}
+  .ab-logo-l.vis{opacity:1;transform:translateX(0);animation:floatLogoL 6s ease-in-out 1s infinite}
+  .ab-logo-r.vis{opacity:1;transform:translateX(0);animation:floatLogoR 7s ease-in-out 1.2s infinite}
+  .ab-logo-l img,.ab-logo-r img{height:76px;width:auto;object-fit:contain;display:block}
+  @keyframes floatLogoL{0%,100%{transform:translateX(0) translateY(0)}50%{transform:translateX(0) translateY(-12px)}}
+  @keyframes floatLogoR{0%,100%{transform:translateX(0) translateY(-6px)}50%{transform:translateX(0) translateY(10px)}}
+
+  /* Chips — 4 corners */
+  .ab-chip{position:absolute;font-size:13px;font-weight:800;letter-spacing:-.01em;
+    padding:9px 18px;border-radius:9px;border:1.5px solid var(--ink);opacity:0;z-index:8;white-space:nowrap;
+    box-shadow:0 3px 0 rgba(58,32,18,.12)}
+  .ab-chip-pm{left:14%;top:10%;color:#8A3226;background:var(--pink);
+    transform:translateY(18px) scale(0.84) rotate(-2deg);
+    transition:opacity .5s ease .72s,transform .5s cubic-bezier(.22,1,.36,1) .72s}
+  .ab-chip-gd{right:12%;top:13%;color:#7A5A16;background:var(--mustard);
+    transform:translateY(18px) scale(0.84) rotate(2.5deg);
+    transition:opacity .5s ease .88s,transform .5s cubic-bezier(.22,1,.36,1) .88s}
+  .ab-chip-le{left:12%;bottom:10%;color:#fff;background:var(--accent);
+    transform:translateY(18px) scale(0.84) rotate(1.8deg);
+    transition:opacity .5s ease 1.04s,transform .5s cubic-bezier(.22,1,.36,1) 1.04s}
+  .ab-chip-mm{right:10%;bottom:13%;color:var(--ink);background:#fff;
+    transform:translateY(18px) scale(0.84) rotate(-1.5deg);
+    transition:opacity .5s ease 1.2s,transform .5s cubic-bezier(.22,1,.36,1) 1.2s}
+  .ab-chip-pm.vis{opacity:1;transform:translateY(0) scale(1) rotate(-2deg);animation:floatChipA 4.8s ease-in-out 1.25s infinite}
+  .ab-chip-gd.vis{opacity:1;transform:translateY(-5px) scale(1) rotate(2.5deg);animation:floatChipB 5.8s ease-in-out 1.45s infinite}
+  .ab-chip-le.vis{opacity:1;transform:translateY(0) scale(1) rotate(1.8deg);animation:floatChipC 5.2s ease-in-out 1.65s infinite}
+  .ab-chip-mm.vis{opacity:1;transform:translateY(-3px) scale(1) rotate(-1.5deg);animation:floatChipD 6.2s ease-in-out 1.85s infinite}
+  @keyframes floatChipA{0%,100%{transform:translateY(0) rotate(-2deg)}40%{transform:translateY(-10px) rotate(-1.3deg)}70%{transform:translateY(-4px) rotate(-2.4deg)}}
+  @keyframes floatChipB{0%,100%{transform:translateY(-5px) rotate(2.5deg)}50%{transform:translateY(9px) rotate(1.2deg)}}
+  @keyframes floatChipC{0%,100%{transform:translateY(0) rotate(1.8deg)}45%{transform:translateY(-9px) rotate(1deg)}}
+  @keyframes floatChipD{0%,100%{transform:translateY(-3px) rotate(-1.5deg)}55%{transform:translateY(8px) rotate(-.9deg)}}
+
+  /* Mobile fallback */
+  @media(max-width:640px){
+    .ab-scene{height:auto;position:static;display:flex;flex-direction:column;align-items:center;gap:20px;padding:16px 0}
+    .ab-photo-c,.ab-logo-l,.ab-logo-r,.ab-chip{position:static;transform:none!important;opacity:1!important;animation:none!important}
+    .ab-photo-c img{width:150px;height:194px}
+    .ab-logo-l img,.ab-logo-r img{height:52px}
+    .ab-mobile-logos{display:flex;gap:24px;align-items:center;justify-content:center}
+    .ab-mobile-chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+    .ab-scene .ab-logo-l,.ab-scene .ab-logo-r,.ab-scene .ab-chip{display:none}
+  }
+  @media(min-width:641px){.ab-mobile-logos,.ab-mobile-chips{display:none}}
+
+  /* Quote */
+  .ab-intro{padding:0 0 56px}
+  .ab-intro-box{position:relative;padding:8px 0 8px 0}
+  .ab-intro-box::before{
+    content:'\201C';
+    font-family:var(--serif);font-size:110px;font-style:italic;
+    color:var(--pink);line-height:1;position:absolute;top:-28px;left:-18px;
+    pointer-events:none;user-select:none}
+  .ab-intro-box p{
+    font-family:var(--serif);font-style:italic;
+    font-size:clamp(17px,2.1vw,21px);font-weight:400;
+    color:var(--accent);line-height:1.75;padding-left:4px}
+
+  /* 3 panels */
+  .ab-panels-section{padding:0 0 72px}
+  .ab-sec-head{margin-bottom:40px}
+  .ab-sec-head h2{font-family:var(--serif);font-size:clamp(26px,3.5vw,40px);font-weight:600;letter-spacing:-.01em;margin-top:10px;color:var(--ink)}
+  .panels-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+  @media(max-width:800px){.panels-grid{grid-template-columns:1fr}}
+  .p-card{background:#fff;border:1.5px solid var(--ink);border-radius:20px;overflow:hidden;box-shadow:0 4px 0 rgba(58,32,18,.12);
+    transition:transform .18s,box-shadow .18s}
+  .p-card:hover{transform:translateY(-3px);box-shadow:0 7px 0 rgba(58,32,18,.14)}
+  .p-anim-wrap{height:110px;display:flex;align-items:center;justify-content:center;
+    background:var(--cream);border-bottom:1.5px solid var(--ink);overflow:hidden;position:relative}
+  .p-body{padding:20px 22px}
+  .p-body h4{font-size:14px;font-weight:800;letter-spacing:-.01em;margin-bottom:8px;color:var(--ink)}
+  .p-body p{font-size:13px;color:var(--ink2);font-weight:500;line-height:1.68}
+
+  /* Anim 1 — Tube (working memory → long-term memory) */
+  .p-tube-wrap{display:flex;align-items:center;justify-content:center;width:100%}
+  .p-tube-svg{overflow:visible;display:block}
+
+  /* Anim 2 — orbit (cognitive offload / AI systems) */
+  .p-orbit{position:relative;width:80px;height:80px;margin:0 auto}
+  .o-core{position:absolute;left:50%;top:50%;width:12px;height:12px;border-radius:50%;
+    background:var(--ink);transform:translate(-50%,-50%)}
+  .o-ring{position:absolute;left:50%;top:50%;border-radius:50%;border:1.5px solid rgba(58,32,18,.16);
+    transform:translate(-50%,-50%)}
+  .o-ring-1{width:38px;height:38px;animation:spinR 3.5s linear infinite}
+  .o-ring-2{width:68px;height:68px;animation:spinR 6s linear infinite reverse}
+  .o-dot{position:absolute;top:-4px;left:calc(50% - 4px);width:8px;height:8px;border-radius:50%}
+  .o-ring-1 .o-dot{background:var(--accent)}
+  .o-ring-2 .o-dot{background:var(--mustard)}
+  @keyframes spinR{from{transform:translate(-50%,-50%) rotate(0deg)}to{transform:translate(-50%,-50%) rotate(360deg)}}
+
+  /* Anim 3 — sine wave (flow) */
+  .p-sine-wrap{width:100%;height:80px;overflow:hidden;position:relative}
+  .p-sine-wrap svg{position:absolute;top:50%;left:-10px;transform:translateY(-50%);
+    width:calc(100% + 130px)}
+  .sine-p{animation:sineSlide 2.2s linear infinite;stroke-linecap:round}
+  @keyframes sineSlide{from{transform:translateX(0)}to{transform:translateX(-120px)}}
+
+  /* Timeline */
+  .ab-tl-section{padding:0 0 64px}
+  .tl{position:relative;padding-left:42px}
+  .tl::before{content:"";position:absolute;left:13px;top:8px;bottom:8px;width:2px;
+    background:linear-gradient(to bottom,var(--line),var(--line2) 40%,var(--line2) 60%,var(--line));border-radius:2px}
+  .tl-node{position:relative;margin-bottom:44px}
+  .tl-node:last-child{margin-bottom:0}
+  .tl-dot{position:absolute;left:-42px;top:6px;width:28px;height:28px;border-radius:50%;
+    background:#fff;border:2px solid var(--ink);display:grid;place-items:center;z-index:2;
+    box-shadow:0 3px 0 rgba(58,32,18,.14)}
+  .tl-dot svg{width:12px;height:12px;color:var(--muted)}
+  .tl-dot.done{border-color:var(--ink);background:var(--ink)}
+  .tl-dot.done svg{color:#fff}
+  .tl-dot.crimson{border-color:var(--crimson);background:var(--crimson)}
+  .tl-dot.crimson svg{color:#fff}
+  .tl-dot.now{border-color:var(--ink);background:var(--accent);animation:tlpulse 2.4s ease-in-out infinite}
+  .tl-dot.now svg{color:#fff}
+  @keyframes tlpulse{0%,100%{box-shadow:0 0 0 0 rgba(193,80,63,.4)}60%{box-shadow:0 0 0 8px rgba(193,80,63,0)}}
+  .tl-year{font-size:11.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:9px}
+  .tl-card{background:#fff;border:1.5px solid var(--ink);border-radius:18px;padding:22px 24px;box-shadow:0 4px 0 rgba(58,32,18,.12)}
+  .tl-card.boun-card{background:#fff}
+  .tl-card.harvard-card{background:#fff}
+  .tl-card.now-card{background:#fff}
+  .tl-logo-row{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+  .tl-logo{height:30px;width:auto;object-fit:contain;flex-shrink:0}
+  .tl-logo-label{font-size:12.5px;font-weight:700;color:var(--muted)}
+  .harvard-card .tl-logo-label{color:var(--crimson)}
+  .boun-card .tl-logo-label,.now-card .tl-logo-label{color:var(--boun)}
+  /* Split card with photo */
+  .tl-card-split{display:grid;grid-template-columns:1fr 230px;gap:0;padding:0!important;overflow:visible!important}
+  .tl-split-text{padding:22px 24px}
+  .tl-split-photo{min-height:210px;overflow:hidden;border-radius:0 17px 17px 0}
+  @media(max-width:620px){.tl-card-split{grid-template-columns:1fr}.tl-split-photo{display:none}}
+
+  /* Grad photo hover tooltip */
+  .grad-photo-wrap{position:relative;height:100%;border-radius:0 17px 17px 0;overflow:hidden;cursor:crosshair}
+  .grad-photo-wrap img{width:100%;height:100%;object-fit:cover;object-position:center top;display:block}
+  .grad-tooltip{position:fixed;top:0;left:0;pointer-events:none;opacity:0;
+    transition:opacity 0.18s ease;z-index:9999;
+    background:rgba(8,8,18,0.82);backdrop-filter:blur(14px) saturate(1.4);
+    -webkit-backdrop-filter:blur(14px) saturate(1.4);
+    border:1px solid rgba(255,255,255,0.11);
+    border-radius:12px;padding:11px 15px;
+    display:flex;flex-direction:column;gap:6px;
+    white-space:nowrap;will-change:transform}
+  .grad-tooltip.vis{opacity:1}
+  .grad-tt-row{display:flex;align-items:center;gap:8px}
+  .grad-tt-label{font-size:9.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,0.38);margin-bottom:2px}
+  .grad-tt-dot{width:4px;height:4px;border-radius:50%;flex-shrink:0;background:rgba(255,255,255,0.55)}
+  .grad-tt-text{font-size:11px;font-weight:700;letter-spacing:.04em;color:#F3F4F6;line-height:1}
+
+  .tl-card h3{font-size:18px;font-weight:800;letter-spacing:-.02em;margin-bottom:4px}
+  .tl-card .sub{font-size:13px;font-weight:700;color:var(--muted);margin-bottom:11px}
+  .tl-card p{font-size:14px;color:var(--ink2);font-weight:500;line-height:1.68}
+  .tl-card p+p{margin-top:9px}
+  .tl-badge-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:13px}
+  .tl-badge{font-size:11.5px;font-weight:700;padding:5px 11px;border-radius:8px;background:var(--cream);border:1px solid var(--line);color:var(--ink2)}
+  .tl-badge.gold{background:#fffbeb;border-color:#fbbf24;color:#92400e}
+  .tl-badge.red{background:#fff1f2;border-color:rgba(165,28,48,.3);color:var(--crimson)}
+  .harvard-note{margin-top:14px;padding:13px 15px;border-radius:11px;background:rgba(165,28,48,.06);border:1px solid rgba(165,28,48,.18)}
+  .harvard-note p{font-size:13px;color:#7f1d1d;font-weight:600;line-height:1.6}
+
+  /* Frameworks */
+  .ab-fw-section{padding:0 0 64px}
+  .fw-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  @media(max-width:900px){.fw-grid{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:560px){.fw-grid{grid-template-columns:1fr}}
+  .fw-card{background:#fff;border:1.5px solid var(--ink);border-radius:18px;padding:22px;box-shadow:0 4px 0 rgba(58,32,18,.12);
+    transition:transform .18s,box-shadow .18s}
+  .fw-card:hover{transform:translateY(-3px);box-shadow:0 7px 0 rgba(58,32,18,.14)}
+  .fw-icon{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;margin-bottom:14px;background:var(--mustard);border:1.5px solid var(--ink)}
+  .fw-icon svg{width:20px;height:20px;color:var(--ink)}
+  .fw-card h3{font-size:15px;font-weight:800;letter-spacing:-.01em;margin-bottom:7px}
+  .fw-card p{font-size:13.5px;color:var(--ink2);font-weight:500;line-height:1.65}
+
+  @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<canvas id="fx"></canvas>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-in">
+    <div class="brand" onclick="goHome()">
+      <div class="mk"><img src="assets/brand-icon.png" alt="Ece Yalçın"></div>
+      <div class="nm">Ece Yalçın</div>
+    </div>
+    <div class="nav-links">
+      <a href="assets/EceYalcin_Resume.pdf" download class="nav-cv"><svg class="cv-dl-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg><span class="nav-full">Download CV</span><span class="nav-short">CV</span></a>
+      <a onclick="openAbout()"><span class="nav-full">About me</span><span class="nav-short">About</span></a>
+      <a class="cta" href="mailto:ece.yalcin2001@gmail.com">Contact</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ============ HOME ============ -->
+<div id="home">
+  <div class="wrap">
+    <section class="hero">
+      <div class="hero-inner">
+        <div class="hero-text">
+          <h1>Building AI Tools for Educators,<br>Designing Objective-Driven Interactions.</h1>
+          <p class="sub">A multidisciplinary approach that turns cognitive theory into scalable, user-centric EdTech products and interactive courseware.</p>
+          <div class="hero-cta">
+            <button class="btn btn-dark" onclick="document.getElementById('work').scrollIntoView({behavior:'smooth'})">My work</button>
+            <button class="btn btn-outline" onclick="openAbout()">More about me</button>
+          </div>
+        </div>
+        <div class="hero-brain">
+          <span class="hb-chip hb-chip-1">Product Management</span>
+          <span class="hb-chip hb-chip-2">Learning Engineering</span>
+          <span class="hb-chip hb-chip-3">Human Computer Interaction</span>
+          <span class="hb-chip hb-chip-4">Instructional Design</span>
+          <span class="hb-chip hb-chip-5">AI in Education</span>
+          <canvas id="brainCanvas" width="300" height="270"></canvas>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ===== WORK ===== -->
+  <section id="work" class="work-section">
+    <div class="wrap">
+
+      <!-- 1. Instructional Design & E-Learning -->
+      <div class="work-block">
+        <div class="work-block-head">
+          <span class="work-block-num">01</span>
+          <h3>Instructional Design &amp; E-Learning</h3>
+        </div>
+        <div class="id-grid">
+          <div class="id-card" onclick="openProject('oyuncak')" style="cursor:pointer">
+            <div class="id-card-thumb">
+              <span class="id-card-tag">Unity</span>
+              <img src="screenshots/oyuncakhazinesi.png" alt="Where is the Toy Treasure?" style="width:100%;height:100%;object-fit:cover;object-position:center top;display:block">
+            </div>
+            <div class="id-card-body">
+              <h4>Where is the Toy Treasure?</h4>
+              <p>Escape-room science courseware built in Unity. States of matter &amp; properties of materials, Grade 4.</p>
+              <span class="id-card-year">2023–2025</span>
+            </div>
+          </div>
+          <div class="id-card" onclick="openProject('entropy')" style="cursor:pointer">
+            <div class="id-card-thumb">
+              <span class="id-card-tag">Articulate Storyline</span>
+              <img src="screenshots/entropy.png" alt="Project Entropy" style="width:100%;height:100%;object-fit:cover;object-position:center top;display:block">
+            </div>
+            <div class="id-card-body">
+              <h4>Project Entropy: A Scenario-Based Corporate Mission</h4>
+              <p>A scenario-based corporate simulation teaching Entropy through an immersive, on-the-job investigation.</p>
+              <span class="id-card-year">2024</span>
+            </div>
+          </div>
+          <div class="id-card" onclick="openProject('yeryon')" style="cursor:pointer">
+            <div class="id-card-thumb">
+              <span class="id-card-tag">Articulate Storyline</span>
+              <img src="screenshots/yeryon.png" alt="Spatial Concepts Adventure" style="width:100%;height:100%;object-fit:cover;object-position:center top;display:block">
+            </div>
+            <div class="id-card-body">
+              <h4>Spatial Concepts Adventure</h4>
+              <p>An e-learning module for 1st graders on positional language: in front of, behind, above, and below.</p>
+              <span class="id-card-year">2020</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. Educational Games -->
+      <div class="work-block">
+        <div class="work-block-head">
+          <span class="work-block-num">02</span>
+          <h3>Educational Games</h3>
+        </div>
+        <p class="work-block-desc">Twelve single-file HTML5 prototypes, each scoped to one microlearning objective for teachers to run as a quick, focused activity right after a lesson. Designed and built while working as a Product Manager at Madlen, an AI-in-education platform used by 50,000+ teachers.</p>
+        <div class="games-grid">
+          <div class="game-card" onclick="openProject('basamak')">
+            <div class="game-card-icon"><img src="oyunlar/mobile icons/basamak_kulesi.png" alt="Basamak Kulesi"></div>
+            <div class="game-card-info"><h4>Basamak Kulesi</h4><p>Place value, number comparison &amp; patterns</p></div>
+            <span class="game-tag game-tag-math">Math</span>
+          </div>
+          <div class="game-card" onclick="openProject('devre')">
+            <div class="game-card-icon"><img src="oyunlar/mobile icons/devre_atolyesi.png" alt="Devre Atölyesi"></div>
+            <div class="game-card-info"><h4>Devre Atölyesi</h4><p>Simple electric circuits: build &amp; test</p></div>
+            <span class="game-tag game-tag-science">Science</span>
+          </div>
+          <div class="game-card" onclick="openProject('deyimoji')">
+            <div class="game-card-icon"><img src="oyunlar/mobile icons/deyimoji.png" alt="Deyimoji"></div>
+            <div class="game-card-info"><h4>Deyimoji</h4><p>Turkish idioms through picture clues</p></div>
+            <span class="game-tag game-tag-turkish">Turkish</span>
+          </div>
+          <div class="game-card" onclick="openProject('jobquest')">
+            <div class="game-card-icon"><img src="oyunlar/mobile icons/job_Quest.png" alt="Job Quest"></div>
+            <div class="game-card-info"><h4>Job Quest</h4><p>English vocabulary: jobs &amp; professions</p></div>
+            <span class="game-tag game-tag-english">English</span>
+          </div>
+          <div class="game-card" onclick="openProject('madde')">
+            <div class="game-card-icon"><img src="oyunlar/mobile icons/madde_atolyesi.png" alt="Madde Atölyesi"></div>
+            <div class="game-card-info"><h4>Madde Atölyesi</h4><p>Properties &amp; states of matter</p></div>
+            <span class="game-tag game-tag-science">Science</span>
+          </div>
+          <div class="game-card" onclick="openProject('kesif')">
+            <div class="game-card-icon"><img src="oyunlar/mobile icons/kesif_seferi.png" alt="Keşif Seferi"></div>
+            <div class="game-card-info"><h4>Keşif Seferi</h4><p>Map reading, directions &amp; weather</p></div>
+            <span class="game-tag game-tag-social">Social</span>
+          </div>
+          <div class="game-card" onclick="openProject('feelmatch')">
+            <div class="game-card-icon"><img src="oyunlar/mobile icons/feel_match.png" alt="Feel & Match"></div>
+            <div class="game-card-info"><h4>Feel & Match</h4><p>English feelings &amp; social-emotional language</p></div>
+            <span class="game-tag game-tag-english">English</span>
+          </div>
+          <div class="game-card" onclick="openProject('sifreavi')">
+            <div class="game-card-icon"><img src="oyunlar/mobile icons/sifreavi.png" alt="Şifre Avı"></div>
+            <div class="game-card-info"><h4>Şifre Avı</h4><p>Capitalization &amp; punctuation code-breaker</p></div>
+            <span class="game-tag game-tag-turkish">Turkish</span>
+          </div>
+          <div class="game-card" onclick="openProject('sayisokagi')">
+            <div class="game-card-icon"><img src="oyunlar/mobile icons/sayi_sokagi.png" alt="Sayı Sokağı"></div>
+            <div class="game-card-info"><h4>Sayı Sokağı</h4><p>Odd &amp; even numbers street adventure</p></div>
+            <span class="game-tag game-tag-math">Math</span>
+          </div>
+          <div class="game-card" onclick="openProject('actionverbs')">
+            <div class="game-card-icon"><img src="oyunlar/mobile icons/action_verbs.png" alt="Action Verbs"></div>
+            <div class="game-card-info"><h4>Action Verbs</h4><p>English action verbs, fast-paced streaks</p></div>
+            <span class="game-tag game-tag-english">English</span>
+          </div>
+          <div class="game-card" onclick="openProject('dunyakahramani')">
+            <div class="game-card-icon"><img src="oyunlar/mobile icons/dunya_kahramani.png" alt="Dünya Kahramanı"></div>
+            <div class="game-card-info"><h4>Dünya Kahramanı</h4><p>Environmental awareness &amp; recycling</p></div>
+            <span class="game-tag game-tag-science">Science</span>
+          </div>
+          <div class="game-card" onclick="openProject('seslialfabem')">
+            <div class="game-card-icon"><img src="oyunlar/mobile icons/sesli_alfabem.png" alt="Sesli Alfabem"></div>
+            <div class="game-card-info"><h4>Sesli Alfabem</h4><p>Phonics &amp; letter recognition game</p></div>
+            <span class="game-tag game-tag-turkish">Turkish</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <footer><div class="wrap"><div class="fl">
+    <div><b>Ece Yalçın</b> · Portfolio · All rights reserved 2026</div>
+
+  </div></div></footer>
+</div>
+
+
+<!-- ============ ABOUT PAGE ============ -->
+<div id="about-page">
+  <div class="wrap">
+
+    <!-- Hero scene -->
+    <section class="ab-hero">
+      <div class="ab-scene">
+        <div class="ab-photo-c">
+          <img src="assets/DSCF6013.JPG" alt="Ece Yalçın">
+        </div>
+        <div class="ab-logo-l"><img src="logos/boun.png" alt="Boğaziçi University"></div>
+        <div class="ab-logo-r"><img src="logos/harvard.png" alt="Harvard GSOE"></div>
+        <div class="ab-chip ab-chip-pm">Product Manager</div>
+        <div class="ab-chip ab-chip-gd">Game Designer</div>
+        <div class="ab-chip ab-chip-le">Learning Engineer</div>
+        <div class="ab-chip ab-chip-mm">Multidisciplinary Maker</div>
+      </div>
+      <!-- mobile -->
+      <div class="ab-mobile-logos" style="margin-top:16px">
+        <img style="height:52px;width:auto" src="logos/boun.png" alt="Boğaziçi">
+        <img style="height:52px;width:auto" src="logos/harvard.png" alt="Harvard">
+      </div>
+      <div class="ab-mobile-chips" style="margin-top:12px">
+        <span class="ab-chip ab-chip-pm" style="position:static;transform:none;opacity:1">Product Manager</span>
+        <span class="ab-chip ab-chip-gd" style="position:static;transform:none;opacity:1">Game Designer</span>
+        <span class="ab-chip ab-chip-le" style="position:static;transform:none;opacity:1">Learning Engineer</span>
+        <span class="ab-chip ab-chip-mm" style="position:static;transform:none;opacity:1">Multidisciplinary Maker</span>
+      </div>
+    </section>
+
+    <!-- Quote -->
+    <div class="ab-intro">
+      <div class="ab-intro-box">
+        <p>I'm fascinated by how people interact with technology, and by what happens in someone's mind while they do. My work spans <b>human-computer interaction</b>, <b>instructional design</b>, and <b>educational technology</b>, and the thread that connects all of it is a real curiosity about how people think, pay attention, and learn while using the systems we put in front of them.<br><br><b>Cognitive science</b> is the lens I reach for most, and lately my focus has been shifting toward the interaction between people and <b>intelligent systems</b>. I don't come from a formal cognitive science background, but it is the space I geek out in, and I think it is exactly where my work becomes most interesting.</p>
+      </div>
+    </div>
+
+    <!-- 3 panels -->
+    <section class="ab-panels-section">
+      <div class="ab-sec-head">
+        <span class="eyebrow">What drives the work</span>
+        <h2>Core focus areas.</h2>
+      </div>
+      <div class="panels-grid">
+
+        <!-- Panel 1: Cognitive Load -->
+        <div class="p-card">
+          <div class="p-anim-wrap">
+            <div class="p-tube-wrap">
+              <svg class="p-tube-svg" viewBox="0 0 210 74" width="195" height="68">
+                <defs>
+                  <linearGradient id="tbGd" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stop-color="#C1503F" stop-opacity="0.28"/>
+                    <stop offset="100%" stop-color="#F0AAB6" stop-opacity="0.06"/>
+                  </linearGradient>
+                  <path id="pp-c"  d="M 5,37 C 80,37 150,37 205,37"/>
+                  <path id="pp-u1" d="M 5,35 C 80,33 150,22 205,15"/>
+                  <path id="pp-l1" d="M 5,39 C 80,41 150,52 205,59"/>
+                  <path id="pp-u2" d="M 5,33 C 80,29 150,12 205,6"/>
+                  <path id="pp-l2" d="M 5,41 C 80,45 150,62 205,68"/>
+                </defs>
+                <!-- Tube fill -->
+                <path d="M 5,30 C 80,28 150,14 205,4 L 205,70 C 150,60 80,46 5,44 Z" fill="url(#tbGd)"/>
+                <!-- Walls -->
+                <path d="M 5,30 C 80,28 150,14 205,4" stroke="#C1503F" stroke-width="1.5" fill="none" stroke-opacity="0.38"/>
+                <path d="M 5,44 C 80,46 150,60 205,70" stroke="#C1503F" stroke-width="1.5" fill="none" stroke-opacity="0.38"/>
+                <!-- Left cap -->
+                <line x1="5" y1="30" x2="5" y2="44" stroke="#C1503F" stroke-width="2" stroke-opacity="0.55"/>
+                <!-- Particles -->
+                <circle r="3" fill="#C1503F" opacity="0">
+                  <animate attributeName="opacity" values="0;0.92;0.88;0" keyTimes="0;0.1;0.86;1" dur="2.6s" repeatCount="indefinite" begin="0s"/>
+                  <animateMotion dur="2.6s" repeatCount="indefinite" begin="0s"><mpath href="#pp-c"/></animateMotion>
+                </circle>
+                <circle r="2.5" fill="#D97656" opacity="0">
+                  <animate attributeName="opacity" values="0;0.85;0.8;0" keyTimes="0;0.1;0.86;1" dur="2.6s" repeatCount="indefinite" begin="0.52s"/>
+                  <animateMotion dur="2.6s" repeatCount="indefinite" begin="0.52s"><mpath href="#pp-u1"/></animateMotion>
+                </circle>
+                <circle r="2.5" fill="#D97656" opacity="0">
+                  <animate attributeName="opacity" values="0;0.85;0.8;0" keyTimes="0;0.1;0.86;1" dur="2.6s" repeatCount="indefinite" begin="1.04s"/>
+                  <animateMotion dur="2.6s" repeatCount="indefinite" begin="1.04s"><mpath href="#pp-l1"/></animateMotion>
+                </circle>
+                <circle r="2" fill="#E8C468" opacity="0">
+                  <animate attributeName="opacity" values="0;0.75;0.68;0" keyTimes="0;0.1;0.86;1" dur="2.6s" repeatCount="indefinite" begin="1.56s"/>
+                  <animateMotion dur="2.6s" repeatCount="indefinite" begin="1.56s"><mpath href="#pp-u2"/></animateMotion>
+                </circle>
+                <circle r="2" fill="#E8C468" opacity="0">
+                  <animate attributeName="opacity" values="0;0.75;0.68;0" keyTimes="0;0.1;0.86;1" dur="2.6s" repeatCount="indefinite" begin="2.08s"/>
+                  <animateMotion dur="2.6s" repeatCount="indefinite" begin="2.08s"><mpath href="#pp-l2"/></animateMotion>
+                </circle>
+              </svg>
+            </div>
+          </div>
+          <div class="p-body">
+            <h4>How much can a mind hold?</h4>
+            <p><b>When I design learning environments,</b> I care a lot about <b>cognitive load</b> and how to present information so people can hold onto it instead of feeling buried by it.</p>
+          </div>
+        </div>
+
+        <!-- Panel 2: Cognitive Offload -->
+        <div class="p-card">
+          <div class="p-anim-wrap">
+            <div class="p-orbit">
+              <div class="o-core"></div>
+              <div class="o-ring o-ring-1"><div class="o-dot"></div></div>
+              <div class="o-ring o-ring-2"><div class="o-dot"></div></div>
+            </div>
+          </div>
+          <div class="p-body">
+            <h4>Who's doing the thinking?</h4>
+            <p><b>As an AI edtech product manager,</b> I spent a lot of time thinking about <b>cognitive offload</b>: building tools that lift real busywork off teachers and students without quietly doing the thinking they are meant to be doing themselves.</p>
+          </div>
+        </div>
+
+        <!-- Panel 3: Flow & Mechanics -->
+        <div class="p-card">
+          <div class="p-anim-wrap">
+            <div class="p-sine-wrap">
+              <svg viewBox="0 0 340 60" fill="none">
+                <path class="sine-p" d="M0 30 C20 10,40 10,60 30 C80 50,100 50,120 30 C140 10,160 10,180 30 C200 50,220 50,240 30 C260 10,280 10,300 30 C320 50,340 50,360 30 C380 10,400 10,420 30" stroke="#C1503F" stroke-width="2.5" fill="none"/>
+              </svg>
+            </div>
+          </div>
+          <div class="p-body">
+            <h4>What makes people stay?</h4>
+            <p><b>When I design games, I study the mechanics that pull players in:</b> the balance between <b>challenge and skill</b> that creates <b>flow</b>, the <b>reward and feedback loops</b> that make progress feel satisfying, and the small moments of anticipation that make people want to come back.</p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Timeline -->
+    <section class="ab-tl-section">
+      <div class="ab-sec-head">
+        <span class="eyebrow">The journey</span>
+        <h2>Educational highlights.</h2>
+      </div>
+
+      <div class="tl">
+
+        <div class="tl-node">
+          <div class="tl-dot done">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          </div>
+          <div class="tl-year">2019–2025</div>
+          <div class="tl-card boun-card tl-card-split">
+            <div class="tl-split-text">
+              <div class="tl-logo-row">
+                <img class="tl-logo" src="logos/boun.png" alt="Boğaziçi University">
+                <span class="tl-logo-label">Boğaziçi University</span>
+              </div>
+              <h3>Computer Education &amp; Educational Technology</h3>
+              <div class="sub">Bachelor of Science · Istanbul, Turkey</div>
+              <p>I focused on <b>instructional design</b>, building e-learning in <b>Articulate Storyline</b> and courseware in <b>Unity with C#</b>. My capstone was an escape-room science courseware for 5th graders, grounded in <b>constructivist, behaviorist, and cognitivist theory</b> with the <b>ARCS motivation model</b> and <b>Mayer's multimedia principles</b>. I tested it across two schools and ran a full statistical evaluation of the results. <a href="https://github.com/eceylcn/where-is-the-toy-treasure" target="_blank" rel="noopener" style="color:var(--accent);font-weight:700;text-decoration:none">Where Is the Toy Treasure (GitHub) →</a></p>
+              <p>The product side shaped me most. A <b>Design Thinking for Innovation</b> track pulled me into idea development, <b>project management</b>, and entrepreneurship, where my path toward product management began. Alongside the coursework I taught <b>K-12 coding and robotics</b>, worked with LMS platforms like <b>Canvas</b>, and graduated <b>first in my class</b> with the <b>Dean's Special Award</b>.</p>
+            </div>
+            <div class="tl-split-photo">
+              <div class="grad-photo-wrap" id="gradPhotoWrap">
+                <img src="assets/1751560138082.jpeg" alt="Graduation ceremony">
+                <div class="grad-tooltip" id="gradTooltip">
+                  <span class="grad-tt-label">Translation</span>
+                  <div class="grad-tt-row"><div class="grad-tt-dot"></div><span class="grad-tt-text">High Honors</span></div>
+                  <div class="grad-tt-row"><div class="grad-tt-dot"></div><span class="grad-tt-text">Valedictorian of the Department</span></div>
+                  <div class="grad-tt-row"><div class="grad-tt-dot"></div><span class="grad-tt-text">Dean's Special Award</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="tl-node">
+          <div class="tl-dot crimson">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <div class="tl-year">March 2026 · Decision Point</div>
+          <div class="tl-card harvard-card tl-card-split">
+            <div class="tl-split-text">
+              <div class="tl-logo-row">
+                <img class="tl-logo" src="logos/harvard.png" alt="Harvard University">
+                <span class="tl-logo-label">Harvard Graduate School of Education</span>
+              </div>
+              <h3>Learning Design, Innovation &amp; Technology</h3>
+              <div class="sub">Master of Education · Cambridge, Massachusetts</div>
+              <p>I was admitted to Harvard Graduate School of Education's LDIT master's program, <b>one of the field's most established programs</b> in learning design and technology and the one most precisely aligned with the work I want to do. Getting in was <b>one of the milestones I'm proudest of</b>, a signal that the research questions I'd been circling for years were worth taking seriously at that level.</p>
+              <p>After weighing the opportunity honestly, I decided not to enroll. <b>The financial case simply didn't hold</b>, and I wasn't willing to carry a debt I couldn't justify. Instead I chose to continue my graduate studies at Boğaziçi, from Istanbul, pursuing the same questions about learning and technology that drew me to LDIT in the first place.</p>
+            </div>
+            <div class="tl-split-photo" style="border-radius:0 17px 17px 0">
+              <img src="screenshots/letter.png" alt="Harvard acceptance letter" style="width:100%;height:100%;object-fit:contain;object-position:center center;display:block;background:#fff">
+            </div>
+          </div>
+        </div>
+
+        <div class="tl-node">
+          <div class="tl-dot now">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/></svg>
+          </div>
+          <div class="tl-year">September 2026</div>
+          <div class="tl-card now-card">
+            <div class="tl-logo-row">
+              <img class="tl-logo" src="logos/boun.png" alt="Boğaziçi University">
+              <span class="tl-logo-label">Boğaziçi University</span>
+            </div>
+            <h3>Master of Arts, Educational Technology</h3>
+            <div class="sub">Istanbul, Turkey</div>
+            <p>I am starting a master's in Educational Technology at Boğaziçi, continuing the research direction that has shaped my work for years.</p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+
+  </div>
+
+  <footer><div class="wrap"><div class="fl">
+    <div><b>Ece Yalçın</b> · Portfolio · All rights reserved 2026</div>
+    <div><a href="mailto:ece.yalcin2001@gmail.com" style="color:var(--ink);font-weight:700">ece.yalcin2001@gmail.com</a></div>
+  </div></div></footer>
+</div>
+
+<!-- ============ PROJECT PAGE ============ -->
+<div id="proj-page" style="display:none">
+  <div class="proj-back-bar"><div class="wrap">
+    <button class="proj-back-btn" onclick="closeProject()">← Back</button>
+  </div></div>
+
+  <div class="wrap proj-page-wrap">
+    <div class="proj-info">
+      <div class="proj-title-row">
+        <div class="proj-icon" id="pp-icon-wrap"><img id="pp-icon" src="" alt=""></div>
+        <h1 class="proj-page-title" id="pp-title"></h1>
+      </div>
+      <p class="proj-page-desc" id="pp-desc"></p>
+    </div>
+    <div class="proj-details-box" id="pp-details" style="display:none"></div>
+    <div class="proj-embed-outer">
+      <div class="proj-mobile-warning"><span class="flag">📱</span><span>This is an interactive demo and doesn't display well on small screens. For the best experience, please view this project on a desktop or laptop.</span></div>
+      <div class="proj-embed-notice" id="pp-embed-notice" style="display:none"></div>
+      <div class="proj-embed-wrap">
+        <iframe id="pp-iframe" src="" allowfullscreen></iframe>
+      </div>
+    </div>
+    <div class="proj-extra" id="pp-extra" style="display:none"></div>
+  </div>
+</div>
+
+<script>
+function scrollToId(id){document.getElementById(id)?.scrollIntoView({behavior:'smooth'})}
+
+// DOM-only helpers (no history side-effects)
+function _showHome(){
+  document.getElementById('home').style.display='block';
+  document.getElementById('about-page').style.display='none';
+  document.getElementById('proj-page').style.display='none';
+  window.scrollTo(0,0);
+}
+function _showAbout(){
+  document.getElementById('home').style.display='none';
+  document.getElementById('about-page').style.display='block';
+  document.getElementById('proj-page').style.display='none';
+  window.scrollTo(0,0);
+  const els=document.querySelectorAll('.ab-photo-c,.ab-logo-l,.ab-logo-r,.ab-chip');
+  els.forEach(el=>el.classList.remove('vis'));
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    els.forEach(el=>el.classList.add('vis'));
+  }));
+}
+function _showProject(id){
+  const p=projects[id]; if(!p) return;
+  document.getElementById('pp-title').textContent=p.title;
+  document.getElementById('pp-desc').textContent =p.desc;
+  const iconWrap=document.getElementById('pp-icon-wrap');
+  const iconImg=document.getElementById('pp-icon');
+  if(p.icon){
+    iconImg.src=p.icon;
+    iconImg.alt=p.title;
+    iconWrap.classList.add('vis');
+  }else{
+    iconWrap.classList.remove('vis');
+    iconImg.removeAttribute('src');
+  }
+  const detailsBox=document.getElementById('pp-details');
+  if(p.detailsHTML){detailsBox.innerHTML=p.detailsHTML;detailsBox.style.display='flex';}
+  else{detailsBox.innerHTML='';detailsBox.style.display='none';}
+  const embedNotice=document.getElementById('pp-embed-notice');
+  if(p.iframeNotice){embedNotice.innerHTML=p.iframeNotice;embedNotice.style.display='flex';}
+  else{embedNotice.innerHTML='';embedNotice.style.display='none';}
+  const extraBox=document.getElementById('pp-extra');
+  if(p.extraHTML){extraBox.innerHTML=p.extraHTML;extraBox.style.display='block';}
+  else{extraBox.innerHTML='';extraBox.style.display='none';}
+  const iframe=document.getElementById('pp-iframe');
+  iframe.src=p.src;
+  // Prevent Articulate/Unity from adding entries to the joint session history
+  iframe.onload=function(){
+    try{
+      iframe.contentWindow.history.pushState=function(){};
+      iframe.contentWindow.history.replaceState=function(){};
+    }catch(e){}
+  };
+  document.getElementById('home').style.display      ='none';
+  document.getElementById('about-page').style.display='none';
+  document.getElementById('proj-page').style.display ='block';
+  window.scrollTo(0,0);
+}
+
+// Navigation (push history)
+function goHome(){
+  history.pushState({page:'home'},'','#/');
+  _showHome();
+}
+function openAbout(){
+  history.pushState({page:'about'},'','#/about');
+  _showAbout();
+}
+
+// Router — uses state object so iframe-internal popstate events (no .page) are ignored
+window.addEventListener('popstate',function(e){
+  const st=e.state;
+  if(!st||!st.page){
+    // No page marker → iframe-internal event; ignore if project is open
+    if(document.getElementById('proj-page').style.display==='block') return;
+  }
+  if(st&&st.page==='project'&&projects[st.id]){_showProject(st.id);return;}
+  if(st&&st.page==='about'){_showAbout();return;}
+  document.getElementById('pp-iframe').src='';
+  _showHome();
+});
+// Stamp initial history entry so popstate always has a .page marker
+history.replaceState({page:'home'},'',location.href);
+
+/* ambient particle field */
+(function(){
+  const cv=document.getElementById('fx'); if(!cv) return;
+  const ctx=cv.getContext('2d');
+  let W,H,DPR;
+  function resize(){
+    DPR=Math.min(window.devicePixelRatio||1,2);
+    W=cv.width=innerWidth*DPR; H=cv.height=innerHeight*DPR;
+    cv.style.width=innerWidth+'px'; cv.style.height=innerHeight+'px';
+  }
+  resize(); addEventListener('resize',resize);
+  function sprite(rgb){
+    const s=document.createElement('canvas'); s.width=s.height=64;
+    const c=s.getContext('2d');
+    const g=c.createRadialGradient(32,32,0,32,32,32);
+    g.addColorStop(0,`rgba(${rgb},0.85)`);
+    g.addColorStop(0.4,`rgba(${rgb},0.28)`);
+    g.addColorStop(1,`rgba(${rgb},0)`);
+    c.fillStyle=g; c.beginPath(); c.arc(32,32,32,0,7); c.fill();
+    return s;
+  }
+  const neutral=sprite('193,110,90');
+  const tints=[neutral,neutral,neutral,sprite('232,196,104'),sprite('240,170,182'),sprite('165,28,48')];
+  const N=Math.max(34,Math.min(78,Math.floor(innerWidth/17)));
+  const P=[];
+  for(let i=0;i<N;i++){
+    P.push({bx:Math.random(),by:Math.random(),z:Math.random(),ph:Math.random()*6.283,
+      sp:0.4+Math.random()*0.9,spr:tints[(Math.random()*tints.length)|0]});
+  }
+  const reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
+  let t=0;
+  function frame(){
+    t+=0.016; ctx.clearRect(0,0,W,H);
+    const breathe=Math.sin(t*0.055);
+    const ax=(0.5+0.2*Math.sin(t*0.045))*W;
+    const ay=(0.42+0.17*Math.cos(t*0.037))*H;
+    for(const p of P){
+      const nx=Math.sin(t*0.11*p.sp+p.ph)+0.5*Math.sin(t*0.067*p.sp+p.ph*1.7);
+      const ny=Math.cos(t*0.09*p.sp+p.ph*1.3)+0.5*Math.sin(t*0.05*p.sp+p.ph);
+      let px=p.bx*W+nx*46*DPR*(0.35+p.z);
+      let py=p.by*H+ny*46*DPR*(0.35+p.z);
+      px+=(ax-px)*0.045*breathe*(0.3+p.z);
+      py+=(ay-py)*0.045*breathe*(0.3+p.z);
+      const tw=0.5+0.5*Math.sin(t*0.55*p.sp+p.ph*3);
+      const size=(7+p.z*26)*DPR;
+      ctx.globalAlpha=(0.05+p.z*0.15)*(0.45+0.55*tw);
+      ctx.drawImage(p.spr,px-size/2,py-size/2,size,size);
+    }
+    ctx.globalAlpha=1;
+    if(!reduce) requestAnimationFrame(frame);
+  }
+  frame();
+})();
+
+
+// Project pages
+const projects = {
+  oyuncak: {
+    tag: 'Interactive Courseware · Unity WebGL · Grade 4',
+    title: 'Where is the Toy Treasure?',
+    desc: 'Where is the Toy Treasure? is an escape-room science courseware built in Unity (C#), teaching the states of matter and their distinguishing properties through an interactive treasure hunt. Learners move through a park and a multi-room building, solving science puzzles rooted in real experiments (melting, freezing, evaporation, condensation, sublimation, deposition) to recover a hidden toy chest. The courseware was designed for 5th grade, then evaluated with 4th grade students so that any measured impact could be isolated from prior classroom exposure to the topic.',
+    src: 'oyuncakhazinesi/index.html',
+    detailsHTML: `
+      <div class="pd-title">Project Details</div>
+      <div class="pd-row">
+        <div class="pd-box"><span class="pd-label">Target Audience</span><span class="pd-value">Primary School Students (Grades 4-5)</span></div>
+        <div class="pd-box"><span class="pd-label">Tools Used</span><span class="pd-value">Unity, C#, Adobe Illustrator, Photoshop, Canva</span></div>
+        <div class="pd-box"><span class="pd-label">Role</span><span class="pd-value">Instructional Designer, Researcher &amp; Developer</span></div>
+      </div>
+      <div class="pd-obj-box"><span class="pd-label">Learning Objective</span><span class="pd-value">By the end of the courseware, learners will be able to classify materials by state, experimentally observe and explain phase changes (melting, freezing, evaporation, condensation, sublimation, deposition), and identify and compare melting, freezing, and boiling points across different substances.</span></div>
+    `,
+    iframeNotice: `<span class="flag">🇹🇷</span><span>This courseware was developed for a learning objective defined by the Turkish Ministry of National Education (MEB). Its instructional language is Turkish.</span>`,
+    extraHTML: `
+      <div class="pe-block">
+        <span class="eyebrow">Process</span>
+        <h2 class="pe-h2">ADDIE in Practice</h2>
+        <div class="pe-sections">
+          <div class="pe-section">
+            <div class="pe-num">1</div>
+            <div class="pe-text">
+              <h3>Analyze</h3>
+              <p>The analysis phase began with a curriculum review: I examined how the Turkish Ministry of National Education (MEB) frames the states-of-matter unit and extracted the specific learning objectives it targets. In parallel, I ran a literature review to profile the target learner group and surface common learning gaps and misconceptions, for example that solids are often believed to have no particle motion, or that evaporation is assumed to begin only once boiling starts. These findings shaped which concepts the courseware needed to make visible and correct.</p>
+            </div>
+          </div>
+          <div class="pe-section">
+            <div class="pe-num">2</div>
+            <div class="pe-text">
+              <h3>Design</h3>
+              <p>Based on the analysis, I compiled a full objective list spanning Bloom's taxonomy, from recalling the three states of matter to evaluating and relating melting, freezing, and boiling points across substances, scoped to fit a single 40-minute class period. I then storyboarded the courseware as an escape-room narrative: a treasure hunt through a park and a multi-room building, where every puzzle maps directly onto one of the extracted learning objectives.</p>
+            </div>
+          </div>
+          <div class="pe-section">
+            <div class="pe-num">3</div>
+            <div class="pe-text">
+              <h3>Develop</h3>
+              <p>I built the learning environment in Unity (C#), and developed a pretest and posttest as parallel forms aligned to the same objectives, alongside a Likert-scale usability instrument to capture learners' general attitudes toward the courseware itself.</p>
+            </div>
+          </div>
+          <div class="pe-section">
+            <div class="pe-num">4</div>
+            <div class="pe-text">
+              <h3>Implement</h3>
+              <p>Before piloting with students, I ran an alpha testing round with a primary school science teacher, walking through the pretest, posttest, and Likert-scale usability test as well as the courseware itself. Her feedback confirmed that the assessment content matched both the cognitive level of the target age group and the national curriculum's objectives, and surfaced wording to revise before student piloting. I then ran a beta testing round with primary school students, conducting a think-aloud process while they interacted with the courseware. Watching where they hesitated, misread a prompt, or misunderstood an interaction revealed concrete usability and comprehension issues, which I used to iterate again on the pretest, posttest, Likert scale, and the courseware itself before formal evaluation.</p>
+            </div>
+          </div>
+          <div class="pe-section">
+            <div class="pe-num">5</div>
+            <div class="pe-text">
+              <h3>Evaluate</h3>
+              <p>The revised courseware was formally evaluated in a one-group pretest-posttest study with 43 primary school students across two schools (one private, one public) in Ankara. Students completed the pretest, engaged with the courseware, then completed the posttest and the Likert-scale usability survey, all of which served as formative assessment throughout the design cycle. The courseware reached a 78.2% average usability score, and results were analyzed with non-parametric tests (Wilcoxon Signed-Rank, Mann-Whitney U, Spearman's rho) to examine achievement gains alongside their relationship to perceived usability and prior performance.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="pe-block">
+        <h2 class="pe-h2">Instructional &amp; Motivational Design Principles</h2>
+        <p class="pe-intro">Beyond the ADDIE process, the courseware's interface and narrative were deliberately grounded in established instructional and motivational design theory.</p>
+        <div class="pe-terms">
+          <div class="pe-term-item">
+            <h4>Mayer's Multimedia Principles</h4>
+            <p>The Personalization and Signaling principles guided the interface: the courseware addresses learners by name and uses visual cues, such as an animated highlight on the Help button, to direct attention without adding extraneous text.</p>
+          </div>
+          <div class="pe-term-item">
+            <h4>ARCS Motivation Model</h4>
+            <p>Attention, Relevance, Confidence, and Satisfaction were designed for explicitly, from the novel escape-room setting and a peer companion character to a note-taking Phone tool that builds learners' expectancy for success.</p>
+          </div>
+          <div class="pe-term-item">
+            <h4>Usability Principles</h4>
+            <p>Consistent button placement and immediate feedback support learnability, the Phone and Help tools support flexibility through self-paced, multi-threaded use, and specific, corrective feedback on every interaction supports robustness.</p>
+          </div>
+        </div>
+      </div>
+    `
+  },
+  entropy: {
+    tag: 'Instructional Design · Articulate Storyline',
+    title: 'Project Entropy: A Scenario-Based Corporate Mission',
+    desc: 'Developed in Articulate Storyline 360, this project tackles a highly complex and abstract scientific concept, Entropy (Thermodynamics), and transforms it into an engaging, scenario-based corporate simulation. Set in a futuristic research facility in the year 2098, learners step into the role of a lead scientist tasked with investigating a critical system error (ERR3743) within a simulation habitat.',
+    src: 'entropy/story.html',
+    detailsHTML: `
+      <div class="pd-title">Project Details</div>
+      <div class="pd-row">
+        <div class="pd-box"><span class="pd-label">Topic</span><span class="pd-value">Physics / Entropy &amp; Thermodynamics</span></div>
+        <div class="pd-box"><span class="pd-label">Tools Used</span><span class="pd-value">Articulate Storyline 360, Video Editing</span></div>
+        <div class="pd-box"><span class="pd-label">Role</span><span class="pd-value">E-Learning Developer &amp; Instructional Designer</span></div>
+      </div>
+      <div class="pd-obj-box"><span class="pd-label">Methodology</span><span class="pd-value">ADDIE Model, Scenario-Based Learning (SBL), Problem-Based Learning (PBL)</span></div>
+    `,
+    extraHTML: `
+      <div class="pe-block">
+        <span class="eyebrow">The Challenge</span>
+        <h2 class="pe-h2">Teaching Entropy Without a Lecture</h2>
+        <p class="pe-intro">The core challenge was to teach Entropy, a concept often perceived as dense and purely theoretical, without relying on heavy text or traditional lectures. The goal was to create a corporate training module that felt less like a course and more like an immersive, on-the-job investigation.</p>
+      </div>
+      <div class="pe-block">
+        <span class="eyebrow">Approach</span>
+        <h2 class="pe-h2">Instructional Design Strategy &amp; Execution</h2>
+        <p class="pe-intro">To ensure the scientific accuracy and instructional effectiveness of the module, the project was rigorously developed following the ADDIE framework.</p>
+        <div class="pe-sections">
+          <div class="pe-section">
+            <div class="pe-num">1</div>
+            <div class="pe-text">
+              <h3>Collaboration with Subject Matter Experts (SMEs)</h3>
+              <p>During the Analysis and Design phases, I collaborated extensively with a multidisciplinary team of Subject Matter Experts (SMEs), including physicists, chemists, and molecular biologists. Instead of presenting their knowledge as dry text, I recorded video segments with these experts and integrated them directly into the storyline. They act as the learner's "colleagues" across different departments (Agriculture, Energy), reporting unusual data and guiding the investigation.</p>
+            </div>
+          </div>
+          <div class="pe-section">
+            <div class="pe-num">2</div>
+            <div class="pe-text">
+              <h3>Problem-Based Learning (PBL) as the Core Driver</h3>
+              <p>The entire learning experience is driven by a central problem: a machine is reporting "100% efficiency." By applying their understanding of Entropy, the learner must deduce that in reality, 100% energy transfer is physically impossible due to entropy. This realization drives the plot forward, turning scientific theory into a practical diagnostic tool.</p>
+            </div>
+          </div>
+          <div class="pe-section">
+            <div class="pe-num">3</div>
+            <div class="pe-text">
+              <h3>Simulated Corporate Environment &amp; Branching Navigation</h3>
+              <p>I designed a non-linear, exploratory environment. Learners navigate through a virtual facility (Hallway, Labs, Control Room) to gather clues. They must synthesize information from various sources, analyzing power input/output graphs, reading humidity tracking reports, and reviewing server log activities, to uncover that a rival corporate agent sabotaged the system.</p>
+            </div>
+          </div>
+          <div class="pe-section">
+            <div class="pe-num">4</div>
+            <div class="pe-text">
+              <h3>Authentic Assessments</h3>
+              <p>Instead of traditional multiple-choice quizzes, assessments are seamlessly woven into the narrative as "job tasks." Learners must fill out official anomaly reports, check data against standard parameters, and identify suspicious IP addresses in system logs, ensuring high cognitive engagement and knowledge application.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    `
+  },
+  yeryon: {
+    tag: 'Instructional Design · Articulate Storyline',
+    title: 'Spatial Concepts Adventure',
+    desc: 'This interactive e-learning module was developed using Articulate Storyline 360 to teach foundational spatial relationships (Left/Right, Over/Under, Inside/Outside) to early elementary students (1st Grade). By integrating a compelling narrative featuring familiar animated characters, the module transforms abstract spatial concepts into an engaging, problem-solving adventure. Because 1st graders are not yet reading or writing independently, the module was designed to be facilitated by the teacher and completed together as a whole-class activity, with the teacher guiding navigation and reading prompts aloud.',
+    src: 'sinif1-yeryon/story.html',
+    detailsHTML: `
+      <div class="pd-title">Project Details</div>
+      <div class="pd-row">
+        <div class="pd-box"><span class="pd-label">Target Audience</span><span class="pd-value">1st Grade Students (Ages 6-7)</span></div>
+        <div class="pd-box"><span class="pd-label">Tools Used</span><span class="pd-value">Articulate Storyline 360, Adobe Illustrator, Canva</span></div>
+        <div class="pd-box"><span class="pd-label">Role</span><span class="pd-value">Instructional Designer &amp; E-Learning Developer</span></div>
+      </div>
+      <div class="pd-obj-box"><span class="pd-label">Learning Objective</span><span class="pd-value">By the end of this module, learners will be able to accurately identify, express, and apply spatial and directional relationships in various environmental contexts.</span></div>
+    `,
+    iframeNotice: `<span class="flag">🇹🇷</span><span>This module was developed to meet a learning objective defined by the Turkish Ministry of National Education (MEB). Its instructional language is Turkish.</span>`,
+    extraHTML: `
+      <div class="pe-block">
+        <span class="eyebrow">Approach</span>
+        <h2 class="pe-h2">Instructional Design Strategy &amp; Methodology</h2>
+        <div class="pe-sections">
+          <div class="pe-section">
+            <div class="pe-num">1</div>
+            <div class="pe-text">
+              <h3>Narrative-Based Learning &amp; Situated Cognition</h3>
+              <p>To capture the attention of a younger demographic, the learning experience is anchored in a continuous storyline. Learners are tasked with helping beloved characters restore order to a theme park after a delivery mishap. This narrative approach creates a meaningful context (Situated Cognition), intrinsically motivating learners to complete tasks not just as a test, but as a mission to help the characters.</p>
+            </div>
+          </div>
+          <div class="pe-section">
+            <div class="pe-num">2</div>
+            <div class="pe-text">
+              <h3>Scaffolding and Guided Practice</h3>
+              <p>The module is carefully scaffolded. It begins with direct instruction and visual cues (e.g., highlighting the "Left" side of a box with text). As the learner progresses, the support is gradually removed, allowing them to independently apply the concepts through interactive drag-and-drop exercises.</p>
+            </div>
+          </div>
+          <div class="pe-section">
+            <div class="pe-num">3</div>
+            <div class="pe-text">
+              <h3>Interactive Experiential Learning</h3>
+              <p>Instead of passive clicking, learners interact directly with the environment. For instance, learners must click on clouds to initiate rain, and subsequently analyze where the raindrops landed (over/under the boxes). This active participation reinforces the learning objective through cause-and-effect visualization.</p>
+            </div>
+          </div>
+          <div class="pe-section">
+            <div class="pe-num">4</div>
+            <div class="pe-text">
+              <h3>Immediate Formative Feedback</h3>
+              <p>Throughout the drag-and-drop sorting activities, learners receive immediate, constructive feedback. If a task is completed correctly, the system reinforces the learning by restating the concept (e.g., "Correct! The ball went to the RIGHT and stopped on the RIGHT side"). For a 1st grade audience, this consistent restating is a deliberate design choice: hearing and seeing the same directional language repeated across dozens of micro-interactions builds the verbal-spatial association through repetition, helping young learners internalize the vocabulary well before they are able to read or write it themselves.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="pe-block">
+        <h2 class="pe-h2">Applied Cognitivism in Multi-Variable Tasks</h2>
+        <p class="pe-intro">One of the key interactions in this module is deeply rooted in Cognitive Learning Theory. In the advanced stages, learners are presented with complex, multi-step instructions, such as "Drag the toys under the table into the box on the left, and the toys on the table into the box on the right."</p>
+        <div class="pe-terms">
+          <div class="pe-term-item">
+            <h4>Information Processing</h4>
+            <p>It requires learners to move beyond simple rote memorization. They must actively process multiple pieces of spatial data simultaneously within their working memory.</p>
+          </div>
+          <div class="pe-term-item">
+            <h4>Concept Synthesis</h4>
+            <p>The learner synthesizes two different categories of spatial relationships (Vertical: Over/Under + Horizontal: Left/Right) to execute a single task successfully.</p>
+          </div>
+          <div class="pe-term-item">
+            <h4>Schema Construction</h4>
+            <p>By categorizing objects based on these dual variables, learners strengthen their mental models (schemas) regarding spatial orientation in a real-world, localized setting.</p>
+          </div>
+        </div>
+      </div>
+    `
+  },
+  basamak: {
+    tag: 'Educational Game',
+    title: 'Basamak Kulesi',
+    desc: 'A three-round building-themed game teaching place value, number comparison, and number patterns. Learners place digits on a tower\'s floors, weigh numbers by magnitude, and complete a missing link in a sequence. The tower metaphor turns an abstract concept, ones, tens, and hundreds as floors, into a concrete, spatial one, building a path from number sense toward early algebraic thinking.',
+    src: 'oyunlar/basamak-kulesi.html',
+    icon: 'oyunlar/mobile icons/basamak_kulesi.png'
+  },
+  devre: {
+    tag: 'Educational Game',
+    title: 'Devre Atölyesi',
+    desc: 'A three-round lab activity on simple electric circuits. Learners identify circuit components from their definitions, drag the missing part to complete a circuit and switch it on to light a real bulb, then analyze which of several circuits will actually light up. The working circuit simulation gives immediate cause-and-effect feedback, turning an abstract idea like a closed circuit into something learners can see and test.',
+    src: 'oyunlar/devre-atolyesi.html',
+    icon: 'oyunlar/mobile icons/devre_atolyesi.png'
+  },
+  deyimoji: {
+    tag: 'Educational Game',
+    title: 'Deyimoji',
+    desc: 'A two-round game on Turkish idioms and figurative language. Learners first identify which idiom a picture illustrates, then match that idiom to its real meaning. Using an image as a bridge from the concrete to the abstract, dual coding through visual plus verbal channels, helps young learners grasp figurative meaning instead of memorizing it by rote.',
+    src: 'oyunlar/deyimoji.html',
+    icon: 'oyunlar/mobile icons/deyimoji.png'
+  },
+  jobquest: {
+    tag: 'Educational Game',
+    title: 'Job Quest',
+    desc: 'A three-round English vocabulary game about professions. Learners recognize a job from a picture, spell it by ordering scrambled letters, then answer a reading-comprehension question about what that job involves. The sequence, recognize, then produce, then comprehend, follows the natural progression of vocabulary acquisition, reinforced by matching audio for correct pronunciation.',
+    src: 'oyunlar/job-quest.html',
+    icon: 'oyunlar/mobile icons/job_Quest.png'
+  },
+  madde: {
+    tag: 'Educational Game',
+    title: 'Madde Atölyesi',
+    desc: 'A four-round lab on matter, its properties, and its states. Learners decide whether something counts as matter, match properties to the sense organ that detects them, identify opposite properties, then drag substances into solid, liquid, and gas groups. Grounding an abstract concept in observable, sense-based properties and hands-on sorting fits how children at this age reason about the physical world.',
+    src: 'oyunlar/madde-atolyesi.html',
+    icon: 'oyunlar/mobile icons/madde_atolyesi.png'
+  },
+  kesif: {
+    tag: 'Educational Game',
+    title: 'Keşif Seferi',
+    desc: 'A three-round game on direction, map reading, and the environment. Learners read a simple map to find directions, sort elements into natural or human-made, then match days of the week to weather conditions. Bringing direction, environment, and time together in one consistent world builds spatial thinking and environmental literacy side by side.',
+    src: 'oyunlar/kesif_seferi.html',
+    icon: 'oyunlar/mobile icons/kesif_seferi.png'
+  },
+  feelmatch: {
+    tag: 'Educational Game',
+    title: 'Feel & Match',
+    desc: 'A three-round English game on feelings and social-emotional language. Learners spell an emotion from a scrambled word based on a facial expression, match a situation to the right response (e.g. "I am tired"), then choose the correct action for a picture. Pairing vocabulary instruction with social-emotional learning, naming a feeling and choosing an appropriate response, builds language skills and self-awareness together.',
+    src: 'oyunlar/feel-match.html',
+    icon: 'oyunlar/mobile icons/feel_match.png'
+  },
+  sifreavi: {
+    tag: 'Educational Game',
+    title: 'Şifre Avı',
+    desc: 'A two-round Turkish game on capitalization and punctuation. Learners sort proper nouns from common nouns, and correct answers reveal letters that assemble into a hidden code; a second round asks them to choose the right end punctuation for a sentence. Tying a grammar rule to a purpose, cracking the code, gives an isolated rule real context instead of rote drilling.',
+    src: 'oyunlar/sifre-avi-v3.html',
+    icon: 'oyunlar/mobile icons/sifreavi.png'
+  },
+  sayisokagi: {
+    tag: 'Educational Game',
+    title: 'Sayı Sokağı',
+    desc: 'A game about odd and even numbers, following a frog character named Karbur through a street adventure. Learners sort numbers into houses by parity, then complete a timed round and a jumping puzzle where Karbur only lands on odd (or even) tiles. Starting untimed and then adding time pressure follows an understand-first, build-fluency-second sequence, moving learners from concept to automaticity.',
+    src: 'oyunlar/sayi-sokagi-v3.html',
+    icon: 'oyunlar/mobile icons/sayi_sokagi.png'
+  },
+  actionverbs: {
+    tag: 'Educational Game',
+    title: 'Action Verbs',
+    desc: 'A fast-paced, single-round English game on action verbs and the present tense. Learners see a situation and choose the verb that describes what is happening, across 21 questions, with their best streak highlighted at the end. The dense, rapid-fire repetition builds fluency, and streak tracking rewards sustained attention.',
+    src: 'oyunlar/action_verbs.html',
+    icon: 'oyunlar/mobile icons/action_verbs.png'
+  },
+  dunyakahramani: {
+    tag: 'Educational Game',
+    title: 'Dünya Kahramanı',
+    desc: 'An environmental awareness game where learners sort twenty pieces of waste, including glass, organic, and other materials, into the correct category. Immediate feedback and a badge system reinforce correct sorting decisions, turning an abstract civic concept like recycling into a hands-on classification task.',
+    src: 'oyunlar/dunya_kahramani.html',
+    icon: 'oyunlar/mobile icons/dunya_kahramani.png'
+  },
+  seslialfabem: {
+    tag: 'Educational Game',
+    title: 'Sesli Alfabem',
+    desc: 'A two-stage game on the alphabet and early reading, presented in a phone-like interface with its own status bar and icons. Learners first hunt for objects and words that start with a given letter, then reorder scrambled letters to build a word. Full audio support reads letters and words aloud, matching the recognize-then-produce scaffolding early readers need, moving from selecting a known letter to actively constructing one.',
+    src: 'oyunlar/harf-avcisi.html',
+    icon: 'oyunlar/mobile icons/sesli_alfabem.png'
+  }
+};
+function openProject(id){
+  if(!projects[id]) return;
+  history.pushState({page:'project',id},'','#/project/'+id);
+  _showProject(id);
+}
+function closeProject(){
+  document.getElementById('pp-iframe').src='';
+  goHome();
+}
+
+// Resolve the initial URL now that `projects` is defined (handles direct/refreshed
+// links to a project or about page, e.g. "#/project/entropy")
+(function(){
+  const h=location.hash;
+  if(h==='#/about'){_showAbout();return;}
+  const pm=h.match(/^#\/project\/(.+)$/);
+  if(pm&&projects[pm[1]]){_showProject(pm[1]);return;}
+  _showHome();
+})();
+
+// Brain / neural network canvas — colorful nodes
+(function(){
+  const canvas = document.getElementById('brainCanvas');
+  if(!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const DPR = window.devicePixelRatio || 1;
+  const W = 300, H = 270;
+  canvas.width  = W * DPR;
+  canvas.height = H * DPR;
+  canvas.style.width  = W + 'px';
+  canvas.style.height = H + 'px';
+  ctx.scale(DPR, DPR);
+
+  // warm palette matching the site's cream/terracotta/pink/mustard theme
+  const colors = [
+    '#C1503F','#E8C468','#D97656','#A83F30',
+    '#C1503F','#8A6F47','#E8C468','#F0AAB6',
+    '#D97656','#E8C468','#C1503F','#8A6F47','#A83F30'
+  ];
+
+  const nodes = [
+    {x:150,y:32},{x:98,y:55},{x:202,y:55},
+    {x:62,y:108},{x:150,y:88},{x:238,y:108},
+    {x:72,y:160},{x:150,y:152},{x:228,y:160},
+    {x:95,y:212},{x:150,y:224},{x:205,y:212},
+    {x:150,y:128}
+  ];
+  const edges = [
+    [0,1],[0,2],[1,3],[2,5],[0,4],[1,4],[2,4],
+    [3,6],[5,8],[4,12],[6,7],[7,8],
+    [6,9],[8,11],[7,10],[9,10],[10,11],
+    [3,12],[5,12],[12,7],[1,12],[2,12]
+  ];
+
+  // parse hex to rgb for alpha blending
+  function hexRgb(h){ const n=parseInt(h.slice(1),16); return [(n>>16)&255,(n>>8)&255,n&255]; }
+  const nodeRgb = colors.map(hexRgb);
+
+  const pulses = edges.map((_,i)=>({
+    ei:i, t:Math.random(),
+    speed:0.0035+Math.random()*0.003,
+    dir:Math.random()>0.5?1:-1
+  }));
+
+  function frame(ts){
+    ctx.clearRect(0,0,W,H);
+
+    // edges — subtle, slightly tinted from node colors
+    edges.forEach(([a,b])=>{
+      const ra=nodeRgb[a], rb=nodeRgb[b];
+      const rm=Math.round((ra[0]+rb[0])/2),gm=Math.round((ra[1]+rb[1])/2),bm=Math.round((ra[2]+rb[2])/2);
+      ctx.beginPath();
+      ctx.moveTo(nodes[a].x,nodes[a].y);
+      ctx.lineTo(nodes[b].x,nodes[b].y);
+      ctx.strokeStyle=`rgba(${rm},${gm},${bm},0.12)`;
+      ctx.lineWidth=1;
+      ctx.stroke();
+    });
+
+    // nodes — each with its own color, pulsing glow
+    nodes.forEach((n,i)=>{
+      const pulse=0.5+0.5*Math.sin(ts*0.0017+i*0.73);
+      const [r,g,b]=nodeRgb[i];
+      // soft glow ring
+      ctx.beginPath();
+      ctx.arc(n.x,n.y,11+pulse*4,0,Math.PI*2);
+      ctx.fillStyle=`rgba(${r},${g},${b},${0.07+pulse*0.07})`;
+      ctx.fill();
+      // core dot
+      ctx.beginPath();
+      ctx.arc(n.x,n.y,3.8+pulse*0.9,0,Math.PI*2);
+      ctx.fillStyle=`rgba(${r},${g},${b},${0.7+pulse*0.25})`;
+      ctx.fill();
+      ctx.lineWidth=1;
+      ctx.strokeStyle='rgba(58,32,18,0.4)';
+      ctx.stroke();
+    });
+
+    // traveling pulse dots — color of source node, drawn on top so they never
+    // get hidden under a node's glow when passing close to either endpoint
+    pulses.forEach(p=>{
+      p.t=((p.t+p.speed*p.dir)%1+1)%1;
+      const [a,b]=edges[p.ei];
+      const rc=nodeRgb[a];
+      const px=nodes[a].x+(nodes[b].x-nodes[a].x)*p.t;
+      const py=nodes[a].y+(nodes[b].y-nodes[a].y)*p.t;
+      const alpha=0.5+0.45*Math.sin(p.t*Math.PI);
+      ctx.beginPath();
+      ctx.arc(px,py,2.2,0,Math.PI*2);
+      ctx.fillStyle=`rgba(${rc[0]},${rc[1]},${rc[2]},${alpha})`;
+      ctx.fill();
+    });
+
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+
+// Grad photo tooltip — follows cursor
+(function(){
+  const wrap = document.getElementById('gradPhotoWrap');
+  const tip  = document.getElementById('gradTooltip');
+  if(!wrap || !tip) return;
+  wrap.addEventListener('mouseenter', () => tip.classList.add('vis'));
+  wrap.addEventListener('mouseleave', () => tip.classList.remove('vis'));
+  wrap.addEventListener('mousemove', e => {
+    const x = e.clientX + 16;
+    const y = e.clientY - tip.offsetHeight - 12;
+    tip.style.transform = `translate(${x}px,${y}px)`;
+  });
+})();
+</script>
+</body>
+</html>

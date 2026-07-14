@@ -1,0 +1,1151 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Devre Atölyesi</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/twemoji.min.js" crossorigin="anonymous"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; user-select: none; }
+  body { display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #5a2a10 0%, #2a1408 100%); min-height: 100vh; padding: 20px; }
+  .device { width: 390px; height: 780px; max-height: 95vh; background: linear-gradient(180deg, #FFF4E8 0%, #FFE2C8 100%); border-radius: 36px; overflow: hidden; position: relative; box-shadow: 0 25px 60px rgba(0,0,0,0.4); }
+  .hud { position: absolute; top: 0; left: 0; right: 0; height: 60px; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; z-index: 100; background: rgba(255,255,255,0.5); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255,255,255,0.5); }
+  .hud-btn { width: 40px; height: 40px; border-radius: 50%; border: none; cursor: pointer; background: rgba(255,255,255,0.8); display: flex; align-items: center; justify-content: center; font-size: 18px; color: #5a3a10; transition: transform 0.15s; }
+  .hud-btn:active { transform: scale(0.92); }
+  .hud-score { font-weight: 700; color: #5a3a10; font-size: 16px; background: rgba(255,255,255,0.8); padding: 8px 16px; border-radius: 20px; }
+  .hud-trophy { font-size: 22px; }
+  .hud-trophy img.emoji { height: 24px; width: 24px; }
+  .screen { position: absolute; top: 60px; left: 0; right: 0; bottom: 0; overflow-y: auto; overflow-x: hidden; display: none; flex-direction: column; }
+  .screen.active { display: flex; }
+  .menu-screen { padding: 24px 20px; }
+  .menu-screen.active { justify-content: center; }
+  .game-card { background: white; border-radius: 24px; padding: 24px; box-shadow: 0 8px 24px rgba(90,58,16,0.15); border: 3px solid #FF8C42; cursor: pointer; transition: transform 0.2s; }
+  .game-card:active { transform: scale(0.97); }
+  .game-card-emoji { font-size: 56px; text-align: center; margin-bottom: 12px; display: flex; justify-content: center; }
+  .game-card-emoji img.emoji { height: 56px; width: 56px; }
+  .game-card-title { font-size: 22px; font-weight: 700; color: #5a3a10; text-align: center; margin-bottom: 6px; }
+  .game-card-desc { font-size: 13px; color: #8a6a3a; text-align: center; margin-bottom: 16px; }
+  .progress-bar { height: 10px; background: #f5e0d0; border-radius: 5px; overflow: hidden; margin-bottom: 8px; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, #FF8C42, #FFD166); border-radius: 5px; transition: width 0.5s; }
+  .progress-text { font-size: 12px; color: #8a6a3a; text-align: center; }
+  .play-cta { margin-top: 20px; padding: 14px; background: #FF8C42; color: white; border: none; border-radius: 16px; font-size: 16px; font-weight: 700; width: 100%; cursor: pointer; }
+  .play-cta:active { transform: scale(0.97); }
+  .round-intro { padding: 32px 24px; text-align: center; display: flex; flex-direction: column; justify-content: center; height: 100%; }
+  .round-intro-num { font-size: 14px; color: #FF8C42; font-weight: 700; letter-spacing: 2px; }
+  .round-intro-title { font-size: 28px; font-weight: 800; color: #5a3a10; margin: 8px 0 16px; }
+  .round-intro-emoji { font-size: 80px; margin: 20px 0; animation: bounce 1.2s ease-in-out infinite; display: flex; justify-content: center; }
+  .round-intro-emoji img.emoji { height: 80px; width: 80px; }
+  .round-intro-desc { font-size: 15px; color: #5a3a10; margin-bottom: 28px; line-height: 1.5; padding: 0 12px; }
+  .round-intro-btn { padding: 16px 40px; background: #FF8C42; color: white; border: none; border-radius: 20px; font-size: 18px; font-weight: 700; cursor: pointer; box-shadow: 0 6px 20px rgba(255,140,66,0.4); }
+  .round-intro-btn:active { transform: scale(0.96); }
+  .stage-info { background: white; padding: 10px 14px; border-radius: 14px; margin-bottom: 10px; display: flex; justify-content: center; align-items: center; }
+  .stage-counter { background: #FF8C42; color: white; padding: 6px 16px; border-radius: 12px; font-weight: 700; font-size: 13px; }
+  .instruction { background: linear-gradient(135deg, #FFD166, #F4A300); color: #5a3a10; padding: 10px 14px; border-radius: 12px; margin-bottom: 12px; font-size: 14px; font-weight: 700; text-align: center; }
+
+  /* Round 1 / 3 - question card */
+  .q-card { background: white; border-radius: 22px; padding: 18px 16px; box-shadow: 0 8px 20px rgba(90,58,16,0.12); margin-bottom: 14px; text-align: center; border: 3px solid #FF8C42; min-height: 130px; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: transform 0.3s; }
+  .q-card.bounce { animation: cardBounce 0.5s; }
+  .q-card-title-small { font-size: 11px; color: #8a6a3a; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }
+  .q-card-text { font-size: 16px; font-weight: 700; color: #5a3a10; line-height: 1.4; }
+  .q-card-svg { display: flex; justify-content: center; align-items: center; margin-bottom: 8px; }
+  .q-card-svg svg { width: 110px; height: 110px; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.15)); }
+  .q-card-label { font-size: 16px; font-weight: 800; color: #5a3a10; margin-top: 4px; }
+  .result-text { font-size: 14px; color: #8a6a3a; margin-top: 6px; font-weight: 700; opacity: 0; transition: opacity 0.4s; min-height: 18px; }
+  .result-text.visible { opacity: 1; }
+  .result-text.correct { color: #3DAA68; }
+  .result-text.wrong { color: #E36F4A; }
+
+  .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .opt-btn { background: white; border: 3px solid transparent; border-radius: 16px; padding: 12px 8px; cursor: pointer; color: #5a3a10; box-shadow: 0 4px 12px rgba(90,58,16,0.12); transition: transform 0.15s, box-shadow 0.3s, border 0.3s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; min-height: 110px; }
+  .opt-btn-svg { width: 56px; height: 56px; display: flex; align-items: center; justify-content: center; }
+  .opt-btn-svg svg { width: 56px; height: 56px; }
+  .opt-btn-text { font-size: 13px; font-weight: 700; }
+  .opt-btn:active:not(:disabled) { transform: scale(0.96); }
+  .opt-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .opt-btn.flash-correct { box-shadow: 0 0 20px #5cc77f; border-color: #5cc77f; background: #d4edd9; }
+  .opt-btn.flash-wrong { box-shadow: 0 0 20px #E36F4A; border-color: #E36F4A; animation: shake 0.5s; background: #ffd0d0; }
+
+  /* Round 2 - circuit canvas */
+  .circuit-card { background: white; border-radius: 22px; padding: 12px; box-shadow: 0 8px 20px rgba(90,58,16,0.12); border: 3px solid #FF8C42; margin-bottom: 12px; }
+  .circuit-canvas { width: 100%; height: 200px; position: relative; background: linear-gradient(180deg, #fafafa, #f5f5f5); border-radius: 14px; overflow: hidden; }
+  .circuit-canvas svg { width: 100%; height: 100%; display: block; }
+  .circuit-slot {
+    position: absolute; width: 70px; height: 70px;
+    border: 3px dashed #FF8C42; border-radius: 14px;
+    background: rgba(255,140,66,0.1);
+    transition: all 0.3s;
+    display: flex; align-items: center; justify-content: center;
+    z-index: 2;
+  }
+  .circuit-slot.drag-over { background: rgba(255,140,66,0.3); transform: scale(1.08); }
+  .circuit-slot.filled { border: 3px solid #5cc77f; background: white; }
+  .circuit-slot > div { width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; }
+  .circuit-slot svg { width: 60px; height: 60px; }
+  .circuit-slot .slot-q {
+    font-size: 36px; color: #FF8C42; font-weight: 900;
+    line-height: 1; width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .circuit-slot .bulb-glow { width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; }
+  .circuit-controls { display: flex; justify-content: center; gap: 8px; margin-top: 12px; }
+  .switch-btn { background: #5a3a10; color: white; border: none; border-radius: 14px; padding: 12px 20px; font-size: 14px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: transform 0.15s; }
+  .switch-btn:active:not(:disabled) { transform: scale(0.96); }
+  .switch-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .switch-btn.on { background: #3DAA68; }
+
+  .drag-pool { background: rgba(255,255,255,0.65); border-radius: 16px; padding: 12px; display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; min-height: 90px; margin-bottom: 8px; }
+  .draggable-item { background: white; padding: 8px; border-radius: 14px; box-shadow: 0 4px 12px rgba(90,58,16,0.12); border: 2px solid #FF8C42; display: flex; flex-direction: column; align-items: center; gap: 2px; cursor: grab; touch-action: none; transition: transform 0.3s, opacity 0.3s, box-shadow 0.3s; }
+  .draggable-item .item-svg { width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; }
+  .draggable-item .item-svg svg { width: 48px; height: 48px; }
+  .draggable-item .item-name { font-size: 11px; font-weight: 700; color: #5a3a10; }
+  .draggable-item:active { cursor: grabbing; }
+  .draggable-item.dragging { opacity: 0.85; box-shadow: 0 12px 24px rgba(90,58,16,0.25); }
+  .draggable-item.shake { animation: shake 0.5s; border-color: #E36F4A; }
+
+  /* Round 3 - 3 mini devre kartı dikey alt alta */
+  .r3-circuits-grid {
+    display: flex; flex-direction: column; gap: 8px;
+    margin-bottom: 8px;
+  }
+  .r3-circuit-card {
+    background: white; border: 3px solid transparent;
+    border-radius: 16px; padding: 8px 10px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(90,58,16,0.12);
+    transition: transform 0.15s, border 0.3s, box-shadow 0.3s;
+    display: flex; align-items: center;
+    gap: 10px;
+  }
+  .r3-circuit-card:active:not(.disabled) { transform: scale(0.98); }
+  .r3-circuit-card.disabled { cursor: not-allowed; opacity: 0.55; }
+  .r3-circuit-card.flash-correct { border-color: #5cc77f; box-shadow: 0 0 20px #5cc77f; background: #d4edd9; }
+  .r3-circuit-card.flash-wrong { border-color: #E36F4A; box-shadow: 0 0 20px #E36F4A; animation: shake 0.5s; background: #ffd0d0; }
+  .r3-circuit-label {
+    background: #FF8C42; color: white; font-size: 16px; font-weight: 800;
+    width: 32px; height: 32px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .r3-circuit-svg {
+    flex: 1; height: 100px; display: flex; align-items: center; justify-content: center;
+  }
+  .r3-circuit-svg svg { width: 100%; height: 100%; max-width: 260px; }
+
+  /* Badge */
+  .badge-overlay { position: absolute; inset: 0; z-index: 200; background: rgba(90,42,16,0.85); backdrop-filter: blur(8px); display: none; flex-direction: column; align-items: center; justify-content: center; padding: 24px; }
+  .badge-overlay.active { display: flex; }
+  .badge-emoji { font-size: 100px; animation: badgeBounce 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55); margin-bottom: 16px; filter: drop-shadow(0 8px 20px rgba(255,217,102,0.5)); display: flex; justify-content: center; }
+  .badge-emoji img.emoji { height: 100px; width: 100px; }
+  .badge-name { font-size: 26px; font-weight: 800; color: white; margin-bottom: 8px; text-align: center; }
+  .badge-message { font-size: 15px; color: #FFE2C8; margin-bottom: 28px; text-align: center; line-height: 1.5; padding: 0 12px; }
+  .badge-btn { padding: 14px 36px; background: #FF8C42; color: white; border: none; border-radius: 18px; font-size: 16px; font-weight: 700; cursor: pointer; box-shadow: 0 6px 20px rgba(255,140,66,0.5); }
+  .badge-btn:active { transform: scale(0.96); }
+  .confetti { position: absolute; width: 8px; height: 8px; pointer-events: none; z-index: 199; }
+
+  .sheet-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.4); z-index: 150; display: none; }
+  .sheet-overlay.active { display: block; }
+  .bottom-sheet { position: absolute; bottom: 0; left: 0; right: 0; max-height: 70%; background: white; border-radius: 24px 24px 0 0; padding: 20px; z-index: 151; transform: translateY(100%); transition: transform 0.3s; overflow-y: auto; }
+  .bottom-sheet.active { transform: translateY(0); }
+  .sheet-handle { width: 40px; height: 4px; background: #f0d0b0; border-radius: 2px; margin: 0 auto 16px; }
+  .sheet-title { font-size: 18px; font-weight: 800; color: #5a3a10; margin-bottom: 12px; }
+  .sheet-progress { background: #FFF4E8; border-radius: 12px; padding: 12px; margin-bottom: 16px; }
+  .sheet-progress-text { font-size: 13px; font-weight: 700; color: #8a6a3a; margin-bottom: 6px; }
+  .sheet-section-title { font-size: 14px; font-weight: 700; color: #5a3a10; margin: 12px 0 8px; }
+  .sheet-badges { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .sheet-badge { aspect-ratio: 1; background: #FFF4E8; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 28px; padding: 4px; }
+  .sheet-badge img.emoji { height: 32px; width: 32px; }
+  .sheet-badge.locked { filter: grayscale(1); opacity: 0.5; border: 2px dashed #d8b890; background: white; }
+  .sheet-badge .badge-label { font-size: 9px; color: #8a6a3a; margin-top: 4px; text-align: center; font-weight: 700; line-height: 1.1; }
+  .game-screen { padding: 14px; }
+  img.emoji { height: 1em; width: 1em; margin: 0 .05em 0 .1em; vertical-align: -0.1em; display: inline-block; }
+
+  /* Bulb glow animation when circuit complete */
+  .bulb-glow { animation: bulbPulse 1.2s ease-in-out infinite; transform-origin: center; }
+  @keyframes bulbPulse { 0%,100% { filter: drop-shadow(0 0 8px #FFD166) drop-shadow(0 0 16px #FFD166); } 50% { filter: drop-shadow(0 0 16px #FFE066) drop-shadow(0 0 30px #FFD166); } }
+
+  @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+  @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+  @keyframes badgeBounce { 0% { transform: scale(0) rotate(-180deg); } 60% { transform: scale(1.2) rotate(20deg); } 100% { transform: scale(1) rotate(0deg); } }
+  @keyframes confettiFall { 0% { transform: translateY(0) rotate(0); opacity: 1; } 100% { transform: translateY(600px) rotate(720deg); opacity: 0; } }
+  @keyframes cardBounce { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.04); } }
+</style>
+</head>
+<body>
+
+<div class="device">
+  <div class="hud">
+    <button class="hud-btn" id="backBtn">←</button>
+    <div class="hud-score" id="hudScore">Skor: 0</div>
+    <button class="hud-btn hud-trophy" id="trophyBtn">🏆</button>
+  </div>
+
+  <div class="screen menu-screen active" id="menuScreen">
+    <div class="game-card" id="gameCard">
+      <div class="game-card-emoji">⚡</div>
+      <div class="game-card-title">Devre Atölyesi</div>
+      <div class="game-card-desc">Devre elemanlarını tanı, devreyi kur, ampulü yak!</div>
+      <div class="progress-bar"><div class="progress-fill" id="menuProgress" style="width: 0%"></div></div>
+      <div class="progress-text" id="menuProgressText">0 / 3 rozet</div>
+      <button class="play-cta" id="playBtn">▶ Oyna</button>
+    </div>
+  </div>
+
+  <div class="screen" id="introScreen">
+    <div class="round-intro">
+      <div class="round-intro-num" id="introNum">ROUND 1</div>
+      <div class="round-intro-title" id="introTitle">Eleman Avı</div>
+      <div class="round-intro-emoji" id="introEmoji">🔋</div>
+      <div class="round-intro-desc" id="introDesc">Tanıma bak, hangi devre elemanı olduğunu bul!</div>
+      <button class="round-intro-btn" id="introBtn">Başla! ▶</button>
+    </div>
+  </div>
+
+  <!-- Round 1 -->
+  <div class="screen game-screen" id="r1Screen">
+    <div class="stage-info"><div class="stage-counter" id="r1Counter">1 / 6</div></div>
+    <div class="instruction">Bu hangi devre elemanı?</div>
+    <div class="q-card" id="r1Card">
+      <div class="q-card-title-small">TANIM</div>
+      <div class="q-card-text" id="r1Text"></div>
+      <div class="result-text" id="r1Result"></div>
+    </div>
+    <div class="options-grid" id="r1Options"></div>
+  </div>
+
+  <!-- Round 2 - Circuit -->
+  <div class="screen game-screen" id="r2Screen">
+    <div class="stage-info"><div class="stage-counter" id="r2Counter">AŞAMA 1 / 3</div></div>
+    <div class="instruction" id="r2Instruction">Eksik parçayı doğru yere sürükle!</div>
+    <div class="circuit-card">
+      <div class="circuit-canvas" id="circuitCanvas"></div>
+      <div class="circuit-controls">
+        <button class="switch-btn" id="switchBtn" disabled>🔌 Anahtarı Aç</button>
+      </div>
+      <div class="result-text" id="r2Result" style="text-align:center;"></div>
+    </div>
+    <div class="drag-pool" id="r2Pool"></div>
+  </div>
+
+  <!-- Round 3 - 3 Devre Karşılaştırma -->
+  <div class="screen game-screen" id="r3Screen">
+    <div class="stage-info"><div class="stage-counter" id="r3Counter">1 / 2</div></div>
+    <div class="instruction">Hangi devrede lamba yanar?</div>
+    <div class="r3-circuits-grid" id="r3Grid"></div>
+    <div class="result-text" id="r3Result" style="text-align:center;"></div>
+  </div>
+
+  <div class="badge-overlay" id="badgeOverlay">
+    <div class="badge-emoji" id="badgeEmoji">🔋</div>
+    <div class="badge-name" id="badgeName">Eleman Ustası</div>
+    <div class="badge-message" id="badgeMessage">Harika!</div>
+    <button class="badge-btn" id="badgeBtn">▶ Devam Et</button>
+  </div>
+
+  <div class="sheet-overlay" id="sheetOverlay"></div>
+  <div class="bottom-sheet" id="bottomSheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">🏆 Rozet Koleksiyonu</div>
+    <div class="sheet-progress">
+      <div class="sheet-progress-text" id="sheetProgressText">0 / 3 rozet</div>
+      <div class="progress-bar"><div class="progress-fill" id="sheetProgress" style="width: 0%"></div></div>
+    </div>
+    <div class="sheet-section-title">Kazandıkların</div>
+    <div class="sheet-badges" id="sheetEarned"></div>
+    <div class="sheet-section-title">Keşfedilmemiş</div>
+    <div class="sheet-badges" id="sheetLocked"></div>
+  </div>
+</div>
+
+<script>
+const state = {
+  earnedBadges: new Set(),
+  totalScore: 0,
+  pendingRoundStart: null,
+  r1: { qIndex: 0, locked: false, questions: [], wrongTimer: null },
+  r2: { stageIndex: 0, locked: false, slotsFilled: {}, switchOn: false, wrongTimer: null },
+  r3: { qIndex: 0, locked: false, questions: [], wrongTimer: null }
+};
+
+const ALL_BADGES = [
+  { id: 'eleman_ustasi',     emoji: '🔋', name: 'Eleman Ustası',     desc: 'Devre elemanlarını ezbere biliyorsun!' },
+  { id: 'devre_muhendisi',   emoji: '⚡', name: 'Devre Mühendisi',   desc: 'Devreni kurdun, ampulün parlıyor!' },
+  { id: 'devre_kasifi',      emoji: '🔍', name: 'Devre Kâşifi',      desc: 'Hangi devrede lamba yanar artık biliyorsun!' }
+];
+
+// ============ DEVRE ELEMAN SVG'LERİ ============
+const ELEMENTS = {
+  pil: { name: 'Pil', svg: `<svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+    <rect x="8" y="20" width="38" height="22" fill="#1a1a1a" stroke="#1a1a1a" stroke-width="2" rx="2"/>
+    <rect x="46" y="26" width="6" height="10" fill="#FFD166" stroke="#1a1a1a" stroke-width="1.5"/>
+    <rect x="8" y="20" width="14" height="22" fill="#FF8C42"/>
+    <text x="15" y="35" font-size="10" text-anchor="middle" fill="white" font-weight="bold">−</text>
+    <text x="40" y="35" font-size="10" text-anchor="middle" fill="white" font-weight="bold">+</text>
+  </svg>` },
+
+  ampul: { name: 'Ampul', svg: `<svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+    <path d="M 30 8 Q 18 8 16 22 Q 16 32 24 38 L 24 44 L 36 44 L 36 38 Q 44 32 44 22 Q 42 8 30 8 Z" fill="#e8e8e8" stroke="#1a1a1a" stroke-width="2"/>
+    <path d="M 25 24 L 30 18 L 35 24 L 30 30 L 35 36 L 25 36 L 30 30 Z" fill="none" stroke="#5a3a10" stroke-width="1.5"/>
+    <rect x="24" y="44" width="12" height="6" fill="#888" stroke="#1a1a1a" stroke-width="1.5"/>
+    <line x1="25" y1="48" x2="35" y2="48" stroke="#5a3a10" stroke-width="0.8"/>
+    <rect x="26" y="50" width="8" height="4" fill="#888" stroke="#1a1a1a" stroke-width="1.5"/>
+    <line x1="22" y1="14" x2="18" y2="11" stroke="#FFD166" stroke-width="1.5" opacity="0.6"/>
+    <line x1="38" y1="14" x2="42" y2="11" stroke="#FFD166" stroke-width="1.5" opacity="0.6"/>
+  </svg>` },
+
+  ampul_on: { name: 'Ampul (Yanıyor)', svg: `<svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="30" cy="24" r="22" fill="#FFE066" opacity="0.5"/>
+    <circle cx="30" cy="24" r="16" fill="#FFD166" opacity="0.8"/>
+    <path d="M 30 8 Q 18 8 16 22 Q 16 32 24 38 L 24 44 L 36 44 L 36 38 Q 44 32 44 22 Q 42 8 30 8 Z" fill="#FFF0A0" stroke="#1a1a1a" stroke-width="2"/>
+    <path d="M 25 24 L 30 18 L 35 24 L 30 30 L 35 36 L 25 36 L 30 30 Z" fill="#FF8C42" stroke="#c44a3a" stroke-width="1.5"/>
+    <rect x="24" y="44" width="12" height="6" fill="#888" stroke="#1a1a1a" stroke-width="1.5"/>
+    <line x1="25" y1="48" x2="35" y2="48" stroke="#5a3a10" stroke-width="0.8"/>
+    <rect x="26" y="50" width="8" height="4" fill="#888" stroke="#1a1a1a" stroke-width="1.5"/>
+    <!-- Light rays -->
+    <g stroke="#FFD166" stroke-width="2.5" stroke-linecap="round">
+      <line x1="6" y1="24" x2="2" y2="24"/>
+      <line x1="54" y1="24" x2="58" y2="24"/>
+      <line x1="14" y1="8" x2="10" y2="4"/>
+      <line x1="46" y1="8" x2="50" y2="4"/>
+      <line x1="30" y1="2" x2="30" y2="-2"/>
+    </g>
+  </svg>` },
+
+  anahtar: { name: 'Anahtar', svg: `<svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+    <rect x="8" y="30" width="44" height="20" fill="#3D7DCA" stroke="#1a1a1a" stroke-width="2" rx="3"/>
+    <circle cx="16" cy="40" r="3" fill="#1a1a1a"/>
+    <circle cx="44" cy="40" r="3" fill="#1a1a1a"/>
+    <!-- Toggle lever (down/closed position) -->
+    <rect x="22" y="20" width="16" height="22" fill="#1a1a1a" stroke="#1a1a1a" stroke-width="2" rx="2"/>
+    <rect x="24" y="22" width="12" height="6" fill="#888"/>
+    <circle cx="30" cy="40" r="2" fill="#FFD166"/>
+  </svg>` },
+
+  anahtar_acik: { name: 'Anahtar (Açık)', svg: `<svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+    <rect x="8" y="30" width="44" height="20" fill="#3D7DCA" stroke="#1a1a1a" stroke-width="2" rx="3"/>
+    <circle cx="16" cy="40" r="3" fill="#1a1a1a"/>
+    <circle cx="44" cy="40" r="3" fill="#1a1a1a"/>
+    <!-- Toggle lever tilted (open position) -->
+    <g transform="rotate(-25 30 40)">
+      <rect x="22" y="20" width="16" height="22" fill="#1a1a1a" stroke="#1a1a1a" stroke-width="2" rx="2"/>
+      <rect x="24" y="22" width="12" height="6" fill="#888"/>
+    </g>
+    <circle cx="30" cy="40" r="2" fill="#888"/>
+  </svg>` },
+
+  kablo: { name: 'Kablo', svg: `<svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+    <path d="M 6 30 Q 20 12 30 30 Q 40 48 54 30" fill="none" stroke="#3D7DCA" stroke-width="6" stroke-linecap="round"/>
+    <path d="M 6 30 Q 20 12 30 30 Q 40 48 54 30" fill="none" stroke="#1a1a1a" stroke-width="1.5"/>
+    <!-- Bare metal ends -->
+    <line x1="2" y1="30" x2="8" y2="30" stroke="#FF8C42" stroke-width="3" stroke-linecap="round"/>
+    <line x1="52" y1="30" x2="58" y2="30" stroke="#FF8C42" stroke-width="3" stroke-linecap="round"/>
+  </svg>` },
+
+  duy: { name: 'Duy', svg: `<svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+    <!-- Base disc -->
+    <ellipse cx="30" cy="42" rx="22" ry="10" fill="#3D7DCA" stroke="#1a1a1a" stroke-width="2"/>
+    <ellipse cx="30" cy="38" rx="22" ry="10" fill="#5DCFE6" stroke="#1a1a1a" stroke-width="2"/>
+    <!-- Top socket holes -->
+    <circle cx="22" cy="34" r="3" fill="#888" stroke="#1a1a1a" stroke-width="1.5"/>
+    <circle cx="30" cy="32" r="3" fill="#888" stroke="#1a1a1a" stroke-width="1.5"/>
+    <circle cx="38" cy="34" r="3" fill="#888" stroke="#1a1a1a" stroke-width="1.5"/>
+    <!-- Side wire holes -->
+    <circle cx="10" cy="42" r="2" fill="#1a1a1a"/>
+    <circle cx="50" cy="42" r="2" fill="#1a1a1a"/>
+  </svg>` },
+
+  pil_yatagi: { name: 'Pil Yatağı', svg: `<svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+    <!-- Battery holder base -->
+    <rect x="6" y="20" width="48" height="28" fill="#5DCFE6" stroke="#1a1a1a" stroke-width="2" rx="3"/>
+    <!-- Inner cavities (battery slots) -->
+    <rect x="10" y="24" width="40" height="10" fill="#3D7DCA" stroke="#1a1a1a" stroke-width="1.5" rx="2"/>
+    <!-- Springs/connectors at ends -->
+    <path d="M 12 28 Q 14 30 12 32" fill="none" stroke="#FFD166" stroke-width="2"/>
+    <path d="M 48 28 Q 46 30 48 32" fill="none" stroke="#FFD166" stroke-width="2"/>
+    <!-- Wire leads -->
+    <line x1="6" y1="42" x2="2" y2="42" stroke="#FF8C42" stroke-width="3" stroke-linecap="round"/>
+    <line x1="54" y1="42" x2="58" y2="42" stroke="#FF8C42" stroke-width="3" stroke-linecap="round"/>
+    <!-- Plus/minus labels -->
+    <text x="14" y="44" font-size="6" fill="white" font-weight="bold">+</text>
+    <text x="44" y="44" font-size="6" fill="white" font-weight="bold">−</text>
+  </svg>` }
+};
+
+// ============ ROUND 1 QUESTIONS ============
+const R1_QUESTIONS = [
+  { def: 'Devreye elektrik enerjisi sağlayan kaynaktır.',
+    correct: 'pil', distractors: ['ampul', 'anahtar', 'kablo'] },
+  { def: 'Elektrik enerjisini ışık enerjisine çeviren elemandır.',
+    correct: 'ampul', distractors: ['pil', 'duy', 'anahtar'] },
+  { def: 'Devre içerisinde elektriğin açılıp kapatılmasını sağlar.',
+    correct: 'anahtar', distractors: ['pil', 'pil_yatagi', 'kablo'] },
+  { def: 'Pillerdeki elektrik enerjisini diğer elemanlara taşır.',
+    correct: 'kablo', distractors: ['duy', 'anahtar', 'pil'] },
+  { def: 'Ampulün takıldığı bölümdür.',
+    correct: 'duy', distractors: ['pil_yatagi', 'anahtar', 'kablo'] },
+  { def: 'Pillerin devrede sabit durmasını sağlayan bölümdür.',
+    correct: 'pil_yatagi', distractors: ['duy', 'anahtar', 'kablo'] }
+];
+
+// ============ ROUND 2 STAGES ============
+// Her aşamada farklı layout düzeni + farklı kablo rengi
+// Talimat düşündürücü: "lambanın yanması için ne gerekir?"
+const R2_STAGES = [
+  {
+    instr: 'Bu devrede lambanın yanabilmesi için ne gerekir?',
+    missing: 'pil',
+    layout: 'horizontal',     // sol pil — orta anahtar — sağ ampul
+    wireColor: '#3D7DCA',     // mavi
+    pool: ['pil', 'duy', 'kablo']
+  },
+  {
+    instr: 'Bu devrede elektrik akımını açıp kapatmak için ne eksik?',
+    missing: 'anahtar',
+    layout: 'reverse',        // sol ampul — orta pil — sağ anahtar
+    wireColor: '#3DAA68',     // yeşil
+    pool: ['anahtar', 'ampul', 'pil_yatagi']
+  },
+  {
+    instr: 'Bu devrede elektriği ışığa çevirecek parça hangisi?',
+    missing: 'ampul',
+    layout: 'vertical_top',   // üstte ampul (eksik) - sol pil - sağ anahtar
+    wireColor: '#c44a3a',     // kırmızı
+    pool: ['ampul', 'pil', 'anahtar']
+  }
+];
+
+// ============ ROUND 3 QUESTIONS ============
+// 3 mini devre alt alta - hangisinde lamba yanar?
+// Hata durumları:
+//   'kopuk_anahtar' - anahtar devrede ama kablolar ona bağlı değil
+//   'pil_ters'      - iki pil yan yana ama aynı kutuplar bakışıyor (+ ile +)
+//   'kablo_bos'     - kablo elemanlara bağlı değil, ortada serbest duruyor
+//   'devre_acik'    - devre kapalı değil, dönüş kablosu eksik (açık uç)
+const R3_QUESTIONS = [
+  // Soru 1: klasik hatalar (anahtar kopuk + pil ters)
+  { circuits: [
+      { status: 'kopuk_anahtar' },
+      { status: 'works' },
+      { status: 'pil_ters' }
+    ] },
+  // Soru 2: farklı hatalar (kablo serbest + devre açık)
+  { circuits: [
+      { status: 'kablo_bos' },
+      { status: 'devre_acik' },
+      { status: 'works' }
+    ] }
+];
+
+// ============ MINI CIRCUIT SVG BUILDER (Round 3) ============
+// 'works'         - tüm bağlantılar tamam (cevap olarak görünür, lit=false ile sönük)
+// 'kopuk_anahtar' - anahtar devrede ama kablolar ona bağlı değil (kopuk)
+// 'pil_ters'      - iki pil yan yana ama aynı kutuplar bakışıyor (+ ile +)
+// lit parametresi: true ise (sadece works için) ampul yanar - kullanıcı doğru cevabı bulduktan sonra
+function buildMiniCircuit(status, lit) {
+  // Default: ampul her zaman sönük (cevap ipucu vermesin)
+  // lit=true sadece doğru cevap işaretlendikten sonra works için kullanılır
+  const showLit = lit && status === 'works';
+
+  // Layout: viewBox 240x110
+  // Sol: pil bloğu (x=20, y=40)  - 'pil_ters' ise 2 pil yan yana
+  // Orta: anahtar (x=120, y=40)
+  // Sağ: ampul (x=205, y=30)
+  // Kablolar dikdörtgen çerçeve şeklinde
+
+  // ========== KABLOLAR ==========
+  let wires = '';
+  if (status === 'kopuk_anahtar') {
+    // Anahtar havada — kablolar ona ulaşmıyor, ortada büyük boşluk var
+    wires = `
+      <!-- Sol parça: pil → ortada bir noktada kesilir -->
+      <path d="M 35 40 L 95 40" fill="none" stroke="#3D7DCA" stroke-width="4" stroke-linecap="round"/>
+      <!-- Sağ parça: ortada bir noktada başlar → ampul -->
+      <path d="M 155 40 L 215 40" fill="none" stroke="#3D7DCA" stroke-width="4" stroke-linecap="round"/>
+      <!-- Alt dönüş kablosu hâlâ tam -->
+      <path d="M 35 40 L 35 90 L 215 90 L 215 40" fill="none" stroke="#3D7DCA" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+      <!-- Kopuk vurgu -->
+      <line x1="98" y1="35" x2="105" y2="45" stroke="#E36F4A" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="148" y1="35" x2="155" y2="45" stroke="#E36F4A" stroke-width="2.5" stroke-linecap="round"/>
+    `;
+  } else if (status === 'kablo_bos') {
+    // Kablo serbest - elemanlara bağlı değil, ortada havada eğri olarak dolaşıyor
+    // Hiçbir eleman birbirine bağlanmıyor
+    wires = `
+      <!-- Eğri serbest kablo - elemanlara dokunmuyor -->
+      <path d="M 50 70 Q 90 95 130 80 Q 170 60 200 80" fill="none" stroke="#3D7DCA" stroke-width="4" stroke-linecap="round"/>
+    `;
+  } else if (status === 'devre_acik') {
+    // Üst kablo elemanlar arasında var, ama alt dönüş kablosu eksik (açık uç)
+    wires = `
+      <!-- Üst kablo: pil → anahtar → ampul -->
+      <path d="M 35 40 L 215 40" fill="none" stroke="#3D7DCA" stroke-width="4" stroke-linecap="round"/>
+      <!-- Sol alt: pil'den aşağı kısa parça, sonra havada biter -->
+      <path d="M 35 40 L 35 75" fill="none" stroke="#3D7DCA" stroke-width="4" stroke-linecap="round"/>
+      <!-- Sağ alt: ampul'den aşağı kısa parça, sonra havada biter -->
+      <path d="M 215 40 L 215 75" fill="none" stroke="#3D7DCA" stroke-width="4" stroke-linecap="round"/>
+      <!-- Boşta kalan uçlar - bare metal turuncu işaret -->
+      <circle cx="35" cy="78" r="3" fill="#FF8C42" stroke="#1a1a1a" stroke-width="1"/>
+      <circle cx="215" cy="78" r="3" fill="#FF8C42" stroke="#1a1a1a" stroke-width="1"/>
+    `;
+  } else {
+    // Normal kablolar — pil, anahtar, ampul üst yatay; alt dönüş
+    wires = `
+      <path d="M 35 40 L 215 40" fill="none" stroke="#3D7DCA" stroke-width="4" stroke-linecap="round"/>
+      <path d="M 35 40 L 35 90 L 215 90 L 215 40" fill="none" stroke="#3D7DCA" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+    `;
+  }
+
+  // ========== PİL(LER) ==========
+  let pilEl = '';
+  if (status === 'pil_ters') {
+    // İki pil yan yana, AMA aynı kutuplar bakışıyor (+ ile +)
+    // Sol pil: − sol, + sağ
+    // Sağ pil: + sol, − sağ  (yani + ile + ortada karşılaşıyor)
+    pilEl = `
+      <g transform="translate(8 28)">
+        <rect x="0" y="0" width="36" height="22" fill="#1a1a1a" stroke="#1a1a1a" stroke-width="1.5" rx="2"/>
+        <rect x="36" y="6" width="4" height="10" fill="#FFD166" stroke="#1a1a1a" stroke-width="1"/>
+        <rect x="0" y="0" width="13" height="22" fill="#FF8C42"/>
+        <text x="7" y="15" font-size="9" text-anchor="middle" fill="white" font-weight="bold">−</text>
+        <text x="27" y="15" font-size="9" text-anchor="middle" fill="white" font-weight="bold">+</text>
+      </g>
+      <g transform="translate(50 28)">
+        <rect x="0" y="0" width="36" height="22" fill="#1a1a1a" stroke="#1a1a1a" stroke-width="1.5" rx="2"/>
+        <!-- Bu pil ters: + tarafı solda, − sağda; sol uçtan yataç çıkıntı -->
+        <rect x="-4" y="6" width="4" height="10" fill="#FFD166" stroke="#1a1a1a" stroke-width="1"/>
+        <rect x="23" y="0" width="13" height="22" fill="#FF8C42"/>
+        <text x="9" y="15" font-size="9" text-anchor="middle" fill="white" font-weight="bold">+</text>
+        <text x="30" y="15" font-size="9" text-anchor="middle" fill="white" font-weight="bold">−</text>
+      </g>
+    `;
+  } else {
+    // Tek normal pil
+    pilEl = `<g transform="translate(15 28)">
+      <rect x="0" y="0" width="36" height="22" fill="#1a1a1a" stroke="#1a1a1a" stroke-width="1.5" rx="2"/>
+      <rect x="36" y="6" width="4" height="10" fill="#FFD166" stroke="#1a1a1a" stroke-width="1"/>
+      <rect x="0" y="0" width="13" height="22" fill="#FF8C42"/>
+      <text x="7" y="15" font-size="9" text-anchor="middle" fill="white" font-weight="bold">−</text>
+      <text x="27" y="15" font-size="9" text-anchor="middle" fill="white" font-weight="bold">+</text>
+    </g>`;
+  }
+
+  // ========== ANAHTAR ==========
+  // Tüm durumlarda kapalı pozisyonda (anahtar açıklığı bu sorularda hata sebebi değil)
+  let anahtarEl = `<g transform="translate(105 28)">
+    <rect x="0" y="14" width="36" height="14" fill="#3D7DCA" stroke="#1a1a1a" stroke-width="1.5" rx="2"/>
+    <circle cx="6" cy="21" r="2" fill="#1a1a1a"/>
+    <circle cx="30" cy="21" r="2" fill="#1a1a1a"/>
+    <rect x="13" y="6" width="10" height="16" fill="#1a1a1a" rx="2"/>
+    <rect x="15" y="8" width="6" height="3" fill="#888"/>
+  </g>`;
+
+  // ========== AMPUL ==========
+  // showLit true ise yanan ampul, değilse sönük
+  let ampulEl;
+  if (showLit) {
+    ampulEl = `<g transform="translate(195 18)">
+      <circle cx="20" cy="15" r="22" fill="#FFE066" opacity="0.5"/>
+      <path d="M 20 2 Q 8 2 7 13 Q 7 22 12 26 L 12 30 L 28 30 L 28 26 Q 33 22 33 13 Q 32 2 20 2 Z" fill="#FFF0A0" stroke="#1a1a1a" stroke-width="1.5"/>
+      <path d="M 16 15 L 20 10 L 24 15 L 20 20 L 24 25 L 16 25 L 20 20 Z" fill="#FF8C42" stroke="#c44a3a" stroke-width="1"/>
+      <rect x="12" y="30" width="16" height="5" fill="#888" stroke="#1a1a1a" stroke-width="1"/>
+      <rect x="14" y="35" width="12" height="4" fill="#888" stroke="#1a1a1a" stroke-width="1"/>
+      <!-- Light rays -->
+      <line x1="3" y1="15" x2="-2" y2="15" stroke="#FFD166" stroke-width="2"/>
+      <line x1="37" y1="15" x2="42" y2="15" stroke="#FFD166" stroke-width="2"/>
+      <line x1="10" y1="3" x2="6" y2="-1" stroke="#FFD166" stroke-width="2"/>
+      <line x1="30" y1="3" x2="34" y2="-1" stroke="#FFD166" stroke-width="2"/>
+      <line x1="20" y1="-3" x2="20" y2="-8" stroke="#FFD166" stroke-width="2"/>
+    </g>`;
+  } else {
+    ampulEl = `<g transform="translate(195 18)">
+      <path d="M 20 2 Q 8 2 7 13 Q 7 22 12 26 L 12 30 L 28 30 L 28 26 Q 33 22 33 13 Q 32 2 20 2 Z" fill="#e8e8e8" stroke="#1a1a1a" stroke-width="1.5"/>
+      <path d="M 16 15 L 20 10 L 24 15 L 20 20 L 24 25 L 16 25 L 20 20 Z" fill="none" stroke="#5a3a10" stroke-width="1"/>
+      <rect x="12" y="30" width="16" height="5" fill="#888" stroke="#1a1a1a" stroke-width="1"/>
+      <rect x="14" y="35" width="12" height="4" fill="#888" stroke="#1a1a1a" stroke-width="1"/>
+    </g>`;
+  }
+
+  return `<svg viewBox="0 0 240 110" xmlns="http://www.w3.org/2000/svg">
+    ${wires}
+    ${pilEl}
+    ${anahtarEl}
+    ${ampulEl}
+  </svg>`;
+}
+
+const $ = id => document.getElementById(id);
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  $(`${name}Screen`).classList.add('active');
+}
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+  return a;
+}
+function playSound(type) {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const o = ctx.createOscillator(); const g = ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    if (type === 'ding') {
+      o.frequency.value = 880; o.type = 'sine';
+      g.gain.setValueAtTime(0.15, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
+      o.start(); o.stop(ctx.currentTime + 0.2);
+    } else if (type === 'buzz') {
+      o.frequency.value = 180; o.type = 'sawtooth';
+      g.gain.setValueAtTime(0.1, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.18);
+      o.start(); o.stop(ctx.currentTime + 0.18);
+    } else if (type === 'zap') {
+      // Electric "zap" - sharp ascending tone
+      o.frequency.setValueAtTime(220, ctx.currentTime);
+      o.frequency.exponentialRampToValueAtTime(1320, ctx.currentTime + 0.15);
+      o.type = 'square';
+      g.gain.setValueAtTime(0.12, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.25);
+      o.start(); o.stop(ctx.currentTime + 0.25);
+    } else if (type === 'pop') {
+      o.frequency.setValueAtTime(660, ctx.currentTime);
+      o.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.08);
+      o.type = 'sine';
+      g.gain.setValueAtTime(0.1, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.12);
+      o.start(); o.stop(ctx.currentTime + 0.12);
+    } else if (type === 'badge') {
+      o.frequency.setValueAtTime(523, ctx.currentTime);
+      o.frequency.setValueAtTime(659, ctx.currentTime + 0.1);
+      o.frequency.setValueAtTime(784, ctx.currentTime + 0.2);
+      o.type = 'triangle';
+      g.gain.setValueAtTime(0.15, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+      o.start(); o.stop(ctx.currentTime + 0.5);
+    }
+  } catch (e) {}
+}
+function spawnConfetti() {
+  const colors = ['#FF8C42', '#FFD166', '#5cc77f', '#3D7DCA', '#E36F4A'];
+  const overlay = $('badgeOverlay');
+  for (let i = 0; i < 40; i++) {
+    const c = document.createElement('div');
+    c.className = 'confetti';
+    c.style.background = colors[Math.floor(Math.random() * colors.length)];
+    c.style.left = Math.random() * 100 + '%';
+    c.style.top = '-20px';
+    c.style.animation = `confettiFall ${1 + Math.random() * 1.5}s ease-out forwards`;
+    c.style.animationDelay = Math.random() * 0.3 + 's';
+    overlay.appendChild(c);
+    setTimeout(() => c.remove(), 2500);
+  }
+}
+function applyTwemoji(rootEl) {
+  if (window.twemoji) twemoji.parse(rootEl || document.body, { folder: 'svg', ext: '.svg', base: 'https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/' });
+}
+function updateMenu() {
+  const earned = state.earnedBadges.size;
+  $('menuProgress').style.width = (earned / ALL_BADGES.length * 100) + '%';
+  $('menuProgressText').textContent = `${earned} / ${ALL_BADGES.length} rozet`;
+}
+
+$('playBtn').addEventListener('click', () => {
+  if (state.earnedBadges.size === ALL_BADGES.length) {
+    state.earnedBadges.clear(); state.totalScore = 0;
+    $('hudScore').textContent = 'Skor: 0';
+    updateMenu();
+  }
+  if (!state.earnedBadges.has('eleman_ustasi')) showRoundIntro(1);
+  else if (!state.earnedBadges.has('devre_muhendisi')) showRoundIntro(2);
+  else if (!state.earnedBadges.has('devre_kasifi')) showRoundIntro(3);
+});
+$('gameCard').addEventListener('click', e => { if (e.target.id !== 'playBtn') $('playBtn').click(); });
+$('backBtn').addEventListener('click', () => { showScreen('menu'); updateMenu(); });
+$('trophyBtn').addEventListener('click', () => {
+  renderBottomSheet();
+  $('sheetOverlay').classList.add('active');
+  $('bottomSheet').classList.add('active');
+});
+$('sheetOverlay').addEventListener('click', () => {
+  $('sheetOverlay').classList.remove('active');
+  $('bottomSheet').classList.remove('active');
+});
+function renderBottomSheet() {
+  const earned = ALL_BADGES.filter(b => state.earnedBadges.has(b.id));
+  const locked = ALL_BADGES.filter(b => !state.earnedBadges.has(b.id));
+  $('sheetProgress').style.width = (earned.length / ALL_BADGES.length * 100) + '%';
+  $('sheetProgressText').textContent = `${earned.length} / ${ALL_BADGES.length} rozet`;
+  $('sheetEarned').innerHTML = earned.length
+    ? earned.map(b => `<div class="sheet-badge"><div>${b.emoji}</div><div class="badge-label">${b.name}</div></div>`).join('')
+    : '<div style="grid-column: 1/-1; color: #8a6a3a; font-size: 13px; padding: 8px;">Henüz rozet yok. Oyna!</div>';
+  $('sheetLocked').innerHTML = locked.length
+    ? locked.map(b => `<div class="sheet-badge locked"><div>🔒</div><div class="badge-label">${b.name}</div></div>`).join('')
+    : '<div style="grid-column: 1/-1; color: #3DAA68; font-size: 13px; padding: 8px; font-weight: 700;">Tamamlandı! 🎉</div>';
+  applyTwemoji($('bottomSheet'));
+}
+
+function showRoundIntro(n) {
+  state.pendingRoundStart = n;
+  const intros = {
+    1: { num: 'ROUND 1', title: 'Eleman Avı', emoji: '🔋', desc: 'Tanıma bak, hangi devre elemanı olduğunu bul!' },
+    2: { num: 'ROUND 2', title: 'Devre Kur!', emoji: '⚡', desc: 'Eksik parçaları yerleştir, anahtarı aç, ampulü yak!' },
+    3: { num: 'ROUND 3', title: 'Hangi Devrede Yanar?', emoji: '🔍', desc: 'Üç devre yan yana. Sadece birinde lamba yanar. Hangisi?' }
+  };
+  const info = intros[n];
+  $('introNum').textContent = info.num;
+  $('introTitle').textContent = info.title;
+  $('introEmoji').textContent = info.emoji;
+  $('introDesc').textContent = info.desc;
+  showScreen('intro');
+  applyTwemoji($('introScreen'));
+}
+$('introBtn').addEventListener('click', () => {
+  if (state.pendingRoundStart === 1) startR1();
+  else if (state.pendingRoundStart === 2) startR2();
+  else if (state.pendingRoundStart === 3) startR3();
+});
+
+// ============ ROUND 1 ============
+function startR1() {
+  state.r1.qIndex = 0;
+  state.r1.questions = shuffle(R1_QUESTIONS);
+  loadR1();
+  showScreen('r1');
+}
+function loadR1() {
+  const q = state.r1.questions[state.r1.qIndex];
+  state.r1.locked = false;
+  $('r1Counter').textContent = `${state.r1.qIndex + 1} / ${state.r1.questions.length}`;
+  $('r1Text').textContent = q.def;
+  $('r1Result').textContent = '';
+  $('r1Result').classList.remove('visible', 'correct', 'wrong');
+
+  const opts = shuffle([q.correct, ...q.distractors]);
+  const grid = $('r1Options');
+  grid.innerHTML = '';
+  opts.forEach(key => {
+    const el = ELEMENTS[key];
+    const b = document.createElement('button');
+    b.className = 'opt-btn';
+    b.innerHTML = `<div class="opt-btn-svg">${el.svg}</div><div class="opt-btn-text">${el.name}</div>`;
+    b.addEventListener('click', () => onR1Pick(key === q.correct, b));
+    grid.appendChild(b);
+  });
+}
+function onR1Pick(correct, btn) {
+  if (state.r1.locked) return;
+  $('r1Card').classList.add('bounce');
+  setTimeout(() => $('r1Card').classList.remove('bounce'), 500);
+  if (correct) {
+    state.r1.locked = true;
+    if (state.r1.wrongTimer) { clearTimeout(state.r1.wrongTimer); state.r1.wrongTimer = null; }
+    document.querySelectorAll('#r1Options .opt-btn').forEach(b => b.classList.remove('flash-wrong'));
+    $('r1Result').classList.remove('wrong');
+    playSound('ding');
+    btn.classList.add('flash-correct');
+    document.querySelectorAll('#r1Options .opt-btn').forEach(b => b.disabled = true);
+    $('r1Result').textContent = '✓ Doğru!';
+    $('r1Result').classList.add('visible', 'correct');
+    state.totalScore += 10;
+    $('hudScore').textContent = `Skor: ${state.totalScore}`;
+    setTimeout(() => {
+      state.r1.qIndex++;
+      if (state.r1.qIndex >= state.r1.questions.length) awardBadge('eleman_ustasi', () => showRoundIntro(2));
+      else loadR1();
+    }, 1200);
+  } else {
+    playSound('buzz');
+    btn.classList.add('flash-wrong');
+    $('r1Result').textContent = 'Tekrar dene!';
+    $('r1Result').classList.remove('correct');
+    $('r1Result').classList.add('visible', 'wrong');
+    if (state.r1.wrongTimer) clearTimeout(state.r1.wrongTimer);
+    state.r1.wrongTimer = setTimeout(() => {
+      btn.classList.remove('flash-wrong');
+      $('r1Result').textContent = '';
+      $('r1Result').classList.remove('visible', 'wrong');
+      state.r1.wrongTimer = null;
+    }, 1100);
+  }
+}
+
+// ============ ROUND 2 - CIRCUIT ============
+function startR2() {
+  state.r2.stageIndex = 0;
+  loadR2Stage();
+  showScreen('r2');
+}
+function loadR2Stage() {
+  const stage = R2_STAGES[state.r2.stageIndex];
+  state.r2.locked = false;
+  state.r2.slotsFilled = {};
+  state.r2.switchOn = false;
+  $('r2Counter').textContent = `AŞAMA ${state.r2.stageIndex + 1} / ${R2_STAGES.length}`;
+  $('r2Instruction').textContent = stage.instr;
+  $('r2Result').textContent = '';
+  $('r2Result').classList.remove('visible', 'correct', 'wrong');
+  $('switchBtn').textContent = '🔌 Anahtarı Aç';
+  $('switchBtn').classList.remove('on');
+  $('switchBtn').disabled = true;
+
+  renderCircuit(stage);
+  renderR2Pool(stage);
+  applyTwemoji($('r2Screen'));
+}
+
+function renderCircuit(stage) {
+  const canvas = $('circuitCanvas');
+  const ampulLit = state.r2.switchOn && allSlotsFilled(stage);
+  const wireColor = stage.wireColor || '#3D7DCA';
+
+  // 3 farklı layout: horizontal, reverse, vertical_top
+  // Her layout'ta 3 eleman pozisyonu (pil, anahtar, ampul) ve aralarındaki kablolar
+  let positions, wires;
+
+  if (stage.layout === 'horizontal') {
+    // Sol pil — Orta anahtar — Sağ ampul, dikdörtgen kablo
+    positions = {
+      pil:     { x: 60,  y: 80 },
+      anahtar: { x: 180, y: 80 },
+      ampul:   { x: 300, y: 80 }
+    };
+    wires = [
+      'M 60 80 L 300 80',                     // üst yatay
+      'M 60 80 L 60 160 L 300 160 L 300 80'   // alt dönüş
+    ];
+  } else if (stage.layout === 'reverse') {
+    // Sol ampul — Orta pil — Sağ anahtar
+    positions = {
+      ampul:   { x: 60,  y: 80 },
+      pil:     { x: 180, y: 80 },
+      anahtar: { x: 300, y: 80 }
+    };
+    wires = [
+      'M 60 80 L 300 80',
+      'M 60 80 L 60 160 L 300 160 L 300 80'
+    ];
+  } else if (stage.layout === 'vertical_top') {
+    // Üstte ampul ortada, altta pil (sol) + anahtar (sağ)
+    positions = {
+      ampul:   { x: 180, y: 50 },
+      pil:     { x: 80,  y: 150 },
+      anahtar: { x: 280, y: 150 }
+    };
+    wires = [
+      'M 180 50 L 80 50 L 80 150',            // sol L
+      'M 180 50 L 280 50 L 280 150',          // sağ L
+      'M 80 150 L 280 150'                     // alt yatay
+    ];
+  }
+
+  // Helper: render element at position (centered, 70x70 box, 60x60 SVG inside)
+  const renderAt = (key, pos) => {
+    let svgKey = key;
+    let glowClass = '';
+    if (key === 'ampul' && ampulLit) { svgKey = 'ampul_on'; glowClass = 'bulb-glow'; }
+    if (key === 'anahtar' && !state.r2.switchOn) svgKey = 'anahtar_acik';
+    return `<foreignObject x="${pos.x - 35}" y="${pos.y - 35}" width="70" height="70">
+      <div xmlns="http://www.w3.org/1999/xhtml" class="${glowClass}" style="width:70px;height:70px;display:flex;align-items:center;justify-content:center;">
+        <div style="width:60px;height:60px;">${ELEMENTS[svgKey].svg}</div>
+      </div>
+    </foreignObject>`;
+  };
+
+  // Build SVG
+  let svg = `<svg viewBox="0 0 360 200" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">`;
+  wires.forEach(d => {
+    svg += `<path d="${d}" fill="none" stroke="${wireColor}" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>`;
+  });
+  // Render the 2 elements that are NOT missing
+  Object.keys(positions).forEach(key => {
+    if (key !== stage.missing) svg += renderAt(key, positions[key]);
+  });
+  svg += `</svg>`;
+  canvas.innerHTML = svg;
+
+  // Missing slot - HTML overlay, viewBox koordinatlarını canvas piksel oranına çevir
+  const missingPos = positions[stage.missing];
+  const xPct = missingPos.x / 360 * 100;
+  const yPct = missingPos.y / 200 * 100;
+
+  const placed = state.r2.slotsFilled.slot;
+  if (placed) {
+    // Slot dolu - hangi eleman bırakıldıysa onu göster (doğru ya da yanlış)
+    const filled = document.createElement('div');
+    filled.className = 'circuit-slot filled';
+    filled.style.left = `calc(${xPct}% - 35px)`;
+    filled.style.top = `calc(${yPct}% - 35px)`;
+    let svgKey = placed;
+    let glowClass = '';
+    // Sadece doğru eleman ve anahtar açıkken parla
+    if (placed === stage.missing && stage.missing === 'ampul' && ampulLit) {
+      svgKey = 'ampul_on';
+      glowClass = 'bulb-glow';
+    }
+    if (placed === 'anahtar' && !state.r2.switchOn) svgKey = 'anahtar_acik';
+    filled.innerHTML = `<div class="${glowClass}">${ELEMENTS[svgKey].svg}</div>`;
+    canvas.appendChild(filled);
+  } else {
+    const empty = document.createElement('div');
+    empty.className = 'circuit-slot';
+    empty.dataset.slotId = 'slot';
+    empty.dataset.expects = stage.missing;
+    empty.style.left = `calc(${xPct}% - 35px)`;
+    empty.style.top = `calc(${yPct}% - 35px)`;
+    empty.innerHTML = '<div class="slot-q">?</div>';
+    canvas.appendChild(empty);
+  }
+}
+
+function renderR2Pool(stage) {
+  const pool = $('r2Pool');
+  pool.innerHTML = '';
+  const items = shuffle(stage.pool);
+  items.forEach(key => {
+    if (Object.values(state.r2.slotsFilled).includes(key)) return; // already placed
+    const el = ELEMENTS[key];
+    const card = document.createElement('div');
+    card.className = 'draggable-item';
+    card.dataset.key = key;
+    card.innerHTML = `<div class="item-svg">${el.svg}</div><div class="item-name">${el.name}</div>`;
+    attachR2Drag(card);
+    pool.appendChild(card);
+  });
+}
+
+function attachR2Drag(card) {
+  let dragging = false, startX, startY, origLeft, origTop, ghost = null;
+  const onStart = (e) => {
+    if (state.r2.locked) return;
+    e.preventDefault();
+    const p = e.touches ? e.touches[0] : e;
+    startX = p.clientX; startY = p.clientY;
+    const rect = card.getBoundingClientRect();
+    origLeft = rect.left; origTop = rect.top;
+    ghost = card.cloneNode(true);
+    ghost.classList.add('dragging');
+    ghost.style.position = 'fixed';
+    ghost.style.left = rect.left + 'px';
+    ghost.style.top = rect.top + 'px';
+    ghost.style.width = rect.width + 'px';
+    ghost.style.pointerEvents = 'none';
+    ghost.style.zIndex = '300';
+    document.body.appendChild(ghost);
+    card.style.opacity = '0.3';
+    dragging = true;
+  };
+  const onMove = (e) => {
+    if (!dragging || !ghost) return;
+    e.preventDefault();
+    const p = e.touches ? e.touches[0] : e;
+    ghost.style.left = (origLeft + p.clientX - startX) + 'px';
+    ghost.style.top = (origTop + p.clientY - startY) + 'px';
+    // Highlight slot when ghost is over the circuit canvas
+    document.querySelectorAll('.circuit-slot:not(.filled)').forEach(s => s.classList.remove('drag-over'));
+    const elBelow = document.elementFromPoint(p.clientX, p.clientY);
+    if (elBelow) {
+      const canvas = elBelow.closest('.circuit-canvas');
+      if (canvas) {
+        const slot = canvas.querySelector('.circuit-slot:not(.filled)');
+        if (slot) slot.classList.add('drag-over');
+      }
+    }
+  };
+  const onEnd = (e) => {
+    if (!dragging) return;
+    dragging = false;
+    const p = e.changedTouches ? e.changedTouches[0] : e;
+    const elBelow = document.elementFromPoint(p.clientX, p.clientY);
+    document.querySelectorAll('.circuit-slot').forEach(s => s.classList.remove('drag-over'));
+    if (ghost) { ghost.remove(); ghost = null; }
+    card.style.opacity = '';
+    // Canvas içindeki herhangi bir yere bırakılırsa slot'a yerleştir
+    let slot = null;
+    if (elBelow) {
+      const canvas = elBelow.closest('.circuit-canvas');
+      if (canvas) {
+        slot = canvas.querySelector('.circuit-slot:not(.filled)');
+      }
+    }
+    if (slot) handleR2Drop(card, slot);
+  };
+  card.addEventListener('touchstart', onStart, { passive: false });
+  card.addEventListener('touchmove', onMove, { passive: false });
+  card.addEventListener('touchend', onEnd);
+  card.addEventListener('mousedown', onStart);
+  document.addEventListener('mousemove', onMove);
+  document.addEventListener('mouseup', onEnd);
+}
+
+function handleR2Drop(card, slot) {
+  if (state.r2.locked) return;
+  const got = card.dataset.key;
+  const stage = R2_STAGES[state.r2.stageIndex];
+
+  // Herhangi bir elemanı slot'a kabul et - doğru/yanlış anahtarı açınca anlaşılacak
+  playSound('pop');
+  state.r2.slotsFilled[slot.dataset.slotId] = got;
+  renderCircuit(stage);
+  renderR2Pool(stage);
+  applyTwemoji($('r2Screen'));
+
+  // Slot doluysa anahtar butonu aktif
+  if (state.r2.slotsFilled.slot) {
+    $('switchBtn').disabled = false;
+    $('r2Result').textContent = '👇 Şimdi anahtarı aç!';
+    $('r2Result').classList.remove('wrong');
+    $('r2Result').classList.add('visible');
+  }
+}
+
+function allSlotsFilled(stage) {
+  return state.r2.slotsFilled.slot === stage.missing;
+}
+
+$('switchBtn').addEventListener('click', () => {
+  if (state.r2.locked) return;
+  const stage = R2_STAGES[state.r2.stageIndex];
+  if (!state.r2.slotsFilled.slot) return;
+
+  const placed = state.r2.slotsFilled.slot;
+  const correct = (placed === stage.missing);
+
+  if (correct) {
+    // Devre çalışır - ampul yanar
+    state.r2.switchOn = true;
+    playSound('zap');
+    $('switchBtn').disabled = true;
+    $('switchBtn').classList.add('on');
+    state.r2.locked = true;
+    $('r2Result').textContent = '⚡ Ampul yandı! Harika!';
+    $('r2Result').classList.remove('wrong');
+    $('r2Result').classList.add('visible', 'correct');
+    state.totalScore += 15;
+    $('hudScore').textContent = `Skor: ${state.totalScore}`;
+    renderCircuit(stage);
+    applyTwemoji($('r2Screen'));
+    setTimeout(() => {
+      state.r2.stageIndex++;
+      if (state.r2.stageIndex >= R2_STAGES.length) awardBadge('devre_muhendisi', () => showRoundIntro(3));
+      else loadR2Stage();
+    }, 2000);
+  } else {
+    // Yanlış eleman takılı - devre çalışmaz, slot temizle, havuza geri dön
+    playSound('buzz');
+    $('r2Result').textContent = '❌ Devre çalışmadı. Tekrar dene!';
+    $('r2Result').classList.remove('correct');
+    $('r2Result').classList.add('visible', 'wrong');
+    $('switchBtn').disabled = true;
+
+    // Slot'u temizle ve havuza geri ekle
+    setTimeout(() => {
+      state.r2.slotsFilled = {};
+      renderCircuit(stage);
+      renderR2Pool(stage);
+      applyTwemoji($('r2Screen'));
+      $('r2Result').textContent = '';
+      $('r2Result').classList.remove('visible', 'wrong');
+    }, 1500);
+  }
+});
+
+// ============ ROUND 3 ============
+function startR3() {
+  state.r3.qIndex = 0;
+  state.r3.questions = shuffle(R3_QUESTIONS);
+  loadR3();
+  showScreen('r3');
+}
+function loadR3() {
+  const q = state.r3.questions[state.r3.qIndex];
+  state.r3.locked = false;
+  $('r3Counter').textContent = `${state.r3.qIndex + 1} / ${state.r3.questions.length}`;
+  $('r3Result').textContent = '';
+  $('r3Result').classList.remove('visible', 'correct', 'wrong');
+
+  // Devre kartlarını shuffle ederek render et (A/B/C sabit değil, görüldüğü pozisyonda etiketle)
+  const grid = $('r3Grid');
+  grid.innerHTML = '';
+  const shuffledCircuits = shuffle(q.circuits);
+  // Yeni etiketler: pozisyona göre A, B, C
+  shuffledCircuits.forEach((c, i) => {
+    const label = String.fromCharCode(65 + i); // A, B, C
+    const card = document.createElement('div');
+    card.className = 'r3-circuit-card';
+    card.dataset.status = c.status;
+    card.dataset.label = label;
+    card.innerHTML = `
+      <div class="r3-circuit-label">${label}</div>
+      <div class="r3-circuit-svg">${buildMiniCircuit(c.status)}</div>
+    `;
+    card.addEventListener('click', () => onR3Pick(c.status === 'works', card));
+    grid.appendChild(card);
+  });
+}
+function onR3Pick(correct, card) {
+  if (state.r3.locked) return;
+  if (correct) {
+    state.r3.locked = true;
+    if (state.r3.wrongTimer) { clearTimeout(state.r3.wrongTimer); state.r3.wrongTimer = null; }
+    document.querySelectorAll('#r3Grid .r3-circuit-card').forEach(c => c.classList.remove('flash-wrong'));
+    $('r3Result').classList.remove('wrong');
+    // Doğru karttaki devreyi yanan ampul ile yeniden çiz + glow
+    const svgWrap = card.querySelector('.r3-circuit-svg');
+    if (svgWrap) {
+      svgWrap.innerHTML = buildMiniCircuit('works', true);
+      svgWrap.classList.add('bulb-glow');
+    }
+    playSound('zap');
+    setTimeout(() => playSound('ding'), 200);
+    card.classList.add('flash-correct');
+    document.querySelectorAll('#r3Grid .r3-circuit-card').forEach(c => c.classList.add('disabled'));
+    $('r3Result').textContent = '✓ Doğru!';
+    $('r3Result').classList.add('visible', 'correct');
+    state.totalScore += 10;
+    $('hudScore').textContent = `Skor: ${state.totalScore}`;
+    setTimeout(() => {
+      state.r3.qIndex++;
+      if (state.r3.qIndex >= state.r3.questions.length) awardBadge('devre_kasifi', () => { showScreen('menu'); updateMenu(); });
+      else loadR3();
+    }, 1800);
+  } else {
+    playSound('buzz');
+    card.classList.add('flash-wrong');
+    $('r3Result').textContent = 'Tekrar dene!';
+    $('r3Result').classList.remove('correct');
+    $('r3Result').classList.add('visible', 'wrong');
+    if (state.r3.wrongTimer) clearTimeout(state.r3.wrongTimer);
+    state.r3.wrongTimer = setTimeout(() => {
+      card.classList.remove('flash-wrong');
+      $('r3Result').textContent = '';
+      $('r3Result').classList.remove('visible', 'wrong');
+      state.r3.wrongTimer = null;
+    }, 1100);
+  }
+}
+
+let badgeContinueCallback = null;
+function awardBadge(id, onContinue) {
+  const b = ALL_BADGES.find(x => x.id === id);
+  if (!b) { if (onContinue) onContinue(); return; }
+  state.earnedBadges.add(id);
+  $('badgeEmoji').textContent = b.emoji;
+  $('badgeName').textContent = b.name;
+  $('badgeMessage').textContent = b.desc;
+  badgeContinueCallback = onContinue;
+  $('badgeOverlay').classList.add('active');
+  playSound('badge');
+  spawnConfetti();
+  applyTwemoji($('badgeOverlay'));
+}
+$('badgeBtn').addEventListener('click', () => {
+  $('badgeOverlay').classList.remove('active');
+  const cb = badgeContinueCallback; badgeContinueCallback = null;
+  if (cb) cb();
+});
+
+updateMenu();
+if (window.twemoji) applyTwemoji(document.body);
+else window.addEventListener('load', () => applyTwemoji(document.body));
+</script>
+</body>
+</html>
