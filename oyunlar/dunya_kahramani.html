@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>🌍 Dünya Kahramanı</title>
-<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
 <style>
 * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; user-select:none; touch-action:none; }
 
@@ -57,7 +57,7 @@ body {
   display: flex; align-items:center; justify-content:space-between;
 }
 .title {
-  font-family:'Fredoka One',cursive;
+  font-family:'Fredoka',cursive;font-weight:700;
   font-size: 1.2rem; color: #1b5e20;
   text-shadow: 0 2px 0 rgba(255,255,255,0.7);
 }
@@ -106,10 +106,6 @@ body {
   box-shadow: 0 6px 20px rgba(0,0,0,0.15);
   border: 3px solid rgba(255,255,255,0.5);
 }
-.bin.highlight {
-  transform: scale(1.12) !important;
-  box-shadow: 0 0 0 4px white, 0 10px 32px rgba(0,0,0,0.2) !important;
-}
 .bin.correct-flash { animation: correct-b 0.5s ease; }
 .bin.wrong-flash   { animation: wrong-b 0.4s ease; }
 @keyframes correct-b { 0%,100%{transform:scale(1)} 50%{transform:scale(1.2)} }
@@ -129,7 +125,7 @@ body {
 
 .bin-icon { font-size:2rem; line-height:1; }
 .bin-label {
-  font-family:'Fredoka One',cursive;
+  font-family:'Fredoka',cursive;font-weight:700;
   font-size:0.7rem; margin-top:3px; text-align:center; line-height:1.2;
 }
 .bin-paper   .bin-label { color:#f57f17; }
@@ -176,7 +172,7 @@ body {
   80%{transform:translate(-50%,-50%) scale(1.02) rotate(2deg)}
 }
 .waste-emoji { font-size:3.6rem; display:block; line-height:1; }
-.waste-name  { font-family:'Fredoka One',cursive; font-size:1.05rem; color:#1b2631; margin-top:5px; }
+.waste-name  { font-family:'Fredoka',cursive;font-weight:700; font-size:1.05rem; color:#1b2631; margin-top:5px; }
 .waste-hint  { font-size:0.68rem; color:#9e9e9e; font-weight:700; margin-top:2px; }
 
 /* drag ghost — fixed positioned */
@@ -233,12 +229,12 @@ body {
 @keyframes pop { from{transform:scale(0.15) rotate(-12deg);opacity:0} to{transform:scale(1);opacity:1} }
 .ov-icon-big { font-size:5rem; display:block; animation:bounce-icon 1.2s ease-in-out infinite; }
 @keyframes bounce-icon { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-14px)} }
-.ov-title { font-family:'Fredoka One',cursive; font-size:1.6rem; color:#1b2631; margin:12px 0 6px; }
+.ov-title { font-family:'Fredoka',cursive;font-weight:700; font-size:1.6rem; color:#1b2631; margin:12px 0 6px; }
 .ov-msg   { color:#666; font-size:0.86rem; font-weight:700; line-height:1.6; margin-bottom:22px; }
 .ov-btn {
   background:linear-gradient(135deg,#43a047,#1b5e20);
   color:white; border:none; border-radius:50px;
-  padding:14px; font-family:'Fredoka One',cursive; font-size:1.2rem;
+  padding:14px; font-family:'Fredoka',cursive;font-weight:700; font-size:1.2rem;
   cursor:pointer; width:100%;
   box-shadow:0 8px 24px rgba(27,94,32,0.35);
   transition:transform 0.15s;
@@ -254,7 +250,7 @@ body {
 }
 .final-globe { font-size:4rem; display:block; animation:spin-globe 4s linear infinite; }
 @keyframes spin-globe { 0%{filter:hue-rotate(0deg)} 100%{filter:hue-rotate(360deg)} }
-.final-title { font-family:'Fredoka One',cursive; font-size:1.7rem; color:#1b5e20; margin:8px 0 4px; }
+.final-title { font-family:'Fredoka',cursive;font-weight:700; font-size:1.7rem; color:#1b5e20; margin:8px 0 4px; }
 .final-sub   { color:#558b2f; font-size:0.88rem; font-weight:700; margin-bottom:18px; }
 .badges-row  { display:flex; gap:10px; justify-content:center; margin-bottom:16px; flex-wrap:wrap; }
 .badge-chip  {
@@ -267,7 +263,7 @@ body {
 .bc-icon{font-size:2rem;}.bc-name{font-size:0.6rem;font-weight:900;color:#33691e;margin-top:3px;}
 .stats-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:18px; }
 .stat-box   { background:white; border-radius:14px; padding:10px 8px; box-shadow:0 2px 8px rgba(0,0,0,0.06); }
-.stat-num   { font-family:'Fredoka One',cursive; font-size:1.7rem; color:#2e7d32; }
+.stat-num   { font-family:'Fredoka',cursive;font-weight:700; font-size:1.7rem; color:#2e7d32; }
 .stat-lbl   { font-size:0.65rem; font-weight:800; color:#9e9e9e; }
 .badge-earned-note { font-size:0.72rem; color:#888; font-weight:700; margin-bottom:14px; }
 
@@ -485,9 +481,6 @@ function startDrag(x,y) {
   card.style.opacity='0.25';
   card.style.transform='translate(-50%,-50%) scale(0.85)';
   card.style.transition='opacity 0.15s, transform 0.15s';
-
-  // highlight bins
-  document.querySelectorAll('.bin').forEach(b=>b.classList.add('highlight'));
 }
 
 function moveDrag(x,y) {
@@ -500,7 +493,6 @@ function endDrag(x,y) {
   if(!dragging)return;
   dragging=false;
   if(dragGhost){dragGhost.remove();dragGhost=null;}
-  document.querySelectorAll('.bin').forEach(b=>b.classList.remove('highlight'));
 
   // Find target bin
   let dropped=null;
