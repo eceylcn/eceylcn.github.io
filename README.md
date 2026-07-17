@@ -1,6 +1,6 @@
 <div align="center">
 
-# Ece Yalçın — Portfolio
+# Ece Yalçın · Portfolio
 
 Building AI tools for educators, designing objective-driven interactions.
 
@@ -15,10 +15,7 @@ Building AI tools for educators, designing objective-driven interactions.
 Product Manager & Instructional Designer working at the intersection of AI, learning
 science, and interaction design. This site collects two kinds of work:
 
-- **Instructional Design & E-Learning** — Unity and Articulate Storyline courseware
+- **Instructional Design & E-Learning:** Unity and Articulate Storyline courseware
   built around real learning objectives.
-- **Educational Games** — twelve single-file HTML5 prototypes, each scoped to one
-  microlearning objective, designed and built while working as a Product Manager at
-  Madlen, an AI-in-education platform used by 50,000+ teachers.
-
-Built and deployed with GitHub Pages.
+- **Educational Games:** twelve single-file HTML5 prototypes, each scoped to one
+  microlearning objective, designed and built while working as a Product Manager
