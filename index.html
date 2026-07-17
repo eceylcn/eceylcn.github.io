@@ -136,17 +136,19 @@
   .proj-icon.vis{display:block}
   .proj-icon img{width:100%;height:100%;object-fit:cover;display:block}
   .proj-page-desc{font-size:15px;color:var(--ink2);font-weight:500;line-height:1.7}
-  .proj-embed-outer{border-radius:18px;overflow:hidden;border:1.5px solid var(--ink);box-shadow:0 4px 0 rgba(58,32,18,.12)}
+  /* Games are built as ~390x780 mobile-app frames, so the embed is always
+     shown at phone size and centered — on desktop and mobile alike —
+     instead of stretching to the full page width. */
+  .proj-embed-outer{max-width:430px;margin:0 auto;border-radius:18px;overflow:hidden;border:1.5px solid var(--ink);box-shadow:0 4px 0 rgba(58,32,18,.12)}
   .proj-embed-notice{display:flex;align-items:center;gap:10px;padding:13px 20px;background:var(--mustard);border-bottom:1.5px solid var(--ink);font-size:13px;font-weight:600;color:var(--ink);line-height:1.5}
   .proj-embed-notice .flag{font-size:17px;line-height:1;flex-shrink:0}
-  .proj-mobile-warning{display:none}
-  @media(max-width:640px){
-    .proj-mobile-warning{display:flex;align-items:center;gap:10px;padding:13px 20px;background:#F8D7DA;
-      border-bottom:1.5px solid var(--ink);font-size:13px;font-weight:600;color:#7A2A2A;line-height:1.5}
-    .proj-mobile-warning .flag{font-size:17px;line-height:1;flex-shrink:0}
-  }
-  .proj-embed-wrap{aspect-ratio:4/3;width:100%}
+  .proj-embed-wrap{width:100%;height:min(860px,90vh);height:min(860px,90dvh)}
   .proj-embed-wrap iframe{width:100%;height:100%;border:none;display:block}
+  @media(max-width:480px){
+    .proj-embed-outer{max-width:none;margin-left:calc(50% - 50vw);margin-right:calc(50% - 50vw);
+      border-radius:0;border-left:none;border-right:none;box-shadow:none}
+    .proj-embed-wrap{height:min(860px,94vh);height:min(860px,94dvh)}
+  }
   /* Project details box (above iframe) */
   .proj-details-box{width:100%;margin-bottom:28px;display:flex;flex-direction:column;gap:16px}
   .pd-title{font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
@@ -198,6 +200,12 @@
   .id-card-body h4{font-size:14px;font-weight:800;letter-spacing:-.01em;color:var(--ink)}
   .id-card-body p{font-size:12.5px;color:var(--ink2);font-weight:500;line-height:1.6}
   .id-card-year{font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--muted);margin-top:auto;padding-top:8px;display:block}
+  .game-filters{display:flex;flex-wrap:wrap;gap:8px;margin:-6px 0 20px}
+  .game-filter{background:#fff;border:1.5px solid var(--ink);border-radius:999px;font-size:12px;
+    font-weight:800;color:var(--ink);cursor:pointer;padding:7px 15px;letter-spacing:-.01em;
+    transition:transform .15s,box-shadow .15s,background .15s,color .15s;box-shadow:0 3px 0 rgba(58,32,18,.12)}
+  .game-filter:hover{transform:translateY(-1px)}
+  .game-filter.active{background:var(--ink);color:#fff}
   .games-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
   @media(max-width:760px){.games-grid{grid-template-columns:repeat(2,1fr)}}
   @media(max-width:480px){.games-grid{grid-template-columns:1fr}}
@@ -211,8 +219,12 @@
   .game-card-info{min-width:0}
   .game-card-info h4{font-size:13px;font-weight:800;letter-spacing:-.01em;color:var(--ink);margin-bottom:3px}
   .game-card-info p{font-size:11.5px;color:var(--ink2);font-weight:500;line-height:1.5}
-  .game-tag{font-size:9.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;
-    padding:4px 9px;border-radius:7px;border:1.5px solid var(--ink);white-space:nowrap;
+  .game-orig{display:block;color:var(--muted);font-weight:600;font-size:10.5px;margin-top:1px}
+  .tr-flag{display:inline-block;width:14px;height:10px;border-radius:2px;vertical-align:-1px;flex-shrink:0;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 20'%3E%3Crect width='30' height='20' fill='%23E30A17'/%3E%3Ccircle cx='12' cy='10' r='6' fill='%23fff'/%3E%3Ccircle cx='13.8' cy='10' r='4.8' fill='%23E30A17'/%3E%3Cpolygon fill='%23fff' points='19,7.7 19.53,9.27 21.19,9.29 19.86,10.28 20.35,11.86 19,10.9 17.65,11.86 18.14,10.28 16.81,9.29 18.47,9.27'/%3E%3C/svg%3E");
+    background-size:cover;background-repeat:no-repeat;box-shadow:0 0 0 1px rgba(0,0,0,.08)}
+  .game-tag{font-size:8px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;
+    padding:3px 7px;border-radius:6px;border:1.5px solid var(--ink);white-space:nowrap;
     flex-shrink:0;align-self:flex-start;margin-left:auto;transform:rotate(-2deg)}
   .game-tag-math{background:var(--mustard);color:#7A5A16}
   .game-tag-science{background:var(--accent);color:#fff}
@@ -529,65 +541,73 @@
           <h3>Educational Games</h3>
         </div>
         <p class="work-block-desc">Twelve single-file HTML5 prototypes, each scoped to one microlearning objective for teachers to run as a quick, focused activity right after a lesson. Designed and built while working as a Product Manager at Madlen, an AI-in-education platform used by 50,000+ teachers.</p>
-        <div class="games-grid">
-          <div class="game-card" onclick="openProject('basamak')">
+        <div class="game-filters">
+          <button class="game-filter active" data-cat="all" onclick="filterGames('all',this)">All</button>
+          <button class="game-filter" data-cat="math" onclick="filterGames('math',this)">Math</button>
+          <button class="game-filter" data-cat="science" onclick="filterGames('science',this)">Science</button>
+          <button class="game-filter" data-cat="turkish" onclick="filterGames('turkish',this)">Turkish</button>
+          <button class="game-filter" data-cat="english" onclick="filterGames('english',this)">English</button>
+          <button class="game-filter" data-cat="social" onclick="filterGames('social',this)">Social Studies</button>
+        </div>
+        <div class="games-grid" id="games-grid">
+          <div class="game-card" data-cat="math" onclick="openProject('basamak')">
             <div class="game-card-icon"><img src="oyunlar/mobile icons/basamak_kulesi.png" alt="Basamak Kulesi"></div>
-            <div class="game-card-info"><h4>Basamak Kulesi</h4><p>Place value, number comparison &amp; patterns</p></div>
+            <div class="game-card-info"><h4>Digit Tower <span class="game-orig">(<span class="tr-flag"></span> Basamak Kulesi)</span></h4><p>Place value, number comparison &amp; patterns</p></div>
             <span class="game-tag game-tag-math">Math</span>
           </div>
-          <div class="game-card" onclick="openProject('devre')">
+          <div class="game-card" data-cat="science" onclick="openProject('devre')">
             <div class="game-card-icon"><img src="oyunlar/mobile icons/devre_atolyesi.png" alt="Devre Atölyesi"></div>
-            <div class="game-card-info"><h4>Devre Atölyesi</h4><p>Simple electric circuits: build &amp; test</p></div>
+            <div class="game-card-info"><h4>Volt Lab <span class="game-orig">(<span class="tr-flag"></span> Devre Atölyesi)</span></h4><p>Simple electric circuits: build &amp; test</p></div>
             <span class="game-tag game-tag-science">Science</span>
           </div>
-          <div class="game-card" onclick="openProject('deyimoji')">
+          <div class="game-card" data-cat="turkish" onclick="openProject('deyimoji')">
             <div class="game-card-icon"><img src="oyunlar/mobile icons/deyimoji.png" alt="Deyimoji"></div>
-            <div class="game-card-info"><h4>Deyimoji</h4><p>Turkish idioms through picture clues</p></div>
+            <div class="game-card-info"><h4>Idiomoji <span class="game-orig">(<span class="tr-flag"></span> Deyimoji)</span></h4><p>Turkish idioms through picture clues</p></div>
             <span class="game-tag game-tag-turkish">Turkish</span>
           </div>
-          <div class="game-card" onclick="openProject('jobquest')">
+          <div class="game-card" data-cat="english" onclick="openProject('jobquest')">
             <div class="game-card-icon"><img src="oyunlar/mobile icons/job_Quest.png" alt="Job Quest"></div>
             <div class="game-card-info"><h4>Job Quest</h4><p>English vocabulary: jobs &amp; professions</p></div>
             <span class="game-tag game-tag-english">English</span>
           </div>
-          <div class="game-card" onclick="openProject('madde')">
+          <div class="game-card" data-cat="science" onclick="openProject('madde')">
             <div class="game-card-icon"><img src="oyunlar/mobile icons/madde_atolyesi.png" alt="Madde Atölyesi"></div>
-            <div class="game-card-info"><h4>Madde Atölyesi</h4><p>Properties &amp; states of matter</p></div>
+            <div class="game-card-info"><h4>State Shifters <span class="game-orig">(<span class="tr-flag"></span> Madde Atölyesi)</span></h4><p>Properties &amp; states of matter</p></div>
             <span class="game-tag game-tag-science">Science</span>
           </div>
-          <div class="game-card" onclick="openProject('kesif')">
+          <div class="game-card" data-cat="social" onclick="openProject('kesif')">
             <div class="game-card-icon"><img src="oyunlar/mobile icons/kesif_seferi.png" alt="Keşif Seferi"></div>
-            <div class="game-card-info"><h4>Keşif Seferi</h4><p>Map reading, directions &amp; weather</p></div>
-            <span class="game-tag game-tag-social">Social</span>
+            <div class="game-card-info"><h4>My Compass <span class="game-orig">(<span class="tr-flag"></span> Keşif Seferi)</span></h4><p>Map reading, directions &amp; weather</p></div>
+            <span class="game-tag game-tag-social">Social Studies</span>
           </div>
-          <div class="game-card" onclick="openProject('feelmatch')">
+          <div class="game-card" data-cat="english" onclick="openProject('feelmatch')">
             <div class="game-card-icon"><img src="oyunlar/mobile icons/feel_match.png" alt="Feel & Match"></div>
             <div class="game-card-info"><h4>Feel & Match</h4><p>English feelings &amp; social-emotional language</p></div>
             <span class="game-tag game-tag-english">English</span>
           </div>
-          <div class="game-card" onclick="openProject('sifreavi')">
+          <div class="game-card" data-cat="turkish" onclick="openProject('sifreavi')">
             <div class="game-card-icon"><img src="oyunlar/mobile icons/sifreavi.png" alt="Şifre Avı"></div>
-            <div class="game-card-info"><h4>Şifre Avı</h4><p>Capitalization &amp; punctuation code-breaker</p></div>
+            <div class="game-card-info"><h4>Proper Patrol <span class="game-orig">(<span class="tr-flag"></span> Şifre Avı)</span></h4><p>Capitalization &amp; punctuation code-breaker</p></div>
             <span class="game-tag game-tag-turkish">Turkish</span>
           </div>
-          <div class="game-card" onclick="openProject('sayisokagi')">
+          <div class="game-card" data-cat="math" onclick="openProject('sayisokagi')">
             <div class="game-card-icon"><img src="oyunlar/mobile icons/sayi_sokagi.png" alt="Sayı Sokağı"></div>
-            <div class="game-card-info"><h4>Sayı Sokağı</h4><p>Odd &amp; even numbers street adventure</p></div>
+            <div class="game-card-info"><h4>Count Lane <span class="game-orig">(<span class="tr-flag"></span> Sayı Sokağı)</span></h4><p>Odd &amp; even numbers street adventure</p></div>
             <span class="game-tag game-tag-math">Math</span>
           </div>
-          <div class="game-card" onclick="openProject('actionverbs')">
+          <div class="game-card" data-cat="english" onclick="openProject('actionverbs')">
             <div class="game-card-icon"><img src="oyunlar/mobile icons/action_verbs.png" alt="Action Verbs"></div>
             <div class="game-card-info"><h4>Action Verbs</h4><p>English action verbs, fast-paced streaks</p></div>
             <span class="game-tag game-tag-english">English</span>
           </div>
-          <div class="game-card" onclick="openProject('dunyakahramani')">
+          <div class="game-card" data-cat="science" onclick="openProject('dunyakahramani')">
             <div class="game-card-icon"><img src="oyunlar/mobile icons/dunya_kahramani.png" alt="Dünya Kahramanı"></div>
-            <div class="game-card-info"><h4>Dünya Kahramanı</h4><p>Environmental awareness &amp; recycling</p></div>
+            <div class="game-card-info"><h4>Planet Protector <span class="game-orig">(<span class="tr-flag"></span> Dünya Kahramanı)</span></h4><p>Environmental awareness &amp; recycling</p></div>
             <span class="game-tag game-tag-science">Science</span>
           </div>
-          <div class="game-card" onclick="openProject('seslialfabem')">
+          <div class="game-card" data-cat="turkish" onclick="openProject('seslialfabem')">
             <div class="game-card-icon"><img src="oyunlar/mobile icons/sesli_alfabem.png" alt="Sesli Alfabem"></div>
-            <div class="game-card-info"><h4>Sesli Alfabem</h4><p>Phonics &amp; letter recognition game</p></div>
+            <div class="game-card-info"><h4>Talking ABCs <span class="game-orig">(<span class="tr-flag"></span> Sesli Alfabem)</span></h4><p>Phonics &amp; letter recognition game</p></div>
             <span class="game-tag game-tag-turkish">Turkish</span>
           </div>
         </div>
@@ -839,7 +859,6 @@
     </div>
     <div class="proj-details-box" id="pp-details" style="display:none"></div>
     <div class="proj-embed-outer">
-      <div class="proj-mobile-warning"><span class="flag">📱</span><span>This is an interactive demo and doesn't display well on small screens. For the best experience, please view this project on a desktop or laptop.</span></div>
       <div class="proj-embed-notice" id="pp-embed-notice" style="display:none"></div>
       <div class="proj-embed-wrap">
         <iframe id="pp-iframe" src="" allowfullscreen></iframe>
@@ -1279,6 +1298,13 @@ const projects = {
     icon: 'oyunlar/mobile icons/sesli_alfabem.png'
   }
 };
+function filterGames(cat,btn){
+  document.querySelectorAll('.game-filter').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('#games-grid .game-card').forEach(c=>{
+    c.style.display=(cat==='all'||c.dataset.cat===cat)?'':'none';
+  });
+}
 function openProject(id){
   if(!projects[id]) return;
   history.pushState({page:'project',id},'','#/project/'+id);
