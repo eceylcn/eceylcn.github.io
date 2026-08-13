@@ -64,8 +64,6 @@
   .nav-links a:hover{background:var(--cream);color:var(--ink)}
   .nav-links a.cta{background:var(--accent);color:#fff;border:1.5px solid var(--ink)}
   .nav-links a.cta:hover{background:#A83F30}
-  .nav-cv{display:inline-flex!important;align-items:center;gap:6px}
-  .cv-dl-icon{width:13px;height:13px;flex-shrink:0}
   .nav-short{display:none}
   @media(max-width:480px){
     nav{padding:0 12px}
@@ -76,8 +74,6 @@
     .nav-links a{font-size:13px;padding:8px 10px}
     .nav-full{display:none}
     .nav-short{display:inline}
-    .cv-dl-icon{display:none}
-    .nav-cv{gap:0}
   }
 
   .btn{font-weight:700;font-size:15px;border:1.5px solid var(--ink);cursor:pointer;padding:13px 26px;border-radius:999px;
@@ -515,7 +511,6 @@
     <div class="nav-links">
       <a onclick="goHome()"><span class="nav-full">My work</span><span class="nav-short">Work</span></a>
       <a onclick="openAbout()"><span class="nav-full">About me</span><span class="nav-short">About</span></a>
-      <a href="assets/EceYalcin_CV.pdf" download class="nav-cv"><svg class="cv-dl-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg><span class="nav-full">Download CV</span><span class="nav-short">CV</span></a>
       <a class="cta" href="mailto:ece.yalcin2001@gmail.com">Contact</a>
     </div>
   </div>
