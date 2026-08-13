@@ -1,2 +1,8 @@
 .DS_Store
 .gstack/
+
+# Source documents - never publish full lesson plans to the public repo
+*.docx
+*.doc
+lessons/**/full/
+lessons/**/*.pdf
