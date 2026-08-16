@@ -19,14 +19,14 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;0,9..144,800;0,9..144,900;1,9..144,400;1,9..144,500;1,9..144,600;1,9..144,700&family=Lora:ital,wght@1,400;1,600&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#F5EDE0;
-    --cream:#F5EDE0;
+    --bg:#F3EEFC;
+    --cream:#EDE5FA;
     --bg2:#ffffff;
     --ink:#3A2A21;
     --ink2:#6B5647;
     --muted:#9C8879;
-    --line:#E7D9C3;
-    --line2:#DAC6A6;
+    --line:#E3DAF3;
+    --line2:#D2C4EA;
     --accent:#C1503F;
     --accent-ink:#fff;
     --pink:#F0AAB6;
@@ -234,7 +234,7 @@
   .lr-page:last-child{border-bottom:none}
   .lr-page img{width:100%;display:block;pointer-events:none;-webkit-user-drag:none;user-drag:none}
   .lr-page-num{position:absolute;top:10px;right:12px;z-index:4;font-size:10.5px;font-weight:800;letter-spacing:.06em;
-    color:var(--muted);background:rgba(245,237,224,.9);border:1px solid var(--line2);border-radius:999px;padding:3px 9px}
+    color:var(--muted);background:rgba(243,238,252,.9);border:1px solid var(--line2);border-radius:999px;padding:3px 9px}
   .lr-shield{position:absolute;inset:0;z-index:5;
     background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='210'%3E%3Ctext x='4' y='130' transform='rotate(-24 160 105)' font-family='Inter,Helvetica,sans-serif' font-size='16' font-weight='700' fill='%233A2A21' fill-opacity='0.06'%3EEce Yal%C3%A7%C4%B1n %C2%B7 preview%3C/text%3E%3C/svg%3E")}
   .lr-note{margin-top:16px;text-align:center;font-size:12.5px;font-weight:600;line-height:1.7;color:var(--muted)}
@@ -581,6 +581,16 @@
           <h3>Lesson Plans &amp; Curriculum Designs</h3>
         </div>
         <div class="lp-grid">
+          <div class="lp-card" onclick="openLesson('mlfundamentals')">
+            <div class="lp-card-thumb">
+              <span class="lp-card-tag">Lesson Plan</span>
+              <img src="lessons/ml-fundamentals/cover.jpg" alt="Machine Learning Fundamentals lesson plan preview">
+            </div>
+            <div class="lp-card-body">
+              <h4>Machine Learning Fundamentals</h4>
+              <p>Empowering learners across ages 7 to 14 to become active AI creators, this curriculum introduces the core mechanics of machine learning. Students progress from an unplugged pattern-recognition game to training a live image classifier, ultimately testing their own model's limitations to deeply grasp how training data shapes digital reality.</p>
+            </div>
+          </div>
           <div class="lp-card" onclick="openLesson('naivebayes')">
             <div class="lp-card-thumb">
               <span class="lp-card-tag">Lesson Plan</span>
@@ -599,16 +609,6 @@
             <div class="lp-card-body">
               <h4>Markov Chains: How AI Predicts the Next Word</h4>
               <p>Designed for 10th grade IB Computer Science students. Builds up from hand-tallied n-grams to a working Markov model, then connects it to how ChatGPT generates text.</p>
-            </div>
-          </div>
-          <div class="lp-card" onclick="openLesson('mlfundamentals')">
-            <div class="lp-card-thumb">
-              <span class="lp-card-tag">Lesson Plan</span>
-              <img src="lessons/ml-fundamentals/cover.jpg" alt="Machine Learning Fundamentals lesson plan preview">
-            </div>
-            <div class="lp-card-body">
-              <h4>Machine Learning Fundamentals</h4>
-              <p>Empowering learners across ages 7 to 14 to become active AI creators, this curriculum introduces the core mechanics of machine learning. Students progress from an unplugged pattern-recognition game to training a live image classifier, ultimately testing their own model's limitations to deeply grasp how training data shapes digital reality.</p>
             </div>
           </div>
         </div>
