@@ -196,6 +196,216 @@
   .id-card-body h4{font-size:14px;font-weight:800;letter-spacing:-.01em;color:var(--ink)}
   .id-card-body p{font-size:12.5px;color:var(--ink2);font-weight:500;line-height:1.6}
   .id-card-year{font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--muted);margin-top:auto;padding-top:8px;display:block}
+
+  /* ===== Products & Tools — animated interactive-podcast thumb ===== */
+  .pc-svg{width:100%;height:100%;display:block}
+  .pc-svg text{font-family:"Inter",-apple-system,BlinkMacSystemFont,sans-serif}
+  .pc-scene,.pc-mic,.pc-ring,.pc-clip,.pc-head,.pc-gate,.pc-icon-play,.pc-icon-pause,
+  .pc-scrim,.pc-card,.pc-cursor,.pc-press,.pc-ok,.pc-check{transform-box:fill-box;transform-origin:center}
+  .pc-clip{transform-origin:left center}
+  .pc-scene{animation:pcScene 12s linear infinite}
+  .pc-mic{animation:pcMic 12s ease-out infinite}
+  .pc-gate,.pc-icon-pause{animation:pcGate 12s linear infinite}
+  .pc-ring{animation:pcRing 1.7s ease-out infinite}
+  .pc-ring2{animation-delay:.85s}
+  .pc-icon-play{animation:pcPlayIcon 12s linear infinite}
+  .pc-clip{animation:pcProg 12s linear infinite}
+  .pc-head{animation:pcHead 12s linear infinite}
+  .pc-scrim{animation:pcScrim 12s ease infinite}
+  .pc-card{animation:pcCard 12s ease infinite}
+  .pc-cursor{animation:pcCursor 12s ease-in-out infinite}
+  .pc-press{animation:pcPress 12s linear infinite}
+  .pc-ok{animation:pcOk 12s linear infinite}
+  .pc-check{animation:pcCheck 12s ease-out infinite}
+  @keyframes pcScene{0%{opacity:0}3%{opacity:1}94%{opacity:1}99%,100%{opacity:0}}
+  @keyframes pcMic{0%{transform:scale(.4)}5%{transform:scale(1.14)}8%{transform:scale(1)}100%{transform:scale(1)}}
+  @keyframes pcRing{0%{transform:scale(.72);opacity:.8}100%{transform:scale(1.85);opacity:0}}
+  @keyframes pcGate{0%,8%{opacity:0}11%,34%{opacity:1}37%,80%{opacity:0}83%,93%{opacity:1}96%,100%{opacity:0}}
+  @keyframes pcPlayIcon{0%,6%{opacity:1}9%,37%{opacity:0}40%,79%{opacity:1}82%,100%{opacity:0}}
+  @keyframes pcProg{0%,8%{transform:scaleX(0)}35%{transform:scaleX(.46)}80%{transform:scaleX(.46)}95%,100%{transform:scaleX(1)}}
+  @keyframes pcHead{0%,7%{opacity:0;transform:translateX(0)}9%{opacity:1}35%{transform:translateX(116px)}
+    80%{transform:translateX(116px)}95%{opacity:1;transform:translateX(252px)}100%{opacity:0;transform:translateX(252px)}}
+  @keyframes pcScrim{0%,37%{opacity:0}44%,74%{opacity:.75}80%,100%{opacity:0}}
+  @keyframes pcCard{0%,37%{opacity:0;transform:translateY(26px) scale(.94)}
+    41%{opacity:1;transform:translateY(-3px) scale(1.02)}
+    44%{transform:translateY(0) scale(1)}
+    74%{opacity:1;transform:translateY(0) scale(1)}
+    80%,100%{opacity:0;transform:translateY(18px) scale(.96)}}
+  @keyframes pcCursor{0%,44%{opacity:0;transform:translate(58px,44px)}
+    47%{opacity:1;transform:translate(58px,44px)}
+    56%{opacity:1;transform:translate(0,0)}
+    58%{transform:translate(0,3px)}
+    61%{opacity:1;transform:translate(0,0)}
+    66%,100%{opacity:0;transform:translate(12px,16px)}}
+  @keyframes pcPress{0%,56%{opacity:0}58%,61%{opacity:1}65%,100%{opacity:0}}
+  @keyframes pcOk{0%,62%{opacity:0}66%,75%{opacity:1}80%,100%{opacity:0}}
+  @keyframes pcCheck{0%,63%{opacity:0;transform:scale(.3)}67%{opacity:1;transform:scale(1.2)}
+    70%{transform:scale(1)}75%{opacity:1;transform:scale(1)}80%,100%{opacity:0;transform:scale(1)}}
+  @media(prefers-reduced-motion:reduce){.pc-svg *{animation:none!important}}
+  .pt-thumb{background:#fff}
+
+  /* ===== Case study page ===== */
+  .case-wrap{max-width:1080px;margin:0 auto;padding:0 24px 90px}
+  .case-head{padding:6px 0 4px}
+  .case-title{font-family:var(--serif);font-size:clamp(32px,5vw,52px);font-weight:800;
+    letter-spacing:-.025em;line-height:1.04;margin:14px 0 12px}
+  .case-sub{font-size:17px;color:var(--ink2);font-weight:500;max-width:620px;line-height:1.6}
+  .case-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:26px}
+  @media(max-width:760px){.case-meta{grid-template-columns:1fr}}
+  .case-meta-box{background:#fff;border:1.5px solid var(--ink);border-radius:14px;padding:12px 14px;
+    box-shadow:0 3px 0 rgba(58,32,18,.1)}
+  .case-meta-label{display:block;font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--accent);margin-bottom:5px}
+  .case-meta-value{display:block;font-size:12.5px;font-weight:600;color:var(--ink2);line-height:1.5}
+  .case-sec{border-top:1.5px dashed var(--line2);padding-top:34px;margin-top:38px}
+  .case-sec-title{font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--accent);margin-bottom:20px}
+  .case-prose{max-width:730px}
+  .case-prose h3{font-size:17px;font-weight:800;letter-spacing:-.015em;margin:28px 0 10px}
+  .case-prose h3:first-child{margin-top:0}
+  .case-prose p{font-size:14.5px;line-height:1.78;color:var(--ink2);font-weight:450;margin-bottom:13px}
+  .case-pull{margin-top:28px;max-width:730px;background:var(--cream);border:1.5px solid var(--ink);
+    border-left-width:6px;border-radius:14px;padding:16px 18px}
+  .case-pull h4{font-size:13px;font-weight:800;margin-bottom:6px;letter-spacing:-.01em}
+  .case-pull p{font-size:13.5px;line-height:1.68;color:var(--ink2);font-weight:500}
+
+  /* ===== Flow simulator ===== */
+  .sim-frame{width:min(100%,calc(min(640px,72vh) * 1.6));aspect-ratio:16/10;margin:0 auto;
+    background:#fff;border:2px solid var(--ink);border-radius:20px;box-shadow:4px 4px 0 var(--ink);
+    display:flex;flex-direction:column;overflow:hidden}
+  .sim-head{flex-shrink:0;padding:11px 16px 0}
+  .sim-head-row{display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .sim-pov{display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:800;letter-spacing:-.01em}
+  .sim-pov-tag{font-size:9.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;
+    padding:3px 8px;border-radius:6px;border:1.5px solid var(--ink);background:var(--mustard)}
+  .sim-count{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.04em;flex-shrink:0}
+  .sim-bar{height:3px;border-radius:2px;background:var(--line);margin-top:9px;overflow:hidden}
+  .sim-bar-fill{height:100%;background:var(--accent);border-radius:2px;transition:width .3s ease}
+  .sim-stage{flex:1;position:relative;margin:12px 14px 0;border-radius:14px;background:#F7F4FD;
+    border:1.5px solid var(--line2);overflow:hidden;min-height:0}
+  .sim-cap{flex-shrink:0;padding:9px 20px 0;font-size:12px;font-weight:600;color:var(--ink2);
+    line-height:1.45;text-align:center;min-height:32px}
+  .sim-foot{flex-shrink:0;display:flex;align-items:center;justify-content:space-between;
+    padding:7px 14px 12px;gap:12px}
+  .sim-btn{font:inherit;font-size:12px;font-weight:800;padding:7px 15px;border-radius:999px;
+    border:1.5px solid var(--ink);background:#fff;color:var(--ink);cursor:pointer;
+    box-shadow:0 2px 0 rgba(58,32,18,.16);transition:transform .12s}
+  .sim-btn:hover:not(:disabled){transform:translateY(-1px)}
+  .sim-btn:disabled{opacity:.3;cursor:default;box-shadow:none}
+  .sim-btn-next{background:var(--accent);color:#fff}
+  .sim-btn:focus-visible{outline:2.5px solid var(--boun);outline-offset:2px}
+  .sim-dots{display:flex;align-items:center;gap:5px;flex-wrap:wrap;justify-content:center}
+  .sim-dots-gap{width:12px;flex-shrink:0}
+  .sim-dot{width:6px;height:6px;border-radius:50%;background:var(--line2);flex-shrink:0;transition:.2s}
+  .sim-dot.on{background:var(--ink2)}
+  .sim-dot.cur{background:var(--accent);transform:scale(1.6)}
+  .sim-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+  /* simulated cursor */
+  .sim-cursor{position:absolute;top:0;left:0;width:16px;height:22px;z-index:40;opacity:0;
+    pointer-events:none;margin:-1px 0 0 -1px;
+    transition:transform .42s cubic-bezier(.22,.61,.36,1),opacity .2s}
+  .sim-ring{position:absolute;top:0;left:0;width:24px;height:24px;margin:-12px 0 0 -12px;border-radius:50%;
+    border:2px solid var(--accent);z-index:39;opacity:0;pointer-events:none}
+  .sim-ring.go{animation:simRing .5s ease-out}
+  @keyframes simRing{0%{opacity:.85;transform:var(--rt) scale(.25)}100%{opacity:0;transform:var(--rt) scale(1.5)}}
+
+  /* simulated app chrome */
+  .sim-screen{position:absolute;inset:0}
+  .sim-app{position:absolute;inset:0;display:flex;flex-direction:column;background:#fff}
+  .sim-app-bar{flex-shrink:0;display:flex;align-items:center;gap:5px;padding:8px 12px;
+    border-bottom:1.5px solid var(--line2);background:#FCFAFF}
+  .sim-tl{width:7px;height:7px;border-radius:50%;background:var(--line2)}
+  .sim-app-title{margin-left:8px;font-size:11.5px;font-weight:800;letter-spacing:-.01em}
+  .sim-gen{flex:1;display:grid;grid-template-columns:1.12fr .88fr;min-height:0}
+  .sim-gen-form{padding:13px 15px;display:flex;flex-direction:column;gap:8px}
+  .sim-gen-side{border-left:1.5px solid var(--line2);background:#FAF8FE;padding:13px;
+    display:flex;flex-direction:column;min-width:0}
+  /* Narrow screens: 16:10 would squash the stage to ~200px, so the frame keeps a
+     fixed height instead of a fixed ratio. Height is still constant across steps. */
+  @media(max-width:760px){
+    .sim-frame{width:100%;aspect-ratio:auto;height:min(560px,74vh)}
+    .sim-gen{grid-template-columns:1fr}
+    .sim-gen-side{display:none}
+    .sim-gen-form{gap:6px;padding:10px 11px;overflow-y:auto}
+    .sim-field{padding:6px 9px}
+    .sim-field-label{width:64px;font-size:9px}
+    .sim-field-value{font-size:11.5px}
+    .sim-drop{left:76px}
+    .sim-unit{display:none}
+    .sim-sub{margin-left:10px;gap:5px}
+    .sim-go{padding:8px 12px;font-size:12px}
+    .sim-cap{font-size:11.5px;padding:8px 12px 0}
+    .sim-btn{padding:7px 12px}
+  }
+  .sim-field{position:relative;display:flex;align-items:center;gap:10px;padding:8px 11px;
+    border:1.5px solid var(--line2);border-radius:10px;background:#fff}
+  .sim-field.hot{border-color:var(--ink);box-shadow:0 0 0 3px rgba(193,80,63,.12)}
+  .sim-field-label{font-size:9.5px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;
+    color:var(--muted);width:84px;flex-shrink:0}
+  .sim-field-value{font-size:12.5px;font-weight:700;color:var(--ink);flex:1;min-width:0;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .sim-field-value.empty{color:#BCB2CE;font-weight:600}
+  .sim-chev{width:8px;height:8px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);
+    transform:rotate(45deg) translate(-2px,-2px);flex-shrink:0}
+  .sim-unit{font-size:9.5px;font-weight:800;letter-spacing:.04em;color:var(--ink);background:var(--cream);
+    border:1.2px solid var(--line2);border-radius:6px;padding:3px 7px;flex-shrink:0}
+  .sim-drop{position:absolute;left:94px;right:8px;top:calc(100% + 5px);z-index:30;background:#fff;
+    border:1.5px solid var(--ink);border-radius:10px;box-shadow:0 5px 0 rgba(58,32,18,.14);padding:5px}
+  .sim-drop-item{font-size:11.5px;font-weight:600;padding:6px 9px;border-radius:7px;color:var(--ink2);
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .sim-drop-item.sel{background:var(--cream);color:var(--ink);font-weight:800}
+  .sim-chips{display:flex;gap:5px;flex:1}
+  .sim-chip{font-size:11px;font-weight:800;padding:4px 9px;border-radius:7px;
+    border:1.5px solid var(--line2);color:var(--muted);background:#fff}
+  .sim-chip.on{background:var(--mustard);border-color:var(--ink);color:var(--ink)}
+  .sim-tog{width:33px;height:18px;border-radius:999px;background:var(--line2);position:relative;
+    flex-shrink:0;transition:background .2s}
+  .sim-tog::after{content:"";position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;
+    background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.22);transition:transform .2s}
+  .sim-tog.on{background:#2F7A4F}
+  .sim-tog.on::after{transform:translateX(15px)}
+  .sim-sub{margin:1px 0 1px 16px;padding-left:12px;border-left:2px solid var(--line2);
+    display:flex;flex-direction:column;gap:7px}
+  .sim-subrow{display:flex;align-items:center;justify-content:space-between;gap:10px;
+    font-size:11.5px;font-weight:700;color:var(--ink2)}
+  .sim-stepper{display:inline-flex;align-items:center;gap:9px;border:1.5px solid var(--line2);
+    border-radius:8px;padding:2px 9px;font-size:12px;font-weight:800;color:var(--ink);background:#fff}
+  .sim-stepper span{color:var(--muted);font-weight:700}
+  .sim-avatar{width:19px;height:19px;border-radius:50%;background:var(--pink);border:1.5px solid var(--ink);
+    font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .sim-go{margin-top:auto;font-size:12.5px;font-weight:800;padding:9px 14px;border-radius:10px;
+    border:1.5px solid var(--ink);background:var(--accent);color:#fff;text-align:center;
+    box-shadow:0 3px 0 rgba(58,32,18,.18)}
+  .sim-go.off{background:var(--line);color:#A99CBC;border-color:var(--line2);box-shadow:none}
+  .sim-prev-label{font-size:9.5px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;
+    color:var(--muted);margin-bottom:9px;flex-shrink:0}
+  .sim-prev{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    border:1.5px dashed var(--line2);border-radius:12px;background:#fff;padding:14px;text-align:center;gap:8px}
+  .sim-prev.done{border-style:solid;border-color:var(--ink);box-shadow:0 3px 0 rgba(58,32,18,.12);
+    align-items:flex-start;justify-content:center;text-align:left}
+  .sim-prev-empty{font-size:11.5px;font-weight:600;color:#BCB2CE}
+  .sim-prev h5{font-size:13px;font-weight:800;letter-spacing:-.01em;color:var(--ink)}
+  .sim-prev p{font-size:11px;font-weight:600;color:var(--ink2);line-height:1.5}
+  .sim-prev-meta{font-size:10.5px;font-weight:800;color:var(--accent);letter-spacing:.02em}
+  .sim-shim{width:100%;height:9px;border-radius:5px;background:linear-gradient(90deg,var(--line) 25%,#fff 50%,var(--line) 75%);
+    background-size:220% 100%;animation:simShim 1.1s linear infinite}
+  .sim-shim.s2{width:70%}.sim-shim.s3{width:45%}
+  @keyframes simShim{0%{background-position:120% 0}100%{background-position:-120% 0}}
+  .sim-toast{position:absolute;right:12px;bottom:12px;z-index:35;background:var(--ink);color:#fff;
+    font-size:11.5px;font-weight:700;padding:8px 13px;border-radius:10px;
+    box-shadow:0 4px 0 rgba(58,32,18,.22);animation:simToast .3s ease-out}
+  @keyframes simToast{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .sim-inter{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;
+    justify-content:center;text-align:center;gap:12px;background:#fff;padding:24px}
+  .sim-inter h3{font-family:var(--serif);font-size:clamp(22px,3.6vw,36px);font-weight:800;letter-spacing:-.025em}
+  .sim-inter p{font-size:14px;font-weight:600;color:var(--ink2)}
+  @media(prefers-reduced-motion:reduce){
+    .sim-cursor{transition:none}.sim-ring{display:none}
+    .sim-shim{animation:none}.sim-toast{animation:none}
+    .sim-bar-fill,.sim-tog,.sim-tog::after{transition:none}
+  }
+
   /* ===== Lesson plan cards ===== */
   .lp-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
   @media(max-width:900px){.lp-grid{grid-template-columns:repeat(2,1fr)}}
@@ -208,9 +418,6 @@
   .lp-card-thumb img{width:100%;height:100%;object-fit:cover;object-position:center top;display:block}
   .lp-card-thumb::after{content:"";position:absolute;left:0;right:0;bottom:0;height:70px;
     background:linear-gradient(to bottom,rgba(255,255,255,0),#fff)}
-  .lp-card-tag{position:absolute;top:10px;left:10px;z-index:2;font-size:10.5px;font-weight:800;letter-spacing:.07em;
-    text-transform:uppercase;color:var(--ink);background:var(--mustard);border:1.5px solid var(--ink);
-    padding:5px 10px;border-radius:7px;transform:rotate(-2deg)}
   .lp-card-body{padding:16px 18px;flex:1;display:flex;flex-direction:column;gap:7px}
   .lp-card-body h4{font-size:14px;font-weight:800;letter-spacing:-.01em;color:var(--ink)}
   .lp-card-body p{font-size:12.5px;color:var(--ink2);font-weight:500;line-height:1.6}
@@ -531,10 +738,161 @@
   <section id="work" class="work-section">
     <div class="wrap">
 
-      <!-- 1. Instructional Design & E-Learning -->
+      <!-- 1. Products & Tools -->
       <div class="work-block">
         <div class="work-block-head">
           <span class="work-block-num">01</span>
+          <h3>Products &amp; Tools</h3>
+        </div>
+        <p class="work-block-desc">Tools I built for teachers, where the product decisions are actually pedagogical decisions. I shaped the pipeline, prompt architecture, and the interaction design around what actually helps someone plan, teach and assess.</p>
+        <div class="id-grid">
+          <div class="id-card" onclick="openCase('podcast')" style="cursor:pointer">
+            <div class="id-card-thumb pt-thumb">
+              <svg class="pc-svg" viewBox="0 0 320 172" preserveAspectRatio="xMidYMid meet" role="img"
+                   aria-label="An AI audio lesson plays, pauses to ask the learner a comprehension question, shows that the answer is correct, then resumes.">
+                <defs>
+                  <g id="pcBars">
+                    <rect x="34" y="99" width="4" height="10" rx="2"/><rect x="41.4" y="95" width="4" height="18" rx="2"/>
+                    <rect x="48.8" y="91" width="4" height="26" rx="2"/><rect x="56.2" y="97" width="4" height="14" rx="2"/>
+                    <rect x="63.6" y="88" width="4" height="32" rx="2"/><rect x="71" y="93" width="4" height="22" rx="2"/>
+                    <rect x="78.4" y="98" width="4" height="12" rx="2"/><rect x="85.8" y="90" width="4" height="28" rx="2"/>
+                    <rect x="93.2" y="86" width="4" height="36" rx="2"/><rect x="100.6" y="94" width="4" height="20" rx="2"/>
+                    <rect x="108" y="97" width="4" height="14" rx="2"/><rect x="115.4" y="92" width="4" height="24" rx="2"/>
+                    <rect x="122.8" y="89" width="4" height="30" rx="2"/><rect x="130.2" y="96" width="4" height="16" rx="2"/>
+                    <rect x="137.6" y="99" width="4" height="10" rx="2"/><rect x="145" y="93" width="4" height="22" rx="2"/>
+                    <rect x="152.4" y="87" width="4" height="34" rx="2"/><rect x="159.8" y="91" width="4" height="26" rx="2"/>
+                    <rect x="167.2" y="95" width="4" height="18" rx="2"/><rect x="174.6" y="98" width="4" height="12" rx="2"/>
+                    <rect x="182" y="90" width="4" height="28" rx="2"/><rect x="189.4" y="94" width="4" height="20" rx="2"/>
+                    <rect x="196.8" y="88" width="4" height="32" rx="2"/><rect x="204.2" y="97" width="4" height="14" rx="2"/>
+                    <rect x="211.6" y="92" width="4" height="24" rx="2"/><rect x="219" y="99" width="4" height="10" rx="2"/>
+                    <rect x="226.4" y="95" width="4" height="18" rx="2"/><rect x="233.8" y="89" width="4" height="30" rx="2"/>
+                    <rect x="241.2" y="93" width="4" height="22" rx="2"/><rect x="248.6" y="96" width="4" height="16" rx="2"/>
+                    <rect x="256" y="91" width="4" height="26" rx="2"/><rect x="263.4" y="98" width="4" height="12" rx="2"/>
+                    <rect x="270.8" y="94" width="4" height="20" rx="2"/><rect x="278.2" y="90" width="4" height="28" rx="2"/>
+                  </g>
+                  <clipPath id="pcClip"><rect class="pc-clip" x="32" y="78" width="252" height="52"/></clipPath>
+                </defs>
+
+                <rect width="320" height="172" fill="#fff"/>
+
+                <g class="pc-scene">
+                  <!-- player panel -->
+                  <rect x="20" y="30" width="280" height="120" rx="18" fill="#3A2A21" opacity=".14"/>
+                  <rect x="20" y="26" width="280" height="120" rx="18" fill="#fff" stroke="#3A2A21" stroke-width="1.6"/>
+
+                  <!-- mic + listening pulses -->
+                  <g class="pc-gate">
+                    <circle class="pc-ring pc-ring1" cx="52" cy="58" r="18" fill="none" stroke="#C1503F" stroke-width="1.6" opacity="0"/>
+                    <circle class="pc-ring pc-ring2" cx="52" cy="58" r="18" fill="none" stroke="#C1503F" stroke-width="1.6" opacity="0"/>
+                  </g>
+                  <g class="pc-mic">
+                    <circle cx="52" cy="58" r="18" fill="#E8C468" stroke="#3A2A21" stroke-width="1.6"/>
+                    <rect x="48.5" y="46" width="7" height="13" rx="3.5" fill="#3A2A21"/>
+                    <path d="M44 56a8 8 0 0 0 16 0" fill="none" stroke="#3A2A21" stroke-width="1.8" stroke-linecap="round"/>
+                    <path d="M52 64v5M47 69h10" stroke="#3A2A21" stroke-width="1.8" stroke-linecap="round"/>
+                  </g>
+
+                  <text x="80" y="54" font-size="10.5" font-weight="800" fill="#3A2A21">Ep. 04 · Photosynthesis</text>
+                  <text x="80" y="68" font-size="8.5" font-weight="600" fill="#9C8879">Interactive audio lesson · Grade 6</text>
+
+                  <!-- transport button -->
+                  <circle cx="272" cy="58" r="13" fill="#C1503F" stroke="#3A2A21" stroke-width="1.6"/>
+                  <g class="pc-icon-pause" opacity="0">
+                    <rect x="268" y="53" width="3" height="10" rx="1.5" fill="#fff"/>
+                    <rect x="273.5" y="53" width="3" height="10" rx="1.5" fill="#fff"/>
+                  </g>
+                  <path class="pc-icon-play" d="M269 53l8 5-8 5z" fill="#fff"/>
+
+                  <!-- waveform + progress -->
+                  <g fill="#DCD2F0"><use href="#pcBars"/></g>
+                  <g fill="#C1503F" clip-path="url(#pcClip)"><use href="#pcBars"/></g>
+                  <g class="pc-head" opacity="0">
+                    <rect x="32.5" y="80" width="2.5" height="48" rx="1.25" fill="#3A2A21"/>
+                    <circle cx="33.7" cy="78" r="3.6" fill="#3A2A21"/>
+                  </g>
+                  <text x="34" y="140" font-size="8" font-weight="700" fill="#9C8879">04:12</text>
+                  <text x="286" y="140" font-size="8" font-weight="700" fill="#9C8879" text-anchor="end">09:05</text>
+
+                  <!-- question overlay -->
+                  <rect class="pc-scrim" width="320" height="172" fill="#fff" opacity="0"/>
+                  <g class="pc-card" opacity="0">
+                    <rect x="34" y="46" width="252" height="98" rx="16" fill="#3A2A21" opacity=".14"/>
+                    <rect x="34" y="42" width="252" height="98" rx="16" fill="#fff" stroke="#3A2A21" stroke-width="1.6"/>
+                    <rect x="46" y="54" width="66" height="16" rx="6" fill="#E8C468" stroke="#3A2A21" stroke-width="1.2"/>
+                    <text x="79" y="65.5" font-size="8" font-weight="800" letter-spacing=".08em" fill="#3A2A21" text-anchor="middle">CHECK-IN</text>
+                    <text x="46" y="88" font-size="11" font-weight="800" fill="#3A2A21">Which part captures the light?</text>
+                    <g>
+                      <rect x="46" y="100" width="110" height="26" rx="9" fill="#F7F3FE" stroke="#3A2A21" stroke-width="1.4"/>
+                      <rect class="pc-press" x="46" y="100" width="110" height="26" rx="9" fill="#E8C468" opacity="0"/>
+                      <rect class="pc-ok" x="46" y="100" width="110" height="26" rx="9" fill="#DFF1E7" stroke="#2E7D5B" stroke-width="1.8" opacity="0"/>
+                      <text x="101" y="117" font-size="10" font-weight="700" fill="#3A2A21" text-anchor="middle">Chloroplast</text>
+                    </g>
+                    <g>
+                      <rect x="164" y="100" width="110" height="26" rx="9" fill="#F7F3FE" stroke="#3A2A21" stroke-width="1.4"/>
+                      <text x="219" y="117" font-size="10" font-weight="700" fill="#3A2A21" text-anchor="middle">Ribosome</text>
+                    </g>
+                    <g class="pc-check" opacity="0">
+                      <circle cx="152" cy="100" r="9.5" fill="#2E7D5B" stroke="#fff" stroke-width="1.6"/>
+                      <path d="M147.5 100l3 3 5.5-5.5" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </g>
+                    <text class="pc-ok" x="46" y="137" font-size="8.5" font-weight="800" fill="#2E7D5B" opacity="0">Correct · resuming the episode</text>
+                    <g class="pc-cursor" opacity="0">
+                      <path d="M104 106L104 122L108.2 118.2L111 124L114 122.6L111.2 116.9L116 116.6Z"
+                            fill="#fff" stroke="#3A2A21" stroke-width="1.5" stroke-linejoin="round"/>
+                    </g>
+                  </g>
+                </g>
+              </svg>
+            </div>
+            <div class="id-card-body">
+              <h4>Interactive Podcast</h4>
+              <p>Students listen, and the episode pauses at the points where understanding usually slips. They answer, get feedback written for the mistake they actually made, then the audio picks back up. A synthesis quiz closes the lesson.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. Lesson Plans & Curriculum Designs -->
+      <div class="work-block">
+        <div class="work-block-head">
+          <span class="work-block-num">02</span>
+          <h3>Lesson Plans &amp; Curriculum Designs</h3>
+        </div>
+        <div class="lp-grid">
+          <div class="lp-card" onclick="openLesson('mlfundamentals')">
+            <div class="lp-card-thumb">
+              <img src="lessons/ml-fundamentals/cover.jpg" alt="Machine Learning Fundamentals lesson plan preview">
+            </div>
+            <div class="lp-card-body">
+              <h4>Machine Learning Fundamentals</h4>
+              <p>Empowering learners across ages 7 to 14 to become active AI creators, this curriculum introduces the core mechanics of machine learning. Students progress from an unplugged pattern-recognition game to training a live image classifier, ultimately testing their own model's limitations to deeply grasp how training data shapes digital reality.</p>
+            </div>
+          </div>
+          <div class="lp-card" onclick="openLesson('naivebayes')">
+            <div class="lp-card-thumb">
+              <img src="lessons/naive-bayes/cover.jpg" alt="Naive Bayes lesson plan preview">
+            </div>
+            <div class="lp-card-body">
+              <h4>AI Decision Making and Naive Bayes Classification</h4>
+              <p>Designed for 9th grade students. Turns learners into the algorithm by calculating word probabilities by hand, demonstrating how AI filters spam and how engineers fix "zero probability" biases.</p>
+            </div>
+          </div>
+          <div class="lp-card" onclick="openLesson('markov')">
+            <div class="lp-card-thumb">
+              <img src="lessons/markov-chains/cover.jpg" alt="Markov Chains lesson plan preview">
+            </div>
+            <div class="lp-card-body">
+              <h4>Markov Chains: How AI Predicts the Next Word</h4>
+              <p>Designed for 10th grade IB Computer Science students. Builds up from hand-tallied n-grams to a working Markov model, then connects it to how ChatGPT generates text.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. Instructional Design & E-Learning -->
+      <div class="work-block">
+        <div class="work-block-head">
+          <span class="work-block-num">03</span>
           <h3>Instructional Design &amp; E-Learning</h3>
         </div>
         <div class="id-grid">
@@ -574,50 +932,10 @@
         </div>
       </div>
 
-      <!-- 2. Lesson Plans & Curriculum Designs -->
+      <!-- 4. Educational Games -->
       <div class="work-block">
         <div class="work-block-head">
-          <span class="work-block-num">02</span>
-          <h3>Lesson Plans &amp; Curriculum Designs</h3>
-        </div>
-        <div class="lp-grid">
-          <div class="lp-card" onclick="openLesson('mlfundamentals')">
-            <div class="lp-card-thumb">
-              <span class="lp-card-tag">Lesson Plan</span>
-              <img src="lessons/ml-fundamentals/cover.jpg" alt="Machine Learning Fundamentals lesson plan preview">
-            </div>
-            <div class="lp-card-body">
-              <h4>Machine Learning Fundamentals</h4>
-              <p>Empowering learners across ages 7 to 14 to become active AI creators, this curriculum introduces the core mechanics of machine learning. Students progress from an unplugged pattern-recognition game to training a live image classifier, ultimately testing their own model's limitations to deeply grasp how training data shapes digital reality.</p>
-            </div>
-          </div>
-          <div class="lp-card" onclick="openLesson('naivebayes')">
-            <div class="lp-card-thumb">
-              <span class="lp-card-tag">Lesson Plan</span>
-              <img src="lessons/naive-bayes/cover.jpg" alt="Naive Bayes lesson plan preview">
-            </div>
-            <div class="lp-card-body">
-              <h4>AI Decision Making and Naive Bayes Classification</h4>
-              <p>Designed for 9th grade students. Turns learners into the algorithm by calculating word probabilities by hand, demonstrating how AI filters spam and how engineers fix "zero probability" biases.</p>
-            </div>
-          </div>
-          <div class="lp-card" onclick="openLesson('markov')">
-            <div class="lp-card-thumb">
-              <span class="lp-card-tag">Lesson Plan</span>
-              <img src="lessons/markov-chains/cover.jpg" alt="Markov Chains lesson plan preview">
-            </div>
-            <div class="lp-card-body">
-              <h4>Markov Chains: How AI Predicts the Next Word</h4>
-              <p>Designed for 10th grade IB Computer Science students. Builds up from hand-tallied n-grams to a working Markov model, then connects it to how ChatGPT generates text.</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 3. Educational Games -->
-      <div class="work-block">
-        <div class="work-block-head">
-          <span class="work-block-num">03</span>
+          <span class="work-block-num">04</span>
           <h3>Educational Games</h3>
         </div>
         <p class="work-block-desc">Twelve single-file HTML5 prototypes, each scoped to one microlearning objective for teachers to run as a quick, focused activity right after a lesson.</p>
@@ -964,22 +1282,81 @@
   </div>
 </div>
 
+<!-- ============ CASE STUDY ============ -->
+<div id="case-page" style="display:none">
+  <div class="proj-back-bar"><div class="wrap">
+    <button class="proj-back-btn" onclick="closeCase()">← Back to Products &amp; Tools</button>
+  </div></div>
+
+  <div class="case-wrap">
+    <div class="case-head">
+      <span class="eyebrow" id="cs-eyebrow"></span>
+      <h1 class="case-title" id="cs-title"></h1>
+      <p class="case-sub" id="cs-sub"></p>
+      <div class="case-meta" id="cs-meta"></div>
+    </div>
+
+    <div class="case-sec">
+      <div class="case-sec-title">Overview</div>
+      <div class="case-prose" id="cs-overview"></div>
+      <div id="cs-pull"></div>
+    </div>
+
+    <div class="case-sec">
+      <div class="case-sec-title">See the flow</div>
+      <div class="sim-frame" id="sim-frame" role="region"
+           aria-label="Interactive walkthrough of the Interactive Podcast flow">
+        <div class="sim-head">
+          <div class="sim-head-row">
+            <div class="sim-pov"><span class="sim-pov-tag" id="sim-phase"></span><span id="sim-pov-text"></span></div>
+            <div class="sim-count" id="sim-count"></div>
+          </div>
+          <div class="sim-bar"><div class="sim-bar-fill" id="sim-bar"></div></div>
+        </div>
+
+        <div class="sim-stage" id="sim-stage">
+          <div class="sim-screen" id="sim-screen"></div>
+          <div class="sim-ring" id="sim-ring" aria-hidden="true"></div>
+          <svg class="sim-cursor" id="sim-cursor" viewBox="0 0 16 22" aria-hidden="true">
+            <path d="M1 1L1 17L5.2 13.2L8 19L11 17.6L8.2 11.9L13 11.6Z"
+                  fill="#fff" stroke="#3A2A21" stroke-width="1.6" stroke-linejoin="round"/>
+          </svg>
+        </div>
+
+        <div class="sim-cap" id="sim-cap"></div>
+
+        <div class="sim-foot">
+          <button class="sim-btn" id="sim-back" onclick="simGo(-1)">← Back</button>
+          <div class="sim-dots" id="sim-dots"></div>
+          <button class="sim-btn sim-btn-next" id="sim-next" onclick="simNext()">Next →</button>
+        </div>
+
+        <p class="sim-sr" id="sim-live" aria-live="polite"></p>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
 function scrollToId(id){document.getElementById(id)?.scrollIntoView({behavior:'smooth'})}
 
 // DOM-only helpers (no history side-effects)
 function _showHome(){
+  simClearTimers();
   document.getElementById('home').style.display='block';
   document.getElementById('about-page').style.display='none';
   document.getElementById('proj-page').style.display='none';
   document.getElementById('lesson-page').style.display='none';
+  document.getElementById('case-page').style.display='none';
   window.scrollTo(0,0);
 }
 function _showAbout(){
+  simClearTimers();
   document.getElementById('home').style.display='none';
   document.getElementById('about-page').style.display='block';
   document.getElementById('proj-page').style.display='none';
   document.getElementById('lesson-page').style.display='none';
+  document.getElementById('case-page').style.display='none';
   window.scrollTo(0,0);
   const els=document.querySelectorAll('.ab-photo-c,.ab-logo-l,.ab-logo-r,.ab-chip');
   els.forEach(el=>el.classList.remove('vis'));
@@ -1019,9 +1396,11 @@ function _showProject(id){
       iframe.contentWindow.history.replaceState=function(){};
     }catch(e){}
   };
+  simClearTimers();
   document.getElementById('home').style.display      ='none';
   document.getElementById('about-page').style.display='none';
   document.getElementById('lesson-page').style.display='none';
+  document.getElementById('case-page').style.display ='none';
   document.getElementById('proj-page').style.display ='block';
   window.scrollTo(0,0);
 }
@@ -1251,9 +1630,11 @@ function _showLesson(id){
   document.getElementById('lr-doc-eyebrow').textContent='Lesson Plan · '+l.total+' pages';
   document.getElementById('lr-note').textContent=
     'Preview-only version — not for download or classroom distribution.';
+  simClearTimers();
   document.getElementById('home').style.display      ='none';
   document.getElementById('about-page').style.display='none';
   document.getElementById('proj-page').style.display ='none';
+  document.getElementById('case-page').style.display ='none';
   document.getElementById('lesson-page').style.display='block';
   window.scrollTo(0,0);
 }
@@ -1277,6 +1658,7 @@ window.addEventListener('popstate',function(e){
   }
   if(st&&st.page==='project'&&projects[st.id]){_showProject(st.id);return;}
   if(st&&st.page==='lesson'&&lessons[st.id]){document.getElementById('pp-iframe').src='';_showLesson(st.id);return;}
+  if(st&&st.page==='case'){document.getElementById('pp-iframe').src='';_showCase(st.id);return;}
   if(st&&st.page==='about'){_showAbout();return;}
   document.getElementById('pp-iframe').src='';
   _showHome();
@@ -1653,6 +2035,321 @@ function openLesson(id){
 }
 function closeLesson(){ goHome(); }
 
+/* ================= INTERACTIVE PODCAST — CASE STUDY + FLOW SIMULATOR =================
+   Every visitor-facing string lives in PODCAST_FLOW. The render functions below read
+   from it and never hardcode copy. Each step carries its own fully resolved frames,
+   so Back is a plain index change with nothing to unwind.                            */
+const PODCAST_FLOW = {
+  meta:{
+    eyebrow:'Product · Madlen',
+    title:'Interactive Podcast',
+    sub:'An audio lesson that stops to check whether it is landing.',
+    boxes:[
+      {label:'Role',    value:'Product Manager. Pedagogy, question design, prompt architecture, flow.'},
+      {label:'Users',   value:'Teachers and students in K12 schools.'},
+      {label:'Surface', value:'Web, inside the teacher tool suite.'}
+    ]
+  },
+  overview:[
+    {h:'What it is', p:[
+      'Teachers generate an audio lesson on any topic in their curriculum. Before they assign it, they can turn on comprehension checks: the episode then pauses at four points to ask a question, and closes with a quiz.'
+    ]},
+    {h:'The pedagogical logic', p:[
+      'Audio is a low-friction format for students and a high-risk one for teachers. It plays continuously, it does not wait, and a student can finish an eight-minute episode having processed almost none of it. Listening feels like learning while producing very little retrievable knowledge.',
+      'The design answer is retrieval, spaced across the episode rather than piled at the end. The four inline checkpoints are deliberately small: one idea each, answerable from the segment just heard, close enough to the source that a student can reconstruct the answer instead of guessing. Each one forces a retrieval attempt at the moment the material is still fresh, which is what turns passive listening into something that survives the walk home.',
+      'Feedback is written against the wrong answer, not the right one. Distractors are built from the misconceptions students in this age group actually hold, so when a student picks one, the explanation names the belief behind the choice and gives a counterexample that will not fit it. The student has to rebuild the idea, not just read the correct sentence.',
+      'The end quiz does different work. By then the four ideas exist separately in a student&rsquo;s head, so the questions are scenario-based and ask for transfer: apply the idea to an unfamiliar situation, compare two cases, predict an outcome, correct a plausible misstatement. That is where the separate pieces get assembled into something usable.'
+    ]},
+    {h:'What I owned', p:[
+      'The question taxonomy and where checkpoints fall in an episode, the distractor and feedback design, the generation pipeline and prompt architecture behind both question layers, and the teacher-side assignment flow.'
+    ]}
+  ],
+  pullout:{
+    h:'Checkpoint placement rule',
+    p:'A checkpoint goes at the end of a concept, not at a time interval. If a segment introduced one idea and then used it, the question lands after the use, never in the middle of the explanation.'
+  },
+  phases:{teacher:"Teacher's view", transition:"Student's view", student:"Student's view"},
+  phaseTag:{teacher:'Teacher', transition:'Student', student:'Student'},
+  options:{
+    grade:['Grade 3','Grade 4','Grade 5','Grade 6'],
+    subject:['Science','Math','Social Studies','English'],
+    topic:['Living Things and Life Cycles','States of Matter and Their Distinguishing Properties',
+           'Light and Sound','Simple Electrical Circuits'],
+    assign:['Emma Smith','Liam Novak','Sofia Marín','Grade 4B (24 students)']
+  },
+  labels:{
+    appTitle:'Podcast Generator',
+    fields:{grade:'Grade',subject:'Subject',topic:'Topic',lang:'Language',
+            checks:'Comprehension checks',assign:'Assign to'},
+    placeholder:'Select',
+    langs:['TR','EN','ES','DE','IT'],
+    checkpoints:'Inline checkpoints',
+    endQuiz:'End quiz',
+    endQuizValue:'3 questions',
+    generate:'Generate and assign',
+    previewLabel:'Preview',
+    previewEmpty:'Your episode will appear here',
+    generating:'Writing the episode and placing checkpoints',
+    unitChip:'Unit 4 · national curriculum',
+    initials:'ES',
+    episode:{title:'Ep. 04 · States of Matter',
+             sub:'Interactive audio lesson · Grade 4 · EN',
+             meta:'09:05 · 4 checkpoints · end quiz'},
+    toast:'Assigned to Emma Smith.',
+    interTitle:'Now from Emma&rsquo;s side.',
+    interSub:'Same episode, different screen.'
+  },
+  captions:{
+    s1:'The teacher starts from their curriculum, not from the tool.',
+    s2:'Grade sets reading level, episode length, and question difficulty.',
+    s3:'Subject narrows the topic list to what is actually in the syllabus.',
+    s4:'Topics map to curriculum units, so an episode drops straight into a lesson plan.',
+    s5:'The same episode and the same questions, generated in the language of instruction.',
+    s6:'This is the whole feature: four checkpoints inside the episode, one quiz at the end.',
+    s7:'Assign to one student, or to a whole class.',
+    s8:'Nine minutes of audio with four checkpoints already placed at concept boundaries.',
+    s9:''
+  },
+  steps:[]
+};
+
+/* ---- step definitions (teacher phase) ---------------------------------------- */
+(function(){
+  const F=PODCAST_FLOW, C=F.captions;
+  const blank={grade:'',subject:'',topic:'',unit:false,lang:'',checks:false,assign:'',
+               open:null,preview:'empty',toast:false,ready:false,hot:''};
+  // cumulative resolved states — each one is a complete screen state, not a diff to apply
+  const g =o=>Object.assign({},blank,o);
+  const A ={grade:'Grade 4'};
+  const B =Object.assign({},A,{subject:'Science'});
+  const Cc=Object.assign({},B,{topic:F.options.topic[1],unit:true});
+  const D =Object.assign({},Cc,{lang:'EN'});
+  const E =Object.assign({},D,{checks:true});
+  const G =Object.assign({},E,{assign:'Emma Smith',ready:true});
+
+  F.steps=[
+    {phase:'teacher',screen:'generator',caption:C.s1,frames:[g({})],cursor:[]},
+
+    {phase:'teacher',screen:'generator',caption:C.s2,cursor:['f-grade','o-grade'],
+     frames:[g({}), g({open:'grade'}), g(Object.assign({},A,{hot:'grade'}))]},
+
+    {phase:'teacher',screen:'generator',caption:C.s3,cursor:['f-subject','o-subject'],
+     frames:[g(A), g(Object.assign({},A,{open:'subject'})), g(Object.assign({},B,{hot:'subject'}))]},
+
+    {phase:'teacher',screen:'generator',caption:C.s4,cursor:['f-topic','o-topic'],
+     frames:[g(B), g(Object.assign({},B,{open:'topic'})), g(Object.assign({},Cc,{hot:'topic'}))]},
+
+    {phase:'teacher',screen:'generator',caption:C.s5,cursor:['c-en'],
+     frames:[g(Cc), g(Object.assign({},D,{hot:'lang'}))]},
+
+    {phase:'teacher',screen:'generator',caption:C.s6,cursor:['f-checks'],
+     frames:[g(D), g(Object.assign({},E,{hot:'checks'}))]},
+
+    {phase:'teacher',screen:'generator',caption:C.s7,cursor:['f-assign','o-assign'],
+     frames:[g(E), g(Object.assign({},E,{open:'assign'})), g(Object.assign({},G,{hot:'assign'}))]},
+
+    {phase:'teacher',screen:'generator',caption:C.s8,cursor:['f-go'],holds:[900],
+     frames:[g(G), g(Object.assign({},G,{preview:'generating'})),
+             g(Object.assign({},G,{preview:'done',toast:true}))]},
+
+    {phase:'transition',screen:'interstitial',caption:C.s9,frames:[{}],cursor:[]}
+  ];
+})();
+
+/* ---- screen renderers -------------------------------------------------------- */
+function simDrop(list,targetIndex,tkey){
+  return '<div class="sim-drop">'+list.map(function(o,i){
+    return '<div class="sim-drop-item"'+(i===targetIndex?' data-t="'+tkey+'"':'')+'>'+o+'</div>';
+  }).join('')+'</div>';
+}
+function simField(key,label,value,o){
+  o=o||{};
+  const L=PODCAST_FLOW.labels;
+  let h='<div class="sim-field'+(o.hot?' hot':'')+'" data-t="f-'+key+'">'+
+        '<span class="sim-field-label">'+label+'</span>';
+  if(o.avatar) h+='<span class="sim-avatar">'+L.initials+'</span>';
+  h+='<span class="sim-field-value'+(value?'':' empty')+'">'+(value||L.placeholder)+'</span>';
+  if(o.unit) h+='<span class="sim-unit">'+L.unitChip+'</span>';
+  h+='<span class="sim-chev"></span>'+(o.drop||'')+'</div>';
+  return h;
+}
+function simGenerator(s){
+  const L=PODCAST_FLOW.labels, O=PODCAST_FLOW.options;
+  let h='<div class="sim-app"><div class="sim-app-bar">'+
+        '<span class="sim-tl"></span><span class="sim-tl"></span><span class="sim-tl"></span>'+
+        '<span class="sim-app-title">'+L.appTitle+'</span></div><div class="sim-gen">'+
+        '<div class="sim-gen-form">';
+
+  h+=simField('grade',L.fields.grade,s.grade,
+       {hot:s.hot==='grade', drop:s.open==='grade'?simDrop(O.grade,1,'o-grade'):''});
+  h+=simField('subject',L.fields.subject,s.subject,
+       {hot:s.hot==='subject', drop:s.open==='subject'?simDrop(O.subject,0,'o-subject'):''});
+  h+=simField('topic',L.fields.topic,s.topic,
+       {hot:s.hot==='topic', unit:s.unit, drop:s.open==='topic'?simDrop(O.topic,1,'o-topic'):''});
+
+  h+='<div class="sim-field'+(s.hot==='lang'?' hot':'')+'">'+
+     '<span class="sim-field-label">'+L.fields.lang+'</span><div class="sim-chips">'+
+     L.langs.map(function(c){
+       return '<span class="sim-chip'+(s.lang===c?' on':'')+'"'+(c==='EN'?' data-t="c-en"':'')+'>'+c+'</span>';
+     }).join('')+'</div></div>';
+
+  h+='<div class="sim-field'+(s.hot==='checks'?' hot':'')+'" data-t="f-checks">'+
+     '<span class="sim-field-label">'+L.fields.checks+'</span><div style="flex:1"></div>'+
+     '<span class="sim-tog'+(s.checks?' on':'')+'"></span></div>';
+  if(s.checks){
+    h+='<div class="sim-sub">'+
+       '<div class="sim-subrow"><span>'+L.checkpoints+'</span>'+
+       '<span class="sim-stepper"><span>&minus;</span>4<span>+</span></span></div>'+
+       '<div class="sim-subrow"><span>'+L.endQuiz+
+       ' <span style="color:var(--muted)">· '+L.endQuizValue+'</span></span>'+
+       '<span class="sim-tog on"></span></div></div>';
+  }
+
+  h+=simField('assign',L.fields.assign,s.assign,
+       {hot:s.hot==='assign', avatar:!!s.assign,
+        drop:s.open==='assign'?simDrop(O.assign,0,'o-assign'):''});
+
+  h+='<div class="sim-go'+(s.ready?'':' off')+'" data-t="f-go">'+L.generate+'</div></div>';
+
+  h+='<div class="sim-gen-side"><div class="sim-prev-label">'+L.previewLabel+'</div>';
+  if(s.preview==='done'){
+    h+='<div class="sim-prev done"><h5>'+L.episode.title+'</h5><p>'+L.episode.sub+'</p>'+
+       '<span class="sim-prev-meta">'+L.episode.meta+'</span></div>';
+  }else if(s.preview==='generating'){
+    h+='<div class="sim-prev"><div class="sim-shim"></div><div class="sim-shim s2"></div>'+
+       '<div class="sim-shim s3"></div><span class="sim-prev-empty">'+L.generating+'</span></div>';
+  }else{
+    h+='<div class="sim-prev"><span class="sim-prev-empty">'+L.previewEmpty+'</span></div>';
+  }
+  h+='</div></div>';
+  if(s.toast) h+='<div class="sim-toast">'+L.toast+'</div>';
+  return h+'</div>';
+}
+function simInterstitial(){
+  const L=PODCAST_FLOW.labels;
+  return '<div class="sim-inter"><h3>'+L.interTitle+'</h3><p>'+L.interSub+'</p></div>';
+}
+const SIM_SCREENS={generator:simGenerator, interstitial:simInterstitial};
+
+/* ---- step machine ------------------------------------------------------------ */
+const SIM={i:0,timers:[],pt:null};
+function simClearTimers(){SIM.timers.forEach(clearTimeout);SIM.timers=[];}
+function simAt(ms,fn){SIM.timers.push(setTimeout(fn,ms));}
+function simReduced(){
+  return !!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+}
+function simPaint(step,frame){
+  document.getElementById('sim-screen').innerHTML=SIM_SCREENS[step.screen](frame);
+}
+function simCursorTo(key){
+  const stage=document.getElementById('sim-stage');
+  const cur=document.getElementById('sim-cursor');
+  const el=stage.querySelector('[data-t="'+key+'"]');
+  if(!el){cur.style.opacity='0';return null;}
+  const sr=stage.getBoundingClientRect(), er=el.getBoundingClientRect();
+  const pt={x:er.left-sr.left+Math.min(er.width*0.42,72), y:er.top-sr.top+er.height*0.62};
+  cur.style.opacity='1';
+  cur.style.transform='translate('+pt.x+'px,'+pt.y+'px)';
+  return pt;
+}
+function simRingAt(pt){
+  if(!pt) return;
+  const r=document.getElementById('sim-ring');
+  r.style.setProperty('--rt','translate('+pt.x+'px,'+pt.y+'px)');
+  r.classList.remove('go'); void r.offsetWidth; r.classList.add('go');
+}
+function simDots(){
+  let h='',prev=null;
+  PODCAST_FLOW.steps.forEach(function(s,i){
+    if(prev!==null&&s.phase!==prev) h+='<span class="sim-dots-gap"></span>';
+    h+='<span class="sim-dot'+(i<SIM.i?' on':'')+(i===SIM.i?' cur':'')+'"></span>';
+    prev=s.phase;
+  });
+  document.getElementById('sim-dots').innerHTML=h;
+}
+function simRender(){
+  simClearTimers();
+  const F=PODCAST_FLOW, steps=F.steps, step=steps[SIM.i], total=steps.length;
+  document.getElementById('sim-phase').textContent=F.phaseTag[step.phase];
+  document.getElementById('sim-pov-text').textContent=F.phases[step.phase];
+  document.getElementById('sim-count').textContent='Step '+(SIM.i+1)+' of '+total;
+  document.getElementById('sim-bar').style.width=((SIM.i+1)/total*100)+'%';
+  document.getElementById('sim-cap').textContent=step.caption||'';
+  document.getElementById('sim-back').disabled=SIM.i===0;
+  document.getElementById('sim-next').textContent=SIM.i===total-1?'Replay ↺':'Next →';
+  document.getElementById('sim-live').textContent=
+    F.phases[step.phase]+'. Step '+(SIM.i+1)+' of '+total+'. '+(step.caption||'');
+  simDots();
+
+  const frames=step.frames, hops=step.cursor||[], holds=step.holds||[];
+  const cur=document.getElementById('sim-cursor');
+  if(simReduced()||!hops.length){
+    simPaint(step,frames[frames.length-1]);
+    cur.style.opacity='0';
+    return;
+  }
+  simPaint(step,frames[0]);
+  let t=0;
+  hops.forEach(function(key,idx){
+    const at=t, fi=Math.min(idx+1,frames.length-1);
+    simAt(at,      function(){ SIM.pt=simCursorTo(key); });
+    simAt(at+440,  function(){ simRingAt(SIM.pt); simPaint(step,frames[fi]); });
+    t=at+530;
+  });
+  let f=hops.length, hi=0;
+  while(f<frames.length-1){
+    f++; t+=(holds[hi++]||600);
+    (function(idx,at){ simAt(at,function(){ simPaint(step,frames[idx]); }); })(f,t);
+  }
+  simAt(t+300,function(){ document.getElementById('sim-cursor').style.opacity='0'; });
+}
+function simGo(d){
+  const n=SIM.i+d;
+  if(n<0||n>=PODCAST_FLOW.steps.length) return;
+  SIM.i=n; simRender();
+}
+function simNext(){
+  if(SIM.i===PODCAST_FLOW.steps.length-1){ SIM.i=0; simRender(); return; }
+  simGo(1);
+}
+document.addEventListener('keydown',function(e){
+  if(document.getElementById('case-page').style.display!=='block') return;
+  if(e.key==='ArrowRight'){e.preventDefault();simGo(1);}
+  else if(e.key==='ArrowLeft'){e.preventDefault();simGo(-1);}
+});
+
+/* ---- case study page --------------------------------------------------------- */
+function _showCase(id){
+  if(id!=='podcast') return;
+  const F=PODCAST_FLOW, M=F.meta;
+  document.getElementById('cs-eyebrow').textContent=M.eyebrow;
+  document.getElementById('cs-title').textContent=M.title;
+  document.getElementById('cs-sub').textContent=M.sub;
+  document.getElementById('cs-meta').innerHTML=M.boxes.map(function(b){
+    return '<div class="case-meta-box"><span class="case-meta-label">'+b.label+'</span>'+
+           '<span class="case-meta-value">'+b.value+'</span></div>';
+  }).join('');
+  document.getElementById('cs-overview').innerHTML=F.overview.map(function(s){
+    return '<h3>'+s.h+'</h3>'+s.p.map(function(t){return '<p>'+t+'</p>';}).join('');
+  }).join('');
+  document.getElementById('cs-pull').innerHTML=
+    '<div class="case-pull"><h4>'+F.pullout.h+'</h4><p>'+F.pullout.p+'</p></div>';
+
+  document.getElementById('home').style.display='none';
+  document.getElementById('about-page').style.display='none';
+  document.getElementById('proj-page').style.display='none';
+  document.getElementById('lesson-page').style.display='none';
+  document.getElementById('case-page').style.display='block';
+  SIM.i=0;
+  window.scrollTo(0,0);
+  requestAnimationFrame(simRender);
+}
+function openCase(id){
+  history.pushState({page:'case',id:id},'','#/case/'+id);
+  _showCase(id);
+}
+function closeCase(){ simClearTimers(); goHome(); }
+
 // Resolve the initial URL now that `projects` is defined (handles direct/refreshed
 // links to a project or about page, e.g. "#/project/entropy")
 (function(){
@@ -1662,6 +2359,8 @@ function closeLesson(){ goHome(); }
   if(pm&&projects[pm[1]]){_showProject(pm[1]);return;}
   const lm=h.match(/^#\/lesson\/(.+)$/);
   if(lm&&lessons[lm[1]]){_showLesson(lm[1]);return;}
+  const cm=h.match(/^#\/case\/(.+)$/);
+  if(cm&&cm[1]==='podcast'){_showCase(cm[1]);return;}
   _showHome();
 })();
 
