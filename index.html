@@ -223,6 +223,7 @@
   .lr-lead{font-family:var(--serif);font-size:clamp(17px,2.1vw,21px);font-weight:600;line-height:1.5;
     letter-spacing:-.01em;color:var(--ink);margin-bottom:12px}
   .lr-para{font-size:14.5px;color:var(--ink2);font-weight:500;line-height:1.72}
+  .lr-para + .lr-para{margin-top:14px}
   .lr-std{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
   @media(max-width:640px){.lr-std{grid-template-columns:1fr}}
   .lr-doc-eyebrow{margin-bottom:16px}
@@ -598,6 +599,16 @@
             <div class="lp-card-body">
               <h4>Markov Chains: How AI Predicts the Next Word</h4>
               <p>Designed for 10th grade IB Computer Science students. Builds up from hand-tallied n-grams to a working Markov model, then connects it to how ChatGPT generates text.</p>
+            </div>
+          </div>
+          <div class="lp-card" onclick="openLesson('mlfundamentals')">
+            <div class="lp-card-thumb">
+              <span class="lp-card-tag">Lesson Plan</span>
+              <img src="lessons/ml-fundamentals/cover.jpg" alt="Machine Learning Fundamentals lesson plan preview">
+            </div>
+            <div class="lp-card-body">
+              <h4>Machine Learning Fundamentals</h4>
+              <p>Empowering learners across ages 7 to 14 to become active AI creators, this curriculum introduces the core mechanics of machine learning. Students progress from an unplugged pattern-recognition game to training a live image classifier, ultimately testing their own model's limitations to deeply grasp how training data shapes digital reality.</p>
             </div>
           </div>
         </div>
@@ -1135,6 +1146,90 @@ const lessons = {
     `,
     dir: 'lessons/markov-chains/',
     total: 10
+  },
+  mlfundamentals: {
+    title: 'Machine Learning Fundamentals',
+    bodyHTML: `
+      <div class="lr-block">
+        <span class="eyebrow">Overview</span>
+        <p class="lr-para">This lesson introduces machine learning as something students do before it is something they are told about. It opens away from the screen with a card sorting game, where pairs invent their own rule and justify it. That physical experience becomes the anchor for the vocabulary that follows, so "training data", "label" and "prediction" name something students already own.</p>
+        <p class="lr-para">In the hands on core, pairs collect their own webcam samples for two or three non facial classes, train a live classifier in Teachable Machine, and test it immediately. The full cycle of collecting, training, predicting and failing runs once, end to end, which is what makes the link between the data I gave it and the behaviour I got visible to a child. Students then test a ready made Hugging Face model with similar inputs. Comparing the two is the engine of the lesson: it surfaces what training data does at scale without any talk of architecture, and it leaves students with the single idea the next lesson depends on, that a model can only recognise what it has been shown.</p>
+      </div>
+      <div class="lr-block">
+        <span class="eyebrow">Key Design Features</span>
+        <div class="pe-sections">
+          <div class="pe-section">
+            <div class="pe-num">1</div>
+            <div class="pe-text">
+              <h3>Unplugged before plugged</h3>
+              <p>The sorting game gives students a physical reference for classification before any device opens, and doubles as the contingency plan if the network fails.</p>
+            </div>
+          </div>
+          <div class="pe-section">
+            <div class="pe-num">2</div>
+            <div class="pe-text">
+              <h3>One loop, run fully</h3>
+              <p>Instead of sampling several tools shallowly, students complete the entire data to prediction cycle once. The tight feedback loop is what carries the causal insight.</p>
+            </div>
+          </div>
+          <div class="pe-section">
+            <div class="pe-num">3</div>
+            <div class="pe-text">
+              <h3>Predict, then test</h3>
+              <p>Students commit to a prediction before running an unusual input, so a surprising result revises understanding instead of passing by.</p>
+            </div>
+          </div>
+          <div class="pe-section">
+            <div class="pe-num">4</div>
+            <div class="pe-text">
+              <h3>Failure is the content</h3>
+              <p>Misclassifications are logged and used as the primary material for discussion, reframing error as information about the training set.</p>
+            </div>
+          </div>
+          <div class="pe-section">
+            <div class="pe-num">5</div>
+            <div class="pe-text">
+              <h3>Contrasting cases</h3>
+              <p>A two minute classifier placed beside a professionally trained one reveals what neither example shows alone.</p>
+            </div>
+          </div>
+          <div class="pe-section">
+            <div class="pe-num">6</div>
+            <div class="pe-text">
+              <h3>Deliberate ethical sequencing</h3>
+              <p>Faces are held back for the bias lesson, so students meet ML mechanics on low stakes data first and arrive at facial recognition with tools to analyse it.</p>
+            </div>
+          </div>
+          <div class="pe-section">
+            <div class="pe-num">7</div>
+            <div class="pe-text">
+              <h3>Assessment inside the task</h3>
+              <p>The observation form is filled during the activity itself, and the exit ticket captures transfer rather than recall.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="lr-block">
+        <span class="eyebrow">Standards Alignment</span>
+        <p class="pe-intro">Fully mapped to the core frameworks expected by US curriculum directors:</p>
+        <div class="lr-std">
+          <div class="pe-term-item">
+            <h4>CSTA K-12 CS Standards</h4>
+            <p>Data &amp; Analysis (1B-DA-06, 1B-DA-07, 2-DA-08, 2-DA-09) &amp; Impacts of Computing (2-IC-21).</p>
+          </div>
+          <div class="pe-term-item">
+            <h4>AI4K12</h4>
+            <p>Big Idea 3 (Computers can learn from data).</p>
+          </div>
+          <div class="pe-term-item">
+            <h4>ISTE Standards</h4>
+            <p>Empowered Learner (1.1d), Knowledge Constructor (1.3b), Innovative Designer (1.4a), Creative Communicator (1.6b).</p>
+          </div>
+        </div>
+      </div>
+    `,
+    dir: 'lessons/ml-fundamentals/',
+    total: 3
   }
 };
 function _showLesson(id){
