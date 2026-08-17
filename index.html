@@ -258,10 +258,6 @@
     color:var(--accent);margin:28px 0 10px}
   .case-prose h3:first-child{margin-top:0}
   .case-prose p{font-size:15px;line-height:1.8;color:var(--ink2);font-weight:450;margin-bottom:14px}
-  .case-pull{margin-top:28px;background:var(--cream);border:1.5px solid var(--ink);
-    border-left-width:6px;border-radius:14px;padding:16px 18px}
-  .case-pull h4{font-size:13px;font-weight:800;margin-bottom:6px;letter-spacing:-.01em}
-  .case-pull p{font-size:13.5px;line-height:1.68;color:var(--ink2);font-weight:500}
 
   /* ----- case study: illustrated cards -----
      Every figure below is authored in its finished state and animated away from it, so
@@ -1637,7 +1633,6 @@
 
     <div class="case-sec">
       <div class="case-prose" id="cs-overview"></div>
-      <div id="cs-pull"></div>
     </div>
   </div>
 </div>
@@ -2408,10 +2403,6 @@ const PODCAST_FLOW = {
       'The pass returns one strict `JSON` document holding `inlineQuestions` and `endQuizQuestions`, and every item carries a `type` discriminator, which is the question contract the rest of the platform already speaks, so these are not a special case anywhere downstream. Placement rules, difficulty and the requested counts all go in as parameters, and the rules outrank the counts: when a script is too short to hold the requested checkpoints at a legal spacing, the count is what gives way.',
       'What comes back is validated in code rather than trusted. A response that will not parse is regenerated, `answer` is checked against the keys actually present in `options`, choices that repeat each other are collapsed, and missing defaults are filled in before any of it is stored. Because the two passes are independent, the question layer can be rebuilt without re-recording a second of audio, which is what made it cheap to tune the placement and distractor rules against real scripts instead of guessing them once and shipping.'
     ]
-  },
-  pullout:{
-    h:'Checkpoint placement rule',
-    p:'A checkpoint goes at the end of a concept, not at a time interval. If a segment introduced one idea and then used it, the question lands after the use, never in the middle of the explanation.'
   },
   phases:{teacher:"Teacher's view", transition:"Student's view", student:"Student's view"},
   phaseTag:{teacher:'Teacher', transition:'Student', student:'Student'},
@@ -3218,8 +3209,6 @@ function _showCase(id){
   document.getElementById('cs-overview').innerHTML=F.overview.map(function(s){
     return '<h3>'+s.h+'</h3>'+s.p.map(function(t){return '<p>'+t+'</p>';}).join('');
   }).join('');
-  document.getElementById('cs-pull').innerHTML=
-    '<div class="case-pull"><h4>'+F.pullout.h+'</h4><p>'+F.pullout.p+'</p></div>';
   const O=F.owned, T=F.tech;
   document.getElementById('cs-owned').innerHTML=
     '<h3>'+O.h+'</h3><p>'+O.lead+'</p><div class="case-cards">'+
