@@ -249,7 +249,7 @@
   .case-head{padding:6px 0 4px}
   .case-title{font-family:var(--serif);font-size:clamp(32px,5vw,52px);font-weight:800;
     letter-spacing:-.025em;line-height:1.04;margin:14px 0 12px}
-  .case-sub{font-size:17px;color:var(--ink2);font-weight:500;max-width:620px;line-height:1.6}
+  .case-sub{font-size:17px;color:var(--ink2);font-weight:500;line-height:1.6}
   .case-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:26px}
   @media(max-width:760px){.case-meta{grid-template-columns:1fr}}
   .case-meta-box{background:#fff;border:1.5px solid var(--ink);border-radius:14px;padding:12px 14px;
@@ -260,11 +260,11 @@
   .case-sec{border-top:1.5px dashed var(--line2);padding-top:34px;margin-top:38px}
   .case-sec-title{font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;
     color:var(--accent);margin-bottom:20px}
-  .case-prose{max-width:730px}
+  .case-prose{max-width:none}
   .case-prose h3{font-size:17px;font-weight:800;letter-spacing:-.015em;margin:28px 0 10px}
   .case-prose h3:first-child{margin-top:0}
-  .case-prose p{font-size:14.5px;line-height:1.78;color:var(--ink2);font-weight:450;margin-bottom:13px}
-  .case-pull{margin-top:28px;max-width:730px;background:var(--cream);border:1.5px solid var(--ink);
+  .case-prose p{font-size:15px;line-height:1.8;color:var(--ink2);font-weight:450;margin-bottom:14px}
+  .case-pull{margin-top:28px;background:var(--cream);border:1.5px solid var(--ink);
     border-left-width:6px;border-radius:14px;padding:16px 18px}
   .case-pull h4{font-size:13px;font-weight:800;margin-bottom:6px;letter-spacing:-.01em}
   .case-pull p{font-size:13.5px;line-height:1.68;color:var(--ink2);font-weight:500}
@@ -317,8 +317,16 @@
     border-bottom:1.5px solid var(--line2);background:#FCFAFF}
   .sim-tl{width:7px;height:7px;border-radius:50%;background:var(--line2)}
   .sim-app-title{margin-left:8px;font-size:11.5px;font-weight:800;letter-spacing:-.01em}
-  .sim-gen{flex:1;display:grid;grid-template-columns:1.12fr .88fr;min-height:0}
-  .sim-gen-form{padding:13px 15px;display:flex;flex-direction:column;gap:8px}
+  /* minmax(0,…) pins both columns: long topic/outcome text can no longer widen the
+     form column and shrink the preview panel between steps. */
+  .sim-gen{flex:1;display:grid;grid-template-columns:minmax(0,1.12fr) minmax(0,.88fr);min-height:0}
+  /* The form is taller than the frame once comprehension questions expand, so it owns
+     its own scroll instead of pushing content out of the clipped stage. */
+  .sim-gen-form{padding:13px 15px;display:flex;flex-direction:column;gap:8px;
+    min-width:0;min-height:0;overflow-y:auto;overscroll-behavior:contain;
+    scrollbar-width:thin;scrollbar-gutter:stable}
+  .sim-gen-form::-webkit-scrollbar{width:6px}
+  .sim-gen-form::-webkit-scrollbar-thumb{background:var(--line2);border-radius:3px}
   .sim-gen-side{border-left:1.5px solid var(--line2);background:#FAF8FE;padding:13px;
     display:flex;flex-direction:column;min-width:0}
   /* Narrow screens: 16:10 would squash the stage to ~200px, so the frame keeps a
@@ -327,11 +335,11 @@
     .sim-frame{width:100%;aspect-ratio:auto;height:min(560px,74vh)}
     .sim-gen{grid-template-columns:1fr}
     .sim-gen-side{display:none}
-    .sim-gen-form{gap:6px;padding:10px 11px;overflow-y:auto}
+    .sim-gen-form{gap:6px;padding:10px 11px}
     .sim-field{padding:6px 9px}
-    .sim-field-label{width:64px;font-size:9px}
+    .sim-field-label{width:76px;font-size:9px}
     .sim-field-value{font-size:11.5px}
-    .sim-drop{left:76px}
+    .sim-drop{left:88px}
     .sim-unit{display:none}
     .sim-sub{margin-left:10px;gap:5px}
     .sim-go{padding:8px 12px;font-size:12px}
@@ -342,7 +350,7 @@
     border:1.5px solid var(--line2);border-radius:10px;background:#fff}
   .sim-field.hot{border-color:var(--ink);box-shadow:0 0 0 3px rgba(193,80,63,.12)}
   .sim-field-label{font-size:9.5px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;
-    color:var(--muted);width:84px;flex-shrink:0}
+    color:var(--muted);width:96px;line-height:1.3;flex-shrink:0}
   .sim-field-value{font-size:12.5px;font-weight:700;color:var(--ink);flex:1;min-width:0;
     overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .sim-field-value.empty{color:#BCB2CE;font-weight:600}
@@ -350,7 +358,7 @@
     transform:rotate(45deg) translate(-2px,-2px);flex-shrink:0}
   .sim-unit{font-size:9.5px;font-weight:800;letter-spacing:.04em;color:var(--ink);background:var(--cream);
     border:1.2px solid var(--line2);border-radius:6px;padding:3px 7px;flex-shrink:0}
-  .sim-drop{position:absolute;left:94px;right:8px;top:calc(100% + 5px);z-index:30;background:#fff;
+  .sim-drop{position:absolute;left:106px;right:8px;top:calc(100% + 5px);z-index:30;background:#fff;
     border:1.5px solid var(--ink);border-radius:10px;box-shadow:0 5px 0 rgba(58,32,18,.14);padding:5px}
   .sim-drop-item{font-size:11.5px;font-weight:600;padding:6px 9px;border-radius:7px;color:var(--ink2);
     overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -374,10 +382,13 @@
   .sim-stepper span{color:var(--muted);font-weight:700}
   .sim-avatar{width:19px;height:19px;border-radius:50%;background:var(--pink);border:1.5px solid var(--ink);
     font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-  .sim-go{margin-top:auto;font-size:12.5px;font-weight:800;padding:9px 14px;border-radius:10px;
+  .sim-go{margin-top:4px;font-size:12.5px;font-weight:800;padding:9px 14px;border-radius:10px;
     border:1.5px solid var(--ink);background:var(--accent);color:#fff;text-align:center;
     box-shadow:0 3px 0 rgba(58,32,18,.18)}
   .sim-go.off{background:var(--line);color:#A99CBC;border-color:var(--line2);box-shadow:none}
+  /* An open dropdown is absolutely positioned, so the scroll container needs room
+     underneath it to be able to scroll it into view instead of clipping it. */
+  .sim-dropspace{height:118px;flex-shrink:0}
   .sim-prev-label{font-size:9.5px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;
     color:var(--muted);margin-bottom:9px;flex-shrink:0}
   .sim-prev{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
@@ -1285,12 +1296,11 @@
 <!-- ============ CASE STUDY ============ -->
 <div id="case-page" style="display:none">
   <div class="proj-back-bar"><div class="wrap">
-    <button class="proj-back-btn" onclick="closeCase()">← Back to Products &amp; Tools</button>
+    <button class="proj-back-btn" onclick="closeCase()">← Back</button>
   </div></div>
 
   <div class="case-wrap">
     <div class="case-head">
-      <span class="eyebrow" id="cs-eyebrow"></span>
       <h1 class="case-title" id="cs-title"></h1>
       <p class="case-sub" id="cs-sub"></p>
       <div class="case-meta" id="cs-meta"></div>
@@ -1303,7 +1313,7 @@
     </div>
 
     <div class="case-sec">
-      <div class="case-sec-title">See the flow</div>
+      <div class="case-sec-title">See the flow (product simulation)</div>
       <div class="sim-frame" id="sim-frame" role="region"
            aria-label="Interactive walkthrough of the Interactive Podcast flow">
         <div class="sim-head">
@@ -2041,7 +2051,6 @@ function closeLesson(){ goHome(); }
    so Back is a plain index change with nothing to unwind.                            */
 const PODCAST_FLOW = {
   meta:{
-    eyebrow:'Product · Madlen',
     title:'Interactive Podcast',
     sub:'An audio lesson that stops to check whether it is landing.',
     boxes:[
@@ -2052,13 +2061,13 @@ const PODCAST_FLOW = {
   },
   overview:[
     {h:'What it is', p:[
-      'Teachers generate an audio lesson on any topic in their curriculum. Before they assign it, they can turn on comprehension checks: the episode then pauses at four points to ask a question, and closes with a quiz.'
+      'Teachers generate an audio lesson on any topic in their curriculum. Before they assign it, they can turn on comprehension questions: the episode then pauses at as many checkpoints as the teacher asked for, and closes with a quiz.'
     ]},
     {h:'The pedagogical logic', p:[
       'Audio is a low-friction format for students and a high-risk one for teachers. It plays continuously, it does not wait, and a student can finish an eight-minute episode having processed almost none of it. Listening feels like learning while producing very little retrievable knowledge.',
-      'The design answer is retrieval, spaced across the episode rather than piled at the end. The four inline checkpoints are deliberately small: one idea each, answerable from the segment just heard, close enough to the source that a student can reconstruct the answer instead of guessing. Each one forces a retrieval attempt at the moment the material is still fresh, which is what turns passive listening into something that survives the walk home.',
+      'The design answer is retrieval, spaced across the episode rather than piled at the end. The inline checkpoints are deliberately small: one idea each, answerable from the segment just heard, close enough to the source that a student can reconstruct the answer instead of guessing. Each one forces a retrieval attempt at the moment the material is still fresh, which is what turns passive listening into something that survives the walk home.',
       'Feedback is written against the wrong answer, not the right one. Distractors are built from the misconceptions students in this age group actually hold, so when a student picks one, the explanation names the belief behind the choice and gives a counterexample that will not fit it. The student has to rebuild the idea, not just read the correct sentence.',
-      'The end quiz does different work. By then the four ideas exist separately in a student&rsquo;s head, so the questions are scenario-based and ask for transfer: apply the idea to an unfamiliar situation, compare two cases, predict an outcome, correct a plausible misstatement. That is where the separate pieces get assembled into something usable.'
+      'The end quiz does different work. By then the ideas exist separately in a student&rsquo;s head, so the questions are scenario-based and ask for transfer: apply the idea to an unfamiliar situation, compare two cases, predict an outcome, correct a plausible misstatement. That is where the separate pieces get assembled into something usable.'
     ]},
     {h:'What I owned', p:[
       'The question taxonomy and where checkpoints fall in an episode, the distractor and feedback design, the generation pipeline and prompt architecture behind both question layers, and the teacher-side assignment flow.'
@@ -2075,12 +2084,16 @@ const PODCAST_FLOW = {
     subject:['Science','Math','Social Studies','English'],
     topic:['Living Things and Life Cycles','States of Matter and Their Distinguishing Properties',
            'Light and Sound','Simple Electrical Circuits'],
+    outcome:['Classifies everyday substances as solid, liquid or gas',
+             'Explains that matter changes state when heated or cooled',
+             'Compares the shape and volume behaviour of the three states',
+             'Predicts the state of a substance from its properties'],
     assign:['Emma Smith','Liam Novak','Sofia Marín','Grade 4B (24 students)']
   },
   labels:{
     appTitle:'Podcast Generator',
-    fields:{grade:'Grade',subject:'Subject',topic:'Topic',lang:'Language',
-            checks:'Comprehension checks',assign:'Assign to'},
+    fields:{grade:'Grade',subject:'Subject',topic:'Topic',outcome:'Learning outcome',
+            lang:'Language',checks:'Comprehension questions',assign:'Assign to'},
     placeholder:'Select',
     langs:['TR','EN','ES','DE','IT'],
     checkpoints:'Inline checkpoints',
@@ -2097,18 +2110,19 @@ const PODCAST_FLOW = {
              meta:'09:05 · 4 checkpoints · end quiz'},
     toast:'Assigned to Emma Smith.',
     interTitle:'Now from Emma&rsquo;s side.',
-    interSub:'Same episode, different screen.'
+    interSub:'The episode has landed in her assignments. This is what happens while she works through it.'
   },
   captions:{
     s1:'The teacher starts from their curriculum, not from the tool.',
     s2:'Grade sets reading level, episode length, and question difficulty.',
     s3:'Subject narrows the topic list to what is actually in the syllabus.',
     s4:'Topics map to curriculum units, so an episode drops straight into a lesson plan.',
-    s5:'The same episode and the same questions, generated in the language of instruction.',
-    s6:'This is the whole feature: four checkpoints inside the episode, one quiz at the end.',
-    s7:'Assign to one student, or to a whole class.',
-    s8:'Nine minutes of audio with four checkpoints already placed at concept boundaries.',
-    s9:''
+    s5:'A topic holds several outcomes. The one picked here is what the episode teaches and what every question is written against.',
+    s6:'The same episode and the same questions, generated in the language of instruction.',
+    s7:'This is the whole feature: the teacher chooses how many checkpoints sit inside the episode, and a quiz closes it.',
+    s8:'Assign to one student, or to a whole class.',
+    s9:'Nine minutes of audio with the checkpoints already placed at concept boundaries.',
+    s10:''
   },
   steps:[]
 };
@@ -2116,16 +2130,17 @@ const PODCAST_FLOW = {
 /* ---- step definitions (teacher phase) ---------------------------------------- */
 (function(){
   const F=PODCAST_FLOW, C=F.captions;
-  const blank={grade:'',subject:'',topic:'',unit:false,lang:'',checks:false,assign:'',
+  const blank={grade:'',subject:'',topic:'',unit:false,outcome:'',lang:'',checks:false,assign:'',
                open:null,preview:'empty',toast:false,ready:false,hot:''};
   // cumulative resolved states — each one is a complete screen state, not a diff to apply
   const g =o=>Object.assign({},blank,o);
   const A ={grade:'Grade 4'};
   const B =Object.assign({},A,{subject:'Science'});
   const Cc=Object.assign({},B,{topic:F.options.topic[1],unit:true});
-  const D =Object.assign({},Cc,{lang:'EN'});
-  const E =Object.assign({},D,{checks:true});
-  const G =Object.assign({},E,{assign:'Emma Smith',ready:true});
+  const D =Object.assign({},Cc,{outcome:F.options.outcome[1]});
+  const E =Object.assign({},D,{lang:'EN'});
+  const H =Object.assign({},E,{checks:true});
+  const G =Object.assign({},H,{assign:'Emma Smith',ready:true});
 
   F.steps=[
     {phase:'teacher',screen:'generator',caption:C.s1,frames:[g({})],cursor:[]},
@@ -2139,20 +2154,23 @@ const PODCAST_FLOW = {
     {phase:'teacher',screen:'generator',caption:C.s4,cursor:['f-topic','o-topic'],
      frames:[g(B), g(Object.assign({},B,{open:'topic'})), g(Object.assign({},Cc,{hot:'topic'}))]},
 
-    {phase:'teacher',screen:'generator',caption:C.s5,cursor:['c-en'],
-     frames:[g(Cc), g(Object.assign({},D,{hot:'lang'}))]},
+    {phase:'teacher',screen:'generator',caption:C.s5,cursor:['f-outcome','o-outcome'],
+     frames:[g(Cc), g(Object.assign({},Cc,{open:'outcome'})), g(Object.assign({},D,{hot:'outcome'}))]},
 
-    {phase:'teacher',screen:'generator',caption:C.s6,cursor:['f-checks'],
-     frames:[g(D), g(Object.assign({},E,{hot:'checks'}))]},
+    {phase:'teacher',screen:'generator',caption:C.s6,cursor:['c-en'],
+     frames:[g(D), g(Object.assign({},E,{hot:'lang'}))]},
 
-    {phase:'teacher',screen:'generator',caption:C.s7,cursor:['f-assign','o-assign'],
-     frames:[g(E), g(Object.assign({},E,{open:'assign'})), g(Object.assign({},G,{hot:'assign'}))]},
+    {phase:'teacher',screen:'generator',caption:C.s7,cursor:['f-checks'],
+     frames:[g(E), g(Object.assign({},H,{hot:'checks'}))]},
 
-    {phase:'teacher',screen:'generator',caption:C.s8,cursor:['f-go'],holds:[900],
+    {phase:'teacher',screen:'generator',caption:C.s8,cursor:['f-assign','o-assign'],
+     frames:[g(H), g(Object.assign({},H,{open:'assign'})), g(Object.assign({},G,{hot:'assign'}))]},
+
+    {phase:'teacher',screen:'generator',caption:C.s9,cursor:['f-go'],holds:[900],
      frames:[g(G), g(Object.assign({},G,{preview:'generating'})),
              g(Object.assign({},G,{preview:'done',toast:true}))]},
 
-    {phase:'transition',screen:'interstitial',caption:C.s9,frames:[{}],cursor:[]}
+    {phase:'transition',screen:'interstitial',caption:C.s10,frames:[{}],cursor:[]}
   ];
 })();
 
@@ -2186,6 +2204,8 @@ function simGenerator(s){
        {hot:s.hot==='subject', drop:s.open==='subject'?simDrop(O.subject,0,'o-subject'):''});
   h+=simField('topic',L.fields.topic,s.topic,
        {hot:s.hot==='topic', unit:s.unit, drop:s.open==='topic'?simDrop(O.topic,1,'o-topic'):''});
+  h+=simField('outcome',L.fields.outcome,s.outcome,
+       {hot:s.hot==='outcome', drop:s.open==='outcome'?simDrop(O.outcome,1,'o-outcome'):''});
 
   h+='<div class="sim-field'+(s.hot==='lang'?' hot':'')+'">'+
      '<span class="sim-field-label">'+L.fields.lang+'</span><div class="sim-chips">'+
@@ -2209,7 +2229,9 @@ function simGenerator(s){
        {hot:s.hot==='assign', avatar:!!s.assign,
         drop:s.open==='assign'?simDrop(O.assign,0,'o-assign'):''});
 
-  h+='<div class="sim-go'+(s.ready?'':' off')+'" data-t="f-go">'+L.generate+'</div></div>';
+  h+='<div class="sim-go'+(s.ready?'':' off')+'" data-t="f-go">'+L.generate+'</div>';
+  if(s.open) h+='<div class="sim-dropspace"></div>';
+  h+='</div>';
 
   h+='<div class="sim-gen-side"><div class="sim-prev-label">'+L.previewLabel+'</div>';
   if(s.preview==='done'){
@@ -2232,14 +2254,47 @@ function simInterstitial(){
 const SIM_SCREENS={generator:simGenerator, interstitial:simInterstitial};
 
 /* ---- step machine ------------------------------------------------------------ */
-const SIM={i:0,timers:[],pt:null};
+const SIM={i:0,timers:[],pt:null,scroll:0};
 function simClearTimers(){SIM.timers.forEach(clearTimeout);SIM.timers=[];}
 function simAt(ms,fn){SIM.timers.push(setTimeout(fn,ms));}
 function simReduced(){
   return !!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);
 }
+/* The form scrolls inside the frame, so every repaint has to put the scroll position
+   back — innerHTML replacement would otherwise snap it to the top mid-step. */
 function simPaint(step,frame){
-  document.getElementById('sim-screen').innerHTML=SIM_SCREENS[step.screen](frame);
+  const sc=document.getElementById('sim-screen');
+  sc.innerHTML=SIM_SCREENS[step.screen](frame);
+  if(SIM.scroll){
+    const host=sc.querySelector('.sim-gen-form');
+    if(host) host.scrollTop=SIM.scroll;
+  }
+}
+function simScrollHost(el){
+  let n=el.parentElement;
+  while(n&&!n.classList.contains('sim-screen')){
+    if(n.scrollHeight-n.clientHeight>2) return n;
+    n=n.parentElement;
+  }
+  return null;
+}
+/* Brings a step's target into view and reports how far it will travel, so the fake
+   cursor can be aimed at where the element lands rather than where it is now. */
+function simScrollBy(el){
+  const host=el&&simScrollHost(el);
+  if(!host) return 0;
+  // For a dropdown item, bring the whole list into view, not just the one row.
+  const box=el.closest('.sim-drop')||el;
+  const hr=host.getBoundingClientRect(), er=el.getBoundingClientRect(),
+        br=box.getBoundingClientRect(), pad=14;
+  let d=0;
+  if(br.bottom>hr.bottom-pad)   d=br.bottom-(hr.bottom-pad);
+  else if(er.top<hr.top+pad)    d=er.top-(hr.top+pad);
+  d=Math.max(-host.scrollTop, Math.min(d, host.scrollHeight-host.clientHeight-host.scrollTop));
+  if(Math.abs(d)<1) return 0;
+  SIM.scroll=host.scrollTop+d;
+  host.scrollTo({top:SIM.scroll, behavior:simReduced()?'auto':'smooth'});
+  return d;
 }
 function simCursorTo(key){
   const stage=document.getElementById('sim-stage');
@@ -2247,11 +2302,16 @@ function simCursorTo(key){
   const el=stage.querySelector('[data-t="'+key+'"]');
   if(!el){cur.style.opacity='0';return null;}
   const sr=stage.getBoundingClientRect(), er=el.getBoundingClientRect();
-  const pt={x:er.left-sr.left+Math.min(er.width*0.42,72), y:er.top-sr.top+er.height*0.62};
+  const d=simScrollBy(el);
+  const pt={x:er.left-sr.left+Math.min(er.width*0.42,72), y:er.top-sr.top+er.height*0.62-d};
   cur.style.opacity='1';
   cur.style.transform='translate('+pt.x+'px,'+pt.y+'px)';
   return pt;
 }
+// Viewers can scroll the form themselves; remember where they left it.
+document.getElementById('sim-stage').addEventListener('scroll',function(e){
+  if(e.target.classList&&e.target.classList.contains('sim-gen-form')) SIM.scroll=e.target.scrollTop;
+},true);
 function simRingAt(pt){
   if(!pt) return;
   const r=document.getElementById('sim-ring');
@@ -2269,6 +2329,7 @@ function simDots(){
 }
 function simRender(){
   simClearTimers();
+  SIM.scroll=0;
   const F=PODCAST_FLOW, steps=F.steps, step=steps[SIM.i], total=steps.length;
   document.getElementById('sim-phase').textContent=F.phaseTag[step.phase];
   document.getElementById('sim-pov-text').textContent=F.phases[step.phase];
@@ -2285,6 +2346,11 @@ function simRender(){
   const cur=document.getElementById('sim-cursor');
   if(simReduced()||!hops.length){
     simPaint(step,frames[frames.length-1]);
+    if(hops.length){
+      const last=document.getElementById('sim-stage')
+        .querySelector('[data-t="'+hops[hops.length-1]+'"]');
+      if(last) simScrollBy(last);
+    }
     cur.style.opacity='0';
     return;
   }
@@ -2322,7 +2388,6 @@ document.addEventListener('keydown',function(e){
 function _showCase(id){
   if(id!=='podcast') return;
   const F=PODCAST_FLOW, M=F.meta;
-  document.getElementById('cs-eyebrow').textContent=M.eyebrow;
   document.getElementById('cs-title').textContent=M.title;
   document.getElementById('cs-sub').textContent=M.sub;
   document.getElementById('cs-meta').innerHTML=M.boxes.map(function(b){
