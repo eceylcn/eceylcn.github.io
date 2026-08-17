@@ -31,12 +31,26 @@ one site. When a new page type is added, it follows the same rules.
 
 - The feature is **comprehension questions**, not "comprehension checks". Use the same
   term in prose, field labels and captions.
+- **The word "episode" never appears anywhere**, and neither does an episode number
+  (`Ep. 04 · …`) or the phrase "interactive audio lesson". A generated podcast carries an
+  engaging title of its own. Say "podcast" or "the audio" instead.
+- **It is a listening activity, not a lesson.** Never "audio lesson". Where a noun for
+  the whole thing is needed, use "listening activity" or "the activity".
+- **Never claim an outcome the product does not measure.** No "corrected after
+  feedback", no "incorrect, then resolved". Reported results are only what is actually
+  recorded: answered, correct, incorrect, completed.
 - **Never hardcode a number the user chooses.** Teachers pick how many checkpoints go in
-  an episode, so prose says "as many checkpoints as the teacher asked for", not "four
+  a podcast, so prose says "as many checkpoints as the teacher asked for", not "four
   checkpoints". A specific number is fine inside the simulator, where it is showing one
-  concrete run.
+  concrete run. The teacher form's end-quiz row reads just `End quiz`, with no count.
 - Case-study prose is written in full sentences, no bullet lists, no em dashes as
-  connectors.
+  connectors. This holds inside the illustrated cards too.
+- **When a section gets too long to read as prose, it becomes cards, not bullets.**
+  `PODCAST_FLOW.owned` is the pattern: a short lead, a `.case-cards` grid where each card
+  pairs a `CASE_FIG` animation with a heading and two or three sentences, then a closing
+  line. Every figure is authored in its finished state and animated away from it, because
+  the stylesheet kills all motion under `prefers-reduced-motion` and the leftover frame
+  still has to explain the idea.
 
 ## Flow simulator (`PODCAST_FLOW`)
 
