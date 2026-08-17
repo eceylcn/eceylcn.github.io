@@ -329,23 +329,6 @@
   .sim-gen-form::-webkit-scrollbar-thumb{background:var(--line2);border-radius:3px}
   .sim-gen-side{border-left:1.5px solid var(--line2);background:#FAF8FE;padding:13px;
     display:flex;flex-direction:column;min-width:0}
-  /* Narrow screens: 16:10 would squash the stage to ~200px, so the frame keeps a
-     fixed height instead of a fixed ratio. Height is still constant across steps. */
-  @media(max-width:760px){
-    .sim-frame{width:100%;aspect-ratio:auto;height:min(560px,74vh)}
-    .sim-gen{grid-template-columns:1fr}
-    .sim-gen-side{display:none}
-    .sim-gen-form{gap:6px;padding:10px 11px}
-    .sim-field{padding:6px 9px}
-    .sim-field-label{width:76px;font-size:9px}
-    .sim-field-value{font-size:11.5px}
-    .sim-drop{left:88px}
-    .sim-unit{display:none}
-    .sim-sub{margin-left:10px;gap:5px}
-    .sim-go{padding:8px 12px;font-size:12px}
-    .sim-cap{font-size:11.5px;padding:8px 12px 0}
-    .sim-btn{padding:7px 12px}
-  }
   .sim-field{position:relative;display:flex;align-items:center;gap:10px;padding:8px 11px;
     border:1.5px solid var(--line2);border-radius:10px;background:#fff}
   .sim-field.hot{border-color:var(--ink);box-shadow:0 0 0 3px rgba(193,80,63,.12)}
@@ -411,10 +394,214 @@
     justify-content:center;text-align:center;gap:12px;background:#fff;padding:24px}
   .sim-inter h3{font-family:var(--serif);font-size:clamp(22px,3.6vw,36px);font-weight:800;letter-spacing:-.025em}
   .sim-inter p{font-size:14px;font-weight:600;color:var(--ink2)}
+
+  /* ----- student: assignment inbox ----- */
+  .sim-dash{flex:1;min-height:0;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:9px}
+  .sim-hi{font-family:var(--serif);font-size:19px;font-weight:800;letter-spacing:-.02em}
+  .sim-grp{border:1.5px solid var(--line2);border-radius:12px;background:#fff;overflow:hidden;flex-shrink:0}
+  .sim-grp-head{display:flex;align-items:center;gap:9px;padding:9px 13px;font-size:12.5px;font-weight:800;
+    cursor:pointer}
+  .sim-grp-head:hover{background:#FBF9FF}
+  .sim-grp-n{font-size:11px;font-weight:700;color:var(--muted)}
+  .sim-grp-head .sim-chev{transform:rotate(-45deg)}                 /* collapsed: points right */
+  .sim-grp.open>.sim-grp-head{border-bottom:1.5px solid var(--line);background:#FBF9FF}
+  .sim-grp.open>.sim-grp-head .sim-chev{transform:rotate(45deg) translate(-2px,-2px)}
+  .sim-grp-body{padding:11px 13px}
+  .sim-asgn{display:flex;align-items:center;gap:12px;padding:11px 13px;border:1.5px solid var(--ink);
+    border-radius:12px;background:#fff;box-shadow:0 3px 0 rgba(58,32,18,.14);transition:transform .12s,box-shadow .12s}
+  .sim-asgn.hot{transform:translateY(2px);box-shadow:0 1px 0 rgba(58,32,18,.14)}
+  .sim-asgn-t{flex:1;min-width:0}
+  .sim-asgn-t h5{font-size:13px;font-weight:800;letter-spacing:-.01em}
+  .sim-asgn-t p{font-size:11px;font-weight:600;color:var(--muted)}
+  .sim-due{font-size:10.5px;font-weight:800;color:var(--ink);background:var(--cream);
+    border:1.2px solid var(--line2);border-radius:7px;padding:4px 9px;flex-shrink:0}
+
+  /* ----- student: player ----- */
+  .sim-play{flex:1;min-height:0;display:flex;flex-direction:column;padding:16px 22px;transition:opacity .2s}
+  .sim-play.dim{opacity:.5}
+  .sim-play-id{flex:1;min-height:0;display:flex;align-items:center;gap:12px}
+  /* With a question open the player collapses to a strip: status, line, clock. It stays
+     on screen because the question belongs to the exact spot the audio stopped at. */
+  .sim-play.compact{flex:0 0 auto;display:grid;grid-template-columns:auto minmax(0,1fr) auto;
+    align-items:center;gap:14px;padding:11px 20px 12px}
+  .sim-play.compact .sim-play-id,.sim-play.compact .sim-ctrls{display:none}
+  .sim-play.compact .sim-statusrow{height:auto}
+  .sim-play.compact .sim-wave{height:34px}
+  .sim-play.compact .sim-times{margin-top:0;flex-direction:column;align-items:flex-end;line-height:1.3}
+  .sim-mic{width:38px;height:38px;border-radius:50%;background:var(--mustard);border:1.8px solid var(--ink);
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 3px 0 rgba(58,32,18,.16)}
+  .sim-mic.sm{width:28px;height:28px;box-shadow:0 2px 0 rgba(58,32,18,.16)}
+  .sim-mic.sm svg{width:12px;height:12px}
+  .sim-play-id h4{font-size:15.5px;font-weight:800;letter-spacing:-.015em}
+  .sim-play-id p{font-size:11.5px;font-weight:600;color:var(--muted)}
+  .sim-statusrow{height:24px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+  .sim-pill{font-size:10.5px;font-weight:800;letter-spacing:.03em;padding:3px 11px;border-radius:999px;
+    border:1.5px solid var(--ink);background:var(--cream);white-space:nowrap}
+  .sim-pill.done{background:#2F7A4F;border-color:#2F7A4F;color:#fff}
+  .sim-wave{position:relative;height:46px;flex-shrink:0}
+  .sim-bars{position:absolute;inset:0;display:flex;align-items:center;gap:2px}
+  .sim-bars i{flex:1;border-radius:2px;background:var(--line2)}
+  .sim-bars.fill{clip-path:inset(0 calc(100% - var(--p1)) 0 0);z-index:2}
+  .sim-bars.fill i{background:var(--accent)}
+  .sim-mk{position:absolute;top:50%;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;
+    background:#fff;border:2px solid var(--ink);z-index:3;box-shadow:0 0 0 2px #fff;
+    transition:background .2s,border-color .2s}
+  .sim-mk.now{background:var(--accent);border-color:var(--ink);box-shadow:0 0 0 2px #fff,0 0 0 5px rgba(193,80,63,.22)}
+  .sim-mk.done{background:#2F7A4F;border-color:#2F7A4F;box-shadow:0 0 0 2px #fff}
+  .sim-mk.done::after{content:"";position:absolute;left:2.6px;top:.6px;width:3px;height:6px;
+    border-right:2px solid #fff;border-bottom:2px solid #fff;transform:rotate(42deg)}
+  .sim-ph{position:absolute;top:-5px;bottom:-5px;left:var(--p1);width:2.5px;margin-left:-1.25px;
+    border-radius:2px;background:var(--ink);z-index:4}
+  .sim-ph::after{content:"";position:absolute;top:-4px;left:50%;width:8px;height:8px;margin-left:-4px;
+    border-radius:50%;background:var(--ink)}
+  .sim-wave.anim .sim-bars.fill{animation:simFill var(--pdur) linear both}
+  .sim-wave.anim .sim-ph{animation:simPh var(--pdur) linear both}
+  @keyframes simFill{from{clip-path:inset(0 calc(100% - var(--p0)) 0 0)}
+                     to{clip-path:inset(0 calc(100% - var(--p1)) 0 0)}}
+  @keyframes simPh{from{left:var(--p0)}to{left:var(--p1)}}
+  .sim-times{display:flex;justify-content:space-between;margin-top:8px;flex-shrink:0;
+    font-size:10.5px;font-weight:800;color:var(--muted);font-variant-numeric:tabular-nums}
+  .sim-ctrls{flex:1;min-height:0;display:flex;align-items:center;justify-content:center}
+  .sim-pbtn{width:38px;height:38px;border-radius:50%;background:var(--accent);border:1.8px solid var(--ink);
+    display:flex;align-items:center;justify-content:center;box-shadow:0 3px 0 rgba(58,32,18,.18)}
+
+  /* ----- student: question panel, shared by checkpoints and the end quiz ----- */
+  /* The panel takes whatever the collapsed player leaves, so its height never has to be
+     guessed as a percentage and long feedback gets every pixel that is going spare. */
+  .sim-qp{flex:1;min-height:0;z-index:12;background:#fff;
+    border-top:2px solid var(--ink);border-radius:16px 16px 0 0;display:flex;flex-direction:column;
+    box-shadow:0 -6px 22px rgba(58,32,18,.12);animation:simUp .28s cubic-bezier(.22,.61,.36,1)}
+  @keyframes simUp{from{transform:translateY(16%);opacity:.35}to{transform:none;opacity:1}}
+  /* The question sits in the panel head, not in the scrolling body: the feedback argues
+     with the wording, so the wording has to stay on screen while the body scrolls. */
+  .sim-qp-head{flex-shrink:0;display:flex;flex-direction:column;gap:7px;padding:10px 16px 12px;
+    border-bottom:1.5px solid var(--line);background:#FCFAFF;border-radius:14px 14px 0 0}
+  .sim-qp-top{display:flex;align-items:center;gap:11px}
+  .sim-tag{font-size:9.5px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;flex-shrink:0;
+    background:var(--mustard);border:1.5px solid var(--ink);border-radius:6px;padding:3px 8px}
+  .sim-lead{font-size:11.5px;font-weight:600;color:var(--muted)}
+  .sim-qbody{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:12px 16px 14px;
+    display:flex;flex-direction:column;gap:7px;scrollbar-width:thin;scrollbar-gutter:stable}
+  .sim-qbody::-webkit-scrollbar{width:6px}
+  .sim-qbody::-webkit-scrollbar-thumb{background:var(--line2);border-radius:3px}
+  .sim-qbody>.sim-tag{align-self:flex-start}
+  .sim-stem{font-size:12px;line-height:1.6;font-weight:500;color:var(--ink2)}
+  .sim-q{font-size:13.5px;line-height:1.5;font-weight:800;letter-spacing:-.01em;margin-bottom:2px}
+  .sim-opt{display:flex;align-items:center;gap:9px;padding:8px 11px;border:1.5px solid var(--line2);
+    border-radius:10px;background:#fff;font-size:12px;font-weight:600;color:var(--ink2)}
+  .sim-opt-k{width:19px;height:19px;border-radius:6px;background:var(--cream);border:1.2px solid var(--line2);
+    font-size:9.5px;font-weight:800;color:var(--ink);flex-shrink:0;
+    display:flex;align-items:center;justify-content:center}
+  .sim-opt-t{flex:1;min-width:0}
+  .sim-opt.wrong{border-color:var(--accent);background:#FDF3F1;color:var(--ink);font-weight:700}
+  .sim-opt.wrong .sim-opt-k{background:var(--accent);border-color:var(--accent);color:#fff}
+  .sim-opt.right{border-color:#2F7A4F;background:#F1F7F3;color:var(--ink);font-weight:700}
+  .sim-opt.right .sim-opt-k{background:#2F7A4F;border-color:#2F7A4F;color:#fff}
+  .sim-mk-x,.sim-mk-v{font-size:12px;font-weight:800;flex-shrink:0}
+  .sim-mk-x{color:var(--accent)}.sim-mk-v{color:#2F7A4F}
+  .sim-fb{margin-top:4px;border:1.5px solid var(--line2);border-left:3px solid var(--accent);
+    border-radius:10px;background:#FCFAFF;padding:11px 13px;display:flex;flex-direction:column;gap:7px}
+  .sim-fb.ok{border-left-color:#2F7A4F}
+  .sim-fb p{font-size:11.5px;line-height:1.65;font-weight:500;color:var(--ink2)}
+  .sim-fb:not(.ok) p:first-child{font-weight:800;color:var(--ink)}
+  .sim-fb p.try{font-weight:700;color:var(--ink);border-top:1.2px dashed var(--line2);padding-top:8px}
+  .sim-qcta{align-self:flex-start;margin-top:3px;font-size:12px;font-weight:800;padding:8px 15px;
+    border-radius:999px;border:1.5px solid var(--ink);background:var(--accent);color:#fff;
+    box-shadow:0 2px 0 rgba(58,32,18,.18)}
+
+  /* ----- student: compressed checkpoints and end quiz ----- */
+  /* The flashed questions sit under the line, never over it: the point of the sped-up
+     stretch is watching each marker turn into a check as the playhead passes it. */
+  .sim-flash{position:absolute;left:18px;right:18px;bottom:16px;z-index:14;
+    background:#fff;border:2px solid var(--ink);border-radius:14px;box-shadow:0 5px 0 rgba(58,32,18,.16);
+    padding:12px 15px;display:flex;align-items:flex-start;gap:12px;animation:simPop .18s ease-out}
+  @keyframes simPop{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:none}}
+  .sim-flash p{font-size:12.5px;line-height:1.5;font-weight:700}
+  /* Rides in the fake window chrome: it is a note about the recording, not about the app,
+     and every screen keeps that strip free. */
+  .sim-speed{position:absolute;right:11px;top:6px;z-index:16;font-size:9px;font-weight:800;
+    letter-spacing:.07em;text-transform:uppercase;background:var(--ink);color:#fff;
+    padding:4px 9px;border-radius:6px}
+  .sim-quiz{flex:1;min-height:0;display:flex;flex-direction:column}
+  .sim-quiz-head{flex-shrink:0;display:flex;align-items:center;gap:12px;padding:12px 18px 10px;
+    border-bottom:1.5px solid var(--line)}
+  .sim-quiz-head h4{font-size:14.5px;font-weight:800;letter-spacing:-.015em}
+  .sim-quiz-head p{font-size:11.5px;font-weight:600;color:var(--muted)}
+  .sim-quiz-meta{margin-left:auto;display:flex;align-items:center;gap:10px;flex-shrink:0}
+  .sim-pips{display:flex;gap:5px;flex-shrink:0}
+  .sim-pip{width:22px;height:5px;border-radius:3px;background:var(--line2)}
+  .sim-pip.on{background:#2F7A4F}
+  .sim-pip.cur{background:var(--accent)}
+
+  /* ----- student: closing summary ----- */
+  .sim-sum{position:absolute;inset:0;background:#fff;padding:20px 22px 18px;display:flex;
+    flex-direction:column;gap:16px;overflow-y:auto}
+  /* Auto margins centre the block when it fits and collapse to zero when it does not, so a
+     narrow screen scrolls from the top instead of hiding the first rows above it. */
+  .sim-sum-cols{flex:0 0 auto;margin-top:auto;
+    display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px}
+  .sim-sum-close{margin-bottom:auto}
+  .sim-sum-col{border:1.5px solid var(--line2);border-radius:14px;background:#FCFAFF;padding:13px 15px;
+    display:flex;flex-direction:column;gap:8px}
+  .sim-sum-col h4{font-size:10px;font-weight:800;letter-spacing:.11em;text-transform:uppercase;color:var(--muted)}
+  .sim-sum-sub{font-size:12.5px;font-weight:800;letter-spacing:-.01em}
+  .sim-sum-row{display:flex;gap:10px;padding-top:7px;border-top:1.2px dashed var(--line2);
+    font-size:11.5px;line-height:1.5}
+  .sim-sum-row b{width:112px;flex-shrink:0;font-weight:800;color:var(--ink)}
+  .sim-sum-row span{color:var(--ink2);font-weight:600}
+  .sim-sum-note{margin-top:auto;font-size:11.5px;line-height:1.55;font-weight:700;color:var(--ink);
+    background:var(--cream);border:1.5px solid var(--line2);border-radius:10px;padding:9px 11px}
+  .sim-sum-close{flex-shrink:0;text-align:center;font-family:var(--serif);font-size:15.5px;font-weight:700;
+    line-height:1.5;letter-spacing:-.012em}
+
+  /* Narrow screens: 16:10 would squash the stage to ~200px, so the frame keeps a fixed
+     height instead of a fixed ratio. Height is still constant across steps. This block
+     sits after every base rule on purpose, so its overrides win on equal specificity. */
+  @media(max-width:760px){
+    .sim-frame{width:100%;aspect-ratio:auto;height:min(560px,74vh)}
+    .sim-gen{grid-template-columns:1fr}
+    .sim-gen-side{display:none}
+    .sim-gen-form{gap:6px;padding:10px 11px}
+    .sim-field{padding:6px 9px}
+    .sim-field-label{width:76px;font-size:9px}
+    .sim-field-value{font-size:11.5px}
+    .sim-drop{left:88px}
+    .sim-unit{display:none}
+    .sim-sub{margin-left:10px;gap:5px}
+    .sim-go{padding:8px 12px;font-size:12px}
+    .sim-chips{flex-wrap:wrap;gap:4px}
+    .sim-chip{padding:4px 7px;font-size:10px}
+    .sim-cap{font-size:11.5px;padding:8px 12px 0}
+    .sim-btn{padding:7px 12px}
+    .sim-dash{padding:11px 12px;gap:7px}
+    .sim-hi{font-size:16px}
+    .sim-play{padding:12px 14px}
+    .sim-play-id h4{font-size:13.5px}
+    .sim-mic{width:32px;height:32px}
+    /* Narrow: the status pill takes a row of its own so the line keeps its full width. */
+    .sim-play.compact{padding:9px 12px 10px;gap:7px 10px;grid-template-columns:minmax(0,1fr) auto}
+    .sim-play.compact .sim-statusrow{grid-column:1/-1;justify-content:flex-start}
+    .sim-qp-head{padding:9px 12px 10px;gap:6px}
+    .sim-lead{display:none}
+    .sim-qbody{padding:10px 12px 12px}
+    .sim-q{font-size:12.5px}
+    .sim-stem{font-size:11.5px}
+    .sim-opt{font-size:11.5px;padding:7px 9px}
+    .sim-quiz-head{padding:10px 12px 8px;gap:8px}
+    .sim-quiz-head h4{font-size:13px}
+    .sim-quiz-head p{display:none}
+    .sim-flash{left:10px;right:10px;bottom:10px;padding:10px 12px;gap:9px}
+    .sim-sum{padding:14px}
+    .sim-sum-cols{grid-template-columns:1fr;gap:10px}
+    .sim-sum-close{font-size:13.5px}
+  }
   @media(prefers-reduced-motion:reduce){
     .sim-cursor{transition:none}.sim-ring{display:none}
     .sim-shim{animation:none}.sim-toast{animation:none}
     .sim-bar-fill,.sim-tog,.sim-tog::after{transition:none}
+    .sim-qp,.sim-flash{animation:none}
+    .sim-play,.sim-asgn,.sim-mk{transition:none}
+    .sim-wave.anim .sim-bars.fill,.sim-wave.anim .sim-ph{animation:none}
   }
 
   /* ===== Lesson plan cards ===== */
@@ -821,8 +1008,8 @@
                     <rect x="32.5" y="80" width="2.5" height="48" rx="1.25" fill="#3A2A21"/>
                     <circle cx="33.7" cy="78" r="3.6" fill="#3A2A21"/>
                   </g>
-                  <text x="34" y="140" font-size="8" font-weight="700" fill="#9C8879">04:12</text>
-                  <text x="286" y="140" font-size="8" font-weight="700" fill="#9C8879" text-anchor="end">09:05</text>
+                  <text x="34" y="140" font-size="8" font-weight="700" fill="#9C8879">01:48</text>
+                  <text x="286" y="140" font-size="8" font-weight="700" fill="#9C8879" text-anchor="end">04:12</text>
 
                   <!-- question overlay -->
                   <rect class="pc-scrim" width="320" height="172" fill="#fff" opacity="0"/>
@@ -2107,10 +2294,91 @@ const PODCAST_FLOW = {
     initials:'ES',
     episode:{title:'Ep. 04 · States of Matter',
              sub:'Interactive audio lesson · Grade 4 · EN',
-             meta:'09:05 · 4 checkpoints · end quiz'},
+             meta:'04:12 · 4 checkpoints · end quiz'},
     toast:'Assigned to Emma Smith.',
     interTitle:'Now from Emma&rsquo;s side.',
     interSub:'The episode has landed in her assignments. This is what happens while she works through it.'
+  },
+  /* ---- student side ---- */
+  student:{
+    appTitle:'My work',
+    greeting:'Hi Emma',
+    groups:[{label:'Assigned',n:'1',open:true},{label:'Late',n:'0',open:false},
+            {label:'Completed',n:'7',open:false}],
+    card:{title:'Ep. 04 · States of Matter',sub:'Interactive audio lesson · 04:12',due:'Due Friday'},
+    player:{title:'Ep. 04 · States of Matter',sub:'Grade 4 · Science'},
+    dur:252,                       // 04:12 in seconds; every clock label is derived from it
+    marks:[.22,.44,.66,.86],
+    status:{paused:'Paused for a quick question',resuming:'Resuming the episode',
+            complete:'Episode complete',speed:'Checkpoints 2 to 4, sped up'},
+    keys:['A','B','C','D'],
+    cp1:{
+      tag:'Checkpoint 1 of 4',
+      lead:'The episode just described solids.',
+      q:'A wooden block keeps its own shape no matter which container you put it in. What best explains why?',
+      opts:['Because it is heavy',
+            'Because its particles are locked in place and can only vibrate',
+            'Because it is cold',
+            'Because there is no air inside it'],
+      right:1, picked:0,
+      fb:['Not quite, and this is a really common way to think about it.',
+          'Heaviness and shape are separate things. A full jug of water is heavy, but it still spreads out to fit whatever container you pour it into. A piece of styrofoam weighs almost nothing, and it still holds its shape on a shelf.',
+          'So weight cannot be what is doing the work here. In a solid, the particles are held in fixed positions and can only vibrate in place. They cannot slide past each other, which is why the block keeps its own shape instead of taking the container&rsquo;s.',
+          'Try this: which one is the odd one out, a heavy rock, a heavy jug of water, or a light plastic cube?'],
+      cta:'Continue episode'
+    },
+    flash:[
+      {tag:'Checkpoint 2 of 4',q:'Water poured from a jug into a bowl takes the shape of the bowl, but the amount stays the same. Which property changed?'},
+      {tag:'Checkpoint 3 of 4',q:'A small puff of perfume ends up filling the whole room. What does that tell you about how gas particles move?'},
+      {tag:'Checkpoint 4 of 4',q:'An ice cube left on a warm table turns into water. What happened to the particles?'}
+    ],
+    quiz:{
+      title:'End quiz · States of Matter',
+      sub:'3 questions. These pull the whole episode together.',
+      done:'Quiz complete · 3 of 3',
+      items:[
+        {tag:'Question 1 of 3',
+         stem:'Two identical glasses sit on a table. One holds water, the other holds cooking oil. Both are colorless, both are filled to exactly the same line. Ayşe needs to tell them apart without touching or smelling them.',
+         q:'Which measurement would actually work?',
+         opts:['The temperature of the room around them',
+               'The mass of each glass, since the volumes are the same',
+               'The shape each liquid takes inside the glass',
+               'The volume of each liquid'],
+         right:1,
+         fb:'Yes. Equal volumes, different masses, so the difference is density, and density is a distinguishing property: it belongs to the substance itself. Shape and volume are not, because both liquids will do the same thing there.'},
+        {tag:'Question 2 of 3',
+         stem:'A syringe is sealed at the tip. Push the plunger hard. If the syringe is full of air, the plunger moves in a long way. If it is full of water, it barely moves at all.',
+         q:'Why?',
+         opts:['Air is lighter than water',
+               'Water is colder than air',
+               'Air particles are far apart with space to be pushed closer together, and water particles are already close',
+               'The syringe leaks when it holds air'],
+         right:2,
+         fb:'Right. Compressibility comes down to how much empty space there is between particles. This is also why you can pump more air into a ball but you cannot squeeze more water into a full bottle.'},
+        {tag:'Question 3 of 3',
+         stem:'A classmate says: &ldquo;Ice, water and steam are three different substances.&rdquo;',
+         q:'What is the best correction?',
+         opts:['They are three different substances, but they look similar',
+               'They are the same substance in three states, and the difference is how much energy the particles have and how freely they move',
+               'They are the same substance, and there is no real difference between them at all',
+               'Ice and water are the same substance, but steam is a different one'],
+         right:1,
+         fb:'Exactly. The particles do not change, their arrangement and energy do. That is also why the changes run both ways: steam can condense, water can freeze, and you are back where you started.'}
+      ],
+      speed:'Questions 2 and 3, sped up'
+    },
+    summary:{
+      left:{h:'What Emma saw',rows:[
+        ['Episode','04:12, completed'],
+        ['Checkpoints','4 of 4 answered, 1 corrected after feedback'],
+        ['End quiz','3 of 3']]},
+      right:{h:'What the teacher sees',sub:'Emma Smith · Ep. 04 States of Matter',rows:[
+        ['Checkpoint 1','incorrect, then resolved'],
+        ['Checkpoints 2-4','correct'],
+        ['End quiz','3 / 3']],
+        note:'Class-wide: 11 of 24 students missed Checkpoint 1. Weight is being confused with rigidity.'},
+      close:'The teacher gets back something a listening log never gives them: where the class actually broke, and why.'
+    }
   },
   captions:{
     s1:'The teacher starts from their curriculum, not from the tool.',
@@ -2121,8 +2389,18 @@ const PODCAST_FLOW = {
     s6:'The same episode and the same questions, generated in the language of instruction.',
     s7:'This is the whole feature: the teacher chooses how many checkpoints sit inside the episode, and a quiz closes it.',
     s8:'Assign to one student, or to a whole class.',
-    s9:'Nine minutes of audio with the checkpoints already placed at concept boundaries.',
-    s10:''
+    s9:'Four minutes of audio with the checkpoints already placed at concept boundaries.',
+    s10:'',
+    s11:'The episode arrives in the same place as every other assignment.',
+    s12:'Four markers on the timeline. The student can see the questions coming.',
+    s13:'The episode pauses itself. The student is not asked to remember to stop.',
+    s14:'One idea, answerable from the minute that just played.',
+    s15:'Feedback targets the belief behind the wrong answer, then hands back a question rather than a conclusion.',
+    s16:'Checkpoint cleared. The marker turns into a check so progress stays visible on the line.',
+    s17:'Same pattern three more times. Each checkpoint follows the segment that just taught the idea.',
+    s18:'The inline checkpoints asked Emma to recall. The end quiz asks her to apply.',
+    s19:'Every quiz question puts the idea in a situation the episode never mentioned.',
+    s20:'The teacher gets back where the class broke, not how long they listened.'
   },
   steps:[]
 };
@@ -2172,6 +2450,66 @@ const PODCAST_FLOW = {
 
     {phase:'transition',screen:'interstitial',caption:C.s10,frames:[{}],cursor:[]}
   ];
+
+  /* ---- student phase ----------------------------------------------------------
+     Same contract as above: every frame is a complete resolved screen. Player frames
+     carry the playhead as a fraction (p) plus an optional play:{from,ms} that tells the
+     paint which stretch of the line to animate into; marks[] is 0 pending, 1 current,
+     2 cleared. Frames may override the step's screen, so one step can cross screens. */
+  const S=F.student, MK=S.marks;
+  const dash=o=>Object.assign({hot:''},o);
+  const play=o=>Object.assign({screen:'player',p:0,playing:false,status:'',marks:[0,0,0,0],
+                               q:false,answered:false,flash:null,speed:false,done:false,play:null},o);
+  const quiz=o=>Object.assign({screen:'quiz',i:0,answered:false,speed:false},o);
+  const M1=[2,0,0,0], M2=[2,2,0,0], M3=[2,2,2,0], M4=[2,2,2,2];
+
+  F.steps=F.steps.concat([
+    {phase:'student',screen:'dash',caption:C.s11,frames:[dash({})],cursor:[]},
+
+    {phase:'student',screen:'dash',caption:C.s12,cursor:['s-card'],holds:[380],
+     frames:[dash({}), dash({hot:'card'}), play({})]},
+
+    {phase:'student',screen:'player',caption:C.s13,cursor:['s-play'],holds:[1800],
+     frames:[play({}),
+             play({p:MK[0],playing:true,play:{from:0,ms:1800}}),
+             play({p:MK[0],status:'paused',marks:[1,0,0,0]})]},
+
+    {phase:'student',screen:'player',caption:C.s14,cursor:[],
+     frames:[play({p:MK[0],status:'paused',marks:[1,0,0,0],q:true})]},
+
+    {phase:'student',screen:'player',caption:C.s15,cursor:['s-opt'],
+     frames:[play({p:MK[0],status:'paused',marks:[1,0,0,0],q:true}),
+             play({p:MK[0],status:'paused',marks:[1,0,0,0],q:true,answered:true})]},
+
+    {phase:'student',screen:'player',caption:C.s16,cursor:['s-cont'],holds:[520],
+     frames:[play({p:MK[0],status:'paused',marks:[1,0,0,0],q:true,answered:true}),
+             play({p:MK[0],marks:M1,status:'resuming'}),
+             play({p:.26,playing:true,marks:M1,status:'resuming',play:{from:MK[0],ms:700}})]},
+
+    {phase:'student',screen:'player',caption:C.s17,cursor:[],
+     holds:[260,900,640,220,840,640,220,780,640,220,700],
+     frames:[play({p:.26,playing:true,marks:M1,speed:true}),
+             play({p:MK[1],playing:true,marks:M1,speed:true,play:{from:.26,ms:900}}),
+             play({p:MK[1],marks:[2,1,0,0],speed:true,flash:0}),
+             play({p:MK[1],marks:M2,speed:true}),
+             play({p:MK[2],playing:true,marks:M2,speed:true,play:{from:MK[1],ms:840}}),
+             play({p:MK[2],marks:[2,2,1,0],speed:true,flash:1}),
+             play({p:MK[2],marks:M3,speed:true}),
+             play({p:MK[3],playing:true,marks:M3,speed:true,play:{from:MK[2],ms:780}}),
+             play({p:MK[3],marks:[2,2,2,1],speed:true,flash:2}),
+             play({p:MK[3],marks:M4,speed:true}),
+             play({p:1,playing:true,marks:M4,speed:true,play:{from:MK[3],ms:700}}),
+             play({p:1,marks:M4,done:true,status:'complete'})]},
+
+    {phase:'student',screen:'quiz',caption:C.s18,cursor:['s-qopt'],
+     frames:[quiz({}), quiz({answered:true})]},
+
+    {phase:'student',screen:'quiz',caption:C.s19,cursor:[],holds:[1200,900,1200],
+     frames:[quiz({i:1,speed:true}), quiz({i:1,answered:true,speed:true}),
+             quiz({i:2,speed:true}), quiz({i:2,answered:true,speed:true})]},
+
+    {phase:'student',screen:'summary',caption:C.s20,frames:[{}],cursor:[]}
+  ]);
 })();
 
 /* ---- screen renderers -------------------------------------------------------- */
@@ -2196,7 +2534,7 @@ function simGenerator(s){
   let h='<div class="sim-app"><div class="sim-app-bar">'+
         '<span class="sim-tl"></span><span class="sim-tl"></span><span class="sim-tl"></span>'+
         '<span class="sim-app-title">'+L.appTitle+'</span></div><div class="sim-gen">'+
-        '<div class="sim-gen-form">';
+        '<div class="sim-gen-form sim-scroll">';
 
   h+=simField('grade',L.fields.grade,s.grade,
        {hot:s.hot==='grade', drop:s.open==='grade'?simDrop(O.grade,1,'o-grade'):''});
@@ -2249,11 +2587,150 @@ function simInterstitial(){
   const L=PODCAST_FLOW.labels;
   return '<div class="sim-inter"><h3>'+L.interTitle+'</h3><p>'+L.interSub+'</p></div>';
 }
-const SIM_SCREENS={generator:simGenerator, interstitial:simInterstitial};
+
+/* ---- student screens --------------------------------------------------------- */
+const SIM_TL='<span class="sim-tl"></span><span class="sim-tl"></span><span class="sim-tl"></span>';
+const SIM_MIC='<svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true">'+
+  '<rect x="9" y="3" width="6" height="11" rx="3" fill="#3A2A21"/>'+
+  '<path d="M6 12a6 6 0 0 0 12 0" fill="none" stroke="#3A2A21" stroke-width="1.9" stroke-linecap="round"/>'+
+  '<path d="M12 18v3M9 21h6" stroke="#3A2A21" stroke-width="1.9" stroke-linecap="round"/></svg>';
+const SIM_PLAY ='<svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true">'+
+  '<path d="M8 5l11 7-11 7z" fill="#fff"/></svg>';
+const SIM_PAUSE='<svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true">'+
+  '<rect x="7" y="5" width="4" height="14" rx="1.6" fill="#fff"/>'+
+  '<rect x="13" y="5" width="4" height="14" rx="1.6" fill="#fff"/></svg>';
+// A fixed, deterministic waveform: the same bars every paint, so the line never jitters.
+const SIM_WAVE=(function(){
+  let h='';
+  for(let i=0;i<72;i++){
+    const v=.30+.32*Math.abs(Math.sin(i*.55))+.26*Math.abs(Math.sin(i*1.9+1.2))
+             +.12*Math.abs(Math.sin(i*3.7+.4));
+    h+='<i style="height:'+Math.round(Math.min(1,v)*100)+'%"></i>';
+  }
+  return h;
+})();
+function simClock(sec){
+  sec=Math.max(0,Math.round(sec));
+  return String(Math.floor(sec/60)).padStart(2,'0')+':'+String(sec%60).padStart(2,'0');
+}
+function simDash(s){
+  const S=PODCAST_FLOW.student;
+  let h='<div class="sim-app"><div class="sim-app-bar">'+SIM_TL+
+        '<span class="sim-app-title">'+S.appTitle+'</span></div>'+
+        '<div class="sim-dash"><div class="sim-hi">'+S.greeting+'</div>';
+  S.groups.forEach(function(g){
+    h+='<div class="sim-grp'+(g.open?' open':'')+'"><div class="sim-grp-head">'+
+       '<span class="sim-chev"></span><span>'+g.label+'</span>'+
+       '<span class="sim-grp-n">('+g.n+')</span></div>';
+    if(g.open){
+      h+='<div class="sim-grp-body"><div class="sim-asgn'+(s.hot==='card'?' hot':'')+'" data-t="s-card">'+
+         '<span class="sim-mic sm">'+SIM_MIC+'</span>'+
+         '<div class="sim-asgn-t"><h5>'+S.card.title+'</h5><p>'+S.card.sub+'</p></div>'+
+         '<span class="sim-due">'+S.card.due+'</span></div></div>';
+    }
+    h+='</div>';
+  });
+  return h+'</div></div>';
+}
+function simCheckpointPanel(s){
+  const S=PODCAST_FLOW.student, c=S.cp1, K=S.keys;
+  let h='<div class="sim-qp"><div class="sim-qp-head">'+
+        '<div class="sim-qp-top"><span class="sim-tag">'+c.tag+'</span>'+
+        '<span class="sim-lead">'+c.lead+'</span></div>'+
+        '<p class="sim-q">'+c.q+'</p></div><div class="sim-qbody sim-scroll">';
+  c.opts.forEach(function(o,i){
+    const bad=s.answered&&i===c.picked, good=s.answered&&i===c.right;
+    h+='<div class="sim-opt'+(bad?' wrong sim-hot':good?' right':'')+'"'+
+       (i===c.picked?' data-t="s-opt"':'')+'><span class="sim-opt-k">'+K[i]+'</span>'+
+       '<span class="sim-opt-t">'+o+'</span>'+
+       (bad?'<span class="sim-mk-x">&#10005;</span>':good?'<span class="sim-mk-v">&#10003;</span>':'')+'</div>';
+  });
+  if(s.answered){
+    h+='<div class="sim-fb sim-hot">'+c.fb.map(function(t,i){
+         return '<p'+(i===c.fb.length-1?' class="try"':'')+'>'+t+'</p>';
+       }).join('')+'</div>'+
+       '<div class="sim-qcta" data-t="s-cont">'+c.cta+'</div>';
+  }
+  return h+'</div></div>';
+}
+function simPlayer(s){
+  const S=PODCAST_FLOW.student, P=S.player, st=S.status;
+  const anim=(s.play&&!simReduced())?' anim':'';
+  const style='--p0:'+((s.play?s.play.from:s.p)*100)+'%;--p1:'+(s.p*100)+'%;'+
+              '--pdur:'+((s.play&&s.play.ms)||0)+'ms';
+  let h='<div class="sim-app"><div class="sim-app-bar">'+SIM_TL+
+        '<span class="sim-app-title">'+P.title+'</span></div>'+
+        '<div class="sim-play'+(s.q?' dim compact':'')+'">'+
+        '<div class="sim-play-id"><span class="sim-mic">'+SIM_MIC+'</span>'+
+        '<div><h4>'+P.title+'</h4><p>'+P.sub+'</p></div></div>'+
+        '<div class="sim-statusrow">'+
+        (s.status?'<span class="sim-pill'+(s.done?' done':'')+'">'+st[s.status]+'</span>':'')+
+        '</div><div class="sim-wave'+anim+'" style="'+style+'">'+
+        '<div class="sim-bars base">'+SIM_WAVE+'</div>'+
+        '<div class="sim-bars fill">'+SIM_WAVE+'</div>';
+  S.marks.forEach(function(m,i){
+    h+='<span class="sim-mk'+[' ',' now',' done'][s.marks[i]]+'" style="left:'+(m*100)+'%"></span>';
+  });
+  h+='<span class="sim-ph"></span></div>'+
+     '<div class="sim-times"><span id="sim-clock">'+simClock(s.p*S.dur)+'</span>'+
+     '<span>'+simClock(S.dur)+'</span></div>'+
+     '<div class="sim-ctrls"><span class="sim-pbtn" data-t="s-play">'+
+     (s.playing?SIM_PAUSE:SIM_PLAY)+'</span></div></div>';
+  if(s.flash!==null&&s.flash!==undefined){
+    const f=S.flash[s.flash];
+    h+='<div class="sim-flash"><span class="sim-tag">'+f.tag+'</span><p>'+f.q+'</p></div>';
+  }
+  if(s.q) h+=simCheckpointPanel(s);
+  if(s.speed) h+='<div class="sim-speed">'+st.speed+'</div>';
+  return h+'</div>';
+}
+function simQuiz(s){
+  const S=PODCAST_FLOW.student, Q=S.quiz, K=S.keys, it=Q.items[s.i];
+  const finished=s.answered&&s.i===Q.items.length-1;
+  let h='<div class="sim-app"><div class="sim-app-bar">'+SIM_TL+
+        '<span class="sim-app-title">'+Q.title+'</span></div>'+
+        '<div class="sim-quiz"><div class="sim-quiz-head">'+
+        '<div><h4>'+Q.title+'</h4><p>'+Q.sub+'</p></div><div class="sim-quiz-meta">'+
+        (finished?'<span class="sim-pill done">'+Q.done+'</span>':'')+
+        '<span class="sim-tag">'+it.tag+'</span>'+
+        '<div class="sim-pips">'+Q.items.map(function(_,i){
+          return '<span class="sim-pip'+(i<s.i||(i===s.i&&s.answered)?' on':i===s.i?' cur':'')+'"></span>';
+        }).join('')+'</div></div></div>'+
+        '<div class="sim-qbody sim-scroll">'+
+        '<p class="sim-stem">'+it.stem+'</p><p class="sim-q">'+it.q+'</p>';
+  it.opts.forEach(function(o,i){
+    const good=s.answered&&i===it.right;
+    h+='<div class="sim-opt'+(good?' right sim-hot':'')+'"'+(i===it.right?' data-t="s-qopt"':'')+'>'+
+       '<span class="sim-opt-k">'+K[i]+'</span><span class="sim-opt-t">'+o+'</span>'+
+       (good?'<span class="sim-mk-v">&#10003;</span>':'')+'</div>';
+  });
+  if(s.answered) h+='<div class="sim-fb ok sim-hot"><p>'+it.fb+'</p></div>';
+  h+='</div></div>';
+  if(s.speed) h+='<div class="sim-speed">'+Q.speed+'</div>';
+  return h+'</div>';
+}
+function simSummary(){
+  const S=PODCAST_FLOW.student.summary;
+  const col=function(c){
+    return '<div class="sim-sum-col"><h4>'+c.h+'</h4>'+
+      (c.sub?'<div class="sim-sum-sub">'+c.sub+'</div>':'')+
+      c.rows.map(function(r){
+        return '<div class="sim-sum-row"><b>'+r[0]+'</b><span>'+r[1]+'</span></div>';
+      }).join('')+
+      (c.note?'<div class="sim-sum-note">'+c.note+'</div>':'')+'</div>';
+  };
+  return '<div class="sim-sum"><div class="sim-sum-cols">'+col(S.left)+col(S.right)+'</div>'+
+         '<p class="sim-sum-close">'+S.close+'</p></div>';
+}
+const SIM_SCREENS={generator:simGenerator, interstitial:simInterstitial,
+                   dash:simDash, player:simPlayer, quiz:simQuiz, summary:simSummary};
 
 /* ---- step machine ------------------------------------------------------------ */
-const SIM={i:0,timers:[],pt:null,scroll:0};
-function simClearTimers(){SIM.timers.forEach(clearTimeout);SIM.timers=[];}
+const SIM={i:0,timers:[],pt:null,scroll:0,raf:0};
+function simClearTimers(){
+  SIM.timers.forEach(clearTimeout);SIM.timers=[];
+  if(SIM.raf){cancelAnimationFrame(SIM.raf);SIM.raf=0;}
+}
 function simAt(ms,fn){SIM.timers.push(setTimeout(fn,ms));}
 function simReduced(){
   return !!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);
@@ -2262,11 +2739,26 @@ function simReduced(){
    back — innerHTML replacement would otherwise snap it to the top mid-step. */
 function simPaint(step,frame){
   const sc=document.getElementById('sim-screen');
-  sc.innerHTML=SIM_SCREENS[step.screen](frame);
+  sc.innerHTML=SIM_SCREENS[frame.screen||step.screen](frame);
   if(SIM.scroll){
-    const host=sc.querySelector('.sim-gen-form');
+    const host=sc.querySelector('.sim-scroll');
     if(host) host.scrollTop=SIM.scroll;
   }
+  simTick(frame);
+}
+/* The waveform fill and playhead are animated by CSS from --p0 to --p1; the clock has to
+   be counted up in step with them, so it runs off the same from/ms the frame carries. */
+function simTick(frame){
+  if(SIM.raf){cancelAnimationFrame(SIM.raf);SIM.raf=0;}
+  const el=document.getElementById('sim-clock');
+  if(!el||!frame.play||simReduced()) return;
+  const dur=PODCAST_FLOW.student.dur, a=frame.play.from*dur, b=frame.p*dur;
+  const ms=frame.play.ms||1, t0=performance.now();
+  SIM.raf=requestAnimationFrame(function loop(now){
+    const k=Math.min(1,(now-t0)/ms);
+    el.textContent=simClock(a+(b-a)*k);
+    SIM.raf=k<1?requestAnimationFrame(loop):0;
+  });
 }
 function simScrollHost(el){
   let n=el.parentElement;
@@ -2284,12 +2776,17 @@ function simScrollBy(el){
   const host=el&&simScrollHost(el);
   if(!host) return 0;
   const rects=[el.getBoundingClientRect()];
-  const field=el.closest('.sim-field'), drop=el.closest('.sim-drop');
+  const field=el.closest('.sim-field, .sim-opt'), drop=el.closest('.sim-drop');
   if(field) rects.push(field.getBoundingClientRect());
   if(drop)  rects.push(drop.getBoundingClientRect());
   // A toggle reveals its settings underneath; those count as part of the region too.
   const sub=field&&field.nextElementSibling;
   if(sub&&sub.classList.contains('sim-sub')) rects.push(sub.getBoundingClientRect());
+  // Answering lights up two things at once, the option that was clicked and the feedback
+  // it opened. Both belong to the region, so the answer never scrolls off its own reply.
+  if(el.classList.contains('sim-hot')){
+    host.querySelectorAll('.sim-hot').forEach(function(n){rects.push(n.getBoundingClientRect());});
+  }
   const top    = Math.min.apply(null, rects.map(function(r){return r.top;}));
   const bottom = Math.max.apply(null, rects.map(function(r){return r.bottom;}));
   const hr=host.getBoundingClientRect(), pad=10;
@@ -2309,7 +2806,7 @@ function simScrollBy(el){
 /* Run after a click repaints: the field just acted on may have grown, so bring the
    result into view and carry the cursor along with it. */
 function simRevealHot(){
-  const el=document.getElementById('sim-stage').querySelector('.sim-field.hot');
+  const el=document.getElementById('sim-stage').querySelector('.sim-field.hot, .sim-hot');
   if(!el) return;
   const d=simScrollBy(el);
   if(!d||!SIM.pt) return;
@@ -2331,7 +2828,7 @@ function simCursorTo(key){
 }
 // Viewers can scroll the form themselves; remember where they left it.
 document.getElementById('sim-stage').addEventListener('scroll',function(e){
-  if(e.target.classList&&e.target.classList.contains('sim-gen-form')) SIM.scroll=e.target.scrollTop;
+  if(e.target.classList&&e.target.classList.contains('sim-scroll')) SIM.scroll=e.target.scrollTop;
 },true);
 function simRingAt(pt){
   if(!pt) return;
@@ -2365,13 +2862,17 @@ function simRender(){
 
   const frames=step.frames, hops=step.cursor||[], holds=step.holds||[];
   const cur=document.getElementById('sim-cursor');
-  if(simReduced()||!hops.length){
+  // A step with no click and a single frame is already at its end state; a step with no
+  // click but several frames still plays through them (the sped-up stretches).
+  if(simReduced()||(!hops.length&&frames.length===1)){
     simPaint(step,frames[frames.length-1]);
     simRevealHot();
     cur.style.opacity='0';
     return;
   }
+  if(!hops.length) cur.style.opacity='0';
   simPaint(step,frames[0]);
+  simRevealHot();
   let t=0;
   hops.forEach(function(key,idx){
     const at=t, fi=Math.min(idx+1,frames.length-1);
