@@ -249,25 +249,115 @@
   .case-head{padding:6px 0 4px}
   .case-title{font-family:var(--serif);font-size:clamp(32px,5vw,52px);font-weight:800;
     letter-spacing:-.025em;line-height:1.04;margin:14px 0 12px}
-  .case-sub{font-size:17px;color:var(--ink2);font-weight:500;max-width:620px;line-height:1.6}
-  .case-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:26px}
-  @media(max-width:760px){.case-meta{grid-template-columns:1fr}}
-  .case-meta-box{background:#fff;border:1.5px solid var(--ink);border-radius:14px;padding:12px 14px;
-    box-shadow:0 3px 0 rgba(58,32,18,.1)}
-  .case-meta-label{display:block;font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;
-    color:var(--accent);margin-bottom:5px}
-  .case-meta-value{display:block;font-size:12.5px;font-weight:600;color:var(--ink2);line-height:1.5}
+  .case-sub{font-size:17px;color:var(--ink2);font-weight:500;line-height:1.6}
   .case-sec{border-top:1.5px dashed var(--line2);padding-top:34px;margin-top:38px}
   .case-sec-title{font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;
     color:var(--accent);margin-bottom:20px}
-  .case-prose{max-width:730px}
-  .case-prose h3{font-size:17px;font-weight:800;letter-spacing:-.015em;margin:28px 0 10px}
+  .case-prose{max-width:none}
+  .case-prose h3{font-size:17px;font-weight:800;letter-spacing:-.015em;
+    color:var(--accent);margin:28px 0 10px}
   .case-prose h3:first-child{margin-top:0}
-  .case-prose p{font-size:14.5px;line-height:1.78;color:var(--ink2);font-weight:450;margin-bottom:13px}
-  .case-pull{margin-top:28px;max-width:730px;background:var(--cream);border:1.5px solid var(--ink);
+  .case-prose p{font-size:15px;line-height:1.8;color:var(--ink2);font-weight:450;margin-bottom:14px}
+  .case-pull{margin-top:28px;background:var(--cream);border:1.5px solid var(--ink);
     border-left-width:6px;border-radius:14px;padding:16px 18px}
   .case-pull h4{font-size:13px;font-weight:800;margin-bottom:6px;letter-spacing:-.01em}
   .case-pull p{font-size:13.5px;line-height:1.68;color:var(--ink2);font-weight:500}
+
+  /* ----- case study: illustrated cards -----
+     Every figure below is authored in its finished state and animated away from it, so
+     the global prefers-reduced-motion rule leaves a frame that still explains the idea. */
+  /* Eight columns with every card spanning two: identical card widths to a four-column
+     grid, but the short second row can start half a card in and sit centred under the
+     first. The nth-child(5) offset assumes the 4 + 3 split. */
+  .case-cards{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:12px;margin:20px 0 24px}
+  .case-card{grid-column:span 2}
+  .case-card:nth-child(5){grid-column:2/span 2}
+  @media(max-width:1000px){
+    .case-cards{grid-template-columns:repeat(4,minmax(0,1fr))}
+    .case-card:nth-child(5){grid-column:span 2}
+  }
+  @media(max-width:560px){
+    .case-cards{grid-template-columns:1fr}
+    .case-card,.case-card:nth-child(5){grid-column:auto}
+  }
+  .case-card{background:#fff;border:1.5px solid var(--ink);border-radius:14px;padding:11px 12px 13px;
+    box-shadow:0 3px 0 rgba(58,32,18,.1)}
+  .case-card h4{font-size:12.5px;font-weight:800;letter-spacing:-.015em;line-height:1.35;margin-bottom:6px}
+  .case-card p{font-size:12px;line-height:1.6;color:var(--ink2);font-weight:450;margin-bottom:0}
+  .case-fig{display:block;width:100%;height:auto;background:#FBF9FF;
+    border:1.5px solid var(--line2);border-radius:10px;margin-bottom:10px}
+
+  /* anchor: the checkpoint marker drops onto the line it belongs after */
+  .ow-ev{fill:var(--mustard);animation:owEv 5s ease-in-out infinite}
+  .ow-pin{animation:owPin 5s ease-in-out infinite}
+  @keyframes owPin{0%{opacity:0;transform:translateY(-26px)}
+    10%{opacity:1}26%{transform:translateY(0)}30%{transform:translateY(-3px)}
+    34%,88%{transform:translateY(0);opacity:1}100%{opacity:0;transform:translateY(-26px)}}
+  @keyframes owEv{0%,30%{fill:#E7E0F5}40%,88%{fill:var(--mustard)}100%{fill:#E7E0F5}}
+
+  /* ladder: the rungs fill one after another */
+  .ow-step{transform-box:fill-box;transform-origin:50% 100%;
+    animation:owStep 5s ease-in-out infinite}
+  @keyframes owStep{0%{transform:scaleY(0)}16%,80%{transform:scaleY(1)}96%,100%{transform:scaleY(0)}}
+
+  /* options: an answer that stood out by length settles level with the rest */
+  .ow-opt{transform-box:fill-box;transform-origin:0 50%;
+    animation:owOpt 5s ease-in-out infinite}
+  @keyframes owOpt{0%,18%{transform:scaleX(var(--s))}48%,88%{transform:scaleX(1)}
+    100%{transform:scaleX(var(--s))}}
+
+  .cs-code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    font-size:.84em;font-weight:700;color:var(--accent);background:var(--cream);
+    border:1.2px solid var(--line2);border-radius:6px;padding:1px 6px;white-space:nowrap}
+
+  /* pipeline strip: five stages, with a highlight sweeping through them in order */
+  .case-flow{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px;margin:18px 0 20px}
+  .case-flow-step{position:relative;background:#fff;border:1.5px solid var(--ink);border-radius:12px;
+    padding:10px 12px;box-shadow:0 3px 0 rgba(58,32,18,.1);
+    animation:owFlow 5s ease-in-out infinite}
+  .case-flow-step h5{font-size:11.5px;font-weight:800;letter-spacing:-.01em;margin-bottom:4px}
+  .case-flow-step span{display:block;font-size:11.5px;line-height:1.5;color:var(--ink2);font-weight:500}
+  .case-flow-step:not(:last-child)::after{content:'';position:absolute;right:-11px;top:50%;
+    width:7px;height:7px;border-right:2px solid var(--line2);border-bottom:2px solid var(--line2);
+    transform:translateY(-50%) rotate(-45deg)}
+  @keyframes owFlow{0%,6%{background:#fff;box-shadow:0 3px 0 rgba(58,32,18,.1)}
+    12%,20%{background:var(--cream);box-shadow:0 3px 0 rgba(193,80,63,.34)}
+    28%,100%{background:#fff;box-shadow:0 3px 0 rgba(58,32,18,.1)}}
+  @media(max-width:760px){
+    .case-flow{grid-template-columns:1fr;gap:18px}
+    .case-flow-step:not(:last-child)::after{right:auto;left:50%;top:auto;bottom:-13px;
+      transform:translateX(-50%) rotate(45deg)}
+  }
+
+  /* guard: rejected, retried, accepted */
+  .ow-card{stroke:#2F7A4F;animation:owCard 5s ease-in-out infinite}
+  @keyframes owCard{0%,26%{stroke:var(--accent)}34%,56%{stroke:var(--mustard)}
+    64%,94%{stroke:#2F7A4F}100%{stroke:var(--accent)}}
+  .ow-bad-x,.ow-bad-r{opacity:0}
+  .ow-bad-x{animation:owBadX 5s ease-in-out infinite}
+  .ow-bad-r{animation:owBadR 5s linear infinite}
+  .ow-bad-v{animation:owBadV 5s ease-in-out infinite}
+  @keyframes owBadX{0%,4%{opacity:0}8%,26%{opacity:1}32%,100%{opacity:0}}
+  @keyframes owBadR{0%,32%{opacity:0}36%,56%{opacity:1}62%,100%{opacity:0}}
+  @keyframes owBadV{0%,60%{opacity:0}66%,94%{opacity:1}100%{opacity:0}}
+  .ow-spin{transform-box:view-box;transform-origin:160px 80px;animation:owSpin 1.1s linear infinite}
+  @keyframes owSpin{to{transform:rotate(360deg)}}
+
+  /* inplace: the question panel rises into the space under the collapsed player */
+  .ow-slide{animation:owSlide 5s ease-in-out infinite}
+  @keyframes owSlide{0%{opacity:0;transform:translateY(20px)}
+    18%,86%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(20px)}}
+
+  /* feedback: the explanation opens downward, hinged at its top edge */
+  .ow-open{transform-box:fill-box;transform-origin:50% 0;animation:owOpen 5s ease-in-out infinite}
+  @keyframes owOpen{0%{transform:scaleY(0);opacity:0}
+    22%,86%{transform:scaleY(1);opacity:1}100%{transform:scaleY(0);opacity:0}}
+
+  /* closeout: the summary rows land, then the run is marked done */
+  .ow-row{animation:owRow 5s ease-in-out infinite}
+  @keyframes owRow{0%{opacity:0}16%,88%{opacity:1}100%{opacity:0}}
+  .ow-done{animation:owDone 5s ease-in-out infinite}
+  @keyframes owDone{0%,52%{opacity:0}62%,90%{opacity:1}100%{opacity:0}}
 
   /* ===== Flow simulator ===== */
   .sim-frame{width:min(100%,calc(min(640px,72vh) * 1.6));aspect-ratio:16/10;margin:0 auto;
@@ -317,32 +407,23 @@
     border-bottom:1.5px solid var(--line2);background:#FCFAFF}
   .sim-tl{width:7px;height:7px;border-radius:50%;background:var(--line2)}
   .sim-app-title{margin-left:8px;font-size:11.5px;font-weight:800;letter-spacing:-.01em}
-  .sim-gen{flex:1;display:grid;grid-template-columns:1.12fr .88fr;min-height:0}
-  .sim-gen-form{padding:13px 15px;display:flex;flex-direction:column;gap:8px}
+  /* minmax(0,…) pins both columns: long topic/outcome text can no longer widen the
+     form column and shrink the preview panel between steps. */
+  .sim-gen{flex:1;display:grid;grid-template-columns:minmax(0,1.12fr) minmax(0,.88fr);min-height:0}
+  /* The form is taller than the frame once comprehension questions expand, so it owns
+     its own scroll instead of pushing content out of the clipped stage. */
+  .sim-gen-form{padding:13px 15px;display:flex;flex-direction:column;gap:8px;
+    min-width:0;min-height:0;overflow-y:auto;overscroll-behavior:contain;
+    scrollbar-width:thin;scrollbar-gutter:stable}
+  .sim-gen-form::-webkit-scrollbar{width:6px}
+  .sim-gen-form::-webkit-scrollbar-thumb{background:var(--line2);border-radius:3px}
   .sim-gen-side{border-left:1.5px solid var(--line2);background:#FAF8FE;padding:13px;
     display:flex;flex-direction:column;min-width:0}
-  /* Narrow screens: 16:10 would squash the stage to ~200px, so the frame keeps a
-     fixed height instead of a fixed ratio. Height is still constant across steps. */
-  @media(max-width:760px){
-    .sim-frame{width:100%;aspect-ratio:auto;height:min(560px,74vh)}
-    .sim-gen{grid-template-columns:1fr}
-    .sim-gen-side{display:none}
-    .sim-gen-form{gap:6px;padding:10px 11px;overflow-y:auto}
-    .sim-field{padding:6px 9px}
-    .sim-field-label{width:64px;font-size:9px}
-    .sim-field-value{font-size:11.5px}
-    .sim-drop{left:76px}
-    .sim-unit{display:none}
-    .sim-sub{margin-left:10px;gap:5px}
-    .sim-go{padding:8px 12px;font-size:12px}
-    .sim-cap{font-size:11.5px;padding:8px 12px 0}
-    .sim-btn{padding:7px 12px}
-  }
   .sim-field{position:relative;display:flex;align-items:center;gap:10px;padding:8px 11px;
     border:1.5px solid var(--line2);border-radius:10px;background:#fff}
   .sim-field.hot{border-color:var(--ink);box-shadow:0 0 0 3px rgba(193,80,63,.12)}
   .sim-field-label{font-size:9.5px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;
-    color:var(--muted);width:84px;flex-shrink:0}
+    color:var(--muted);width:96px;line-height:1.3;flex-shrink:0}
   .sim-field-value{font-size:12.5px;font-weight:700;color:var(--ink);flex:1;min-width:0;
     overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .sim-field-value.empty{color:#BCB2CE;font-weight:600}
@@ -350,8 +431,11 @@
     transform:rotate(45deg) translate(-2px,-2px);flex-shrink:0}
   .sim-unit{font-size:9.5px;font-weight:800;letter-spacing:.04em;color:var(--ink);background:var(--cream);
     border:1.2px solid var(--line2);border-radius:6px;padding:3px 7px;flex-shrink:0}
-  .sim-drop{position:absolute;left:94px;right:8px;top:calc(100% + 5px);z-index:30;background:#fff;
+  .sim-drop{position:absolute;left:106px;right:8px;top:calc(100% + 5px);z-index:30;background:#fff;
     border:1.5px solid var(--ink);border-radius:10px;box-shadow:0 5px 0 rgba(58,32,18,.14);padding:5px}
+  /* Fields low in the form open upward, the way a real select flips, so the list never
+     needs the scroll container to push the field being clicked out of view. */
+  .sim-drop.up{top:auto;bottom:calc(100% + 5px);box-shadow:0 -5px 0 rgba(58,32,18,.14)}
   .sim-drop-item{font-size:11.5px;font-weight:600;padding:6px 9px;border-radius:7px;color:var(--ink2);
     overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .sim-drop-item.sel{background:var(--cream);color:var(--ink);font-weight:800}
@@ -374,7 +458,7 @@
   .sim-stepper span{color:var(--muted);font-weight:700}
   .sim-avatar{width:19px;height:19px;border-radius:50%;background:var(--pink);border:1.5px solid var(--ink);
     font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-  .sim-go{margin-top:auto;font-size:12.5px;font-weight:800;padding:9px 14px;border-radius:10px;
+  .sim-go{margin-top:4px;font-size:12.5px;font-weight:800;padding:9px 14px;border-radius:10px;
     border:1.5px solid var(--ink);background:var(--accent);color:#fff;text-align:center;
     box-shadow:0 3px 0 rgba(58,32,18,.18)}
   .sim-go.off{background:var(--line);color:#A99CBC;border-color:var(--line2);box-shadow:none}
@@ -400,10 +484,225 @@
     justify-content:center;text-align:center;gap:12px;background:#fff;padding:24px}
   .sim-inter h3{font-family:var(--serif);font-size:clamp(22px,3.6vw,36px);font-weight:800;letter-spacing:-.025em}
   .sim-inter p{font-size:14px;font-weight:600;color:var(--ink2)}
+
+  /* ----- student: assignment inbox ----- */
+  .sim-dash{flex:1;min-height:0;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:9px}
+  .sim-hi{font-family:var(--serif);font-size:19px;font-weight:800;letter-spacing:-.02em}
+  .sim-grp{border:1.5px solid var(--line2);border-radius:12px;background:#fff;overflow:hidden;flex-shrink:0}
+  .sim-grp-head{display:flex;align-items:center;gap:9px;padding:9px 13px;font-size:12.5px;font-weight:800;
+    cursor:pointer}
+  .sim-grp-head:hover{background:#FBF9FF}
+  .sim-grp-n{font-size:11px;font-weight:700;color:var(--muted)}
+  .sim-grp-head .sim-chev{transform:rotate(-45deg)}                 /* collapsed: points right */
+  .sim-grp.open>.sim-grp-head{border-bottom:1.5px solid var(--line);background:#FBF9FF}
+  .sim-grp.open>.sim-grp-head .sim-chev{transform:rotate(45deg) translate(-2px,-2px)}
+  .sim-grp-body{padding:11px 13px}
+  .sim-asgn{display:flex;align-items:center;gap:12px;padding:11px 13px;border:1.5px solid var(--ink);
+    border-radius:12px;background:#fff;box-shadow:0 3px 0 rgba(58,32,18,.14);transition:transform .12s,box-shadow .12s}
+  .sim-asgn.hot{transform:translateY(2px);box-shadow:0 1px 0 rgba(58,32,18,.14)}
+  .sim-asgn-t{flex:1;min-width:0}
+  .sim-asgn-t h5{font-size:13px;font-weight:800;letter-spacing:-.01em}
+  .sim-asgn-t p{font-size:11px;font-weight:600;color:var(--muted)}
+  .sim-due{font-size:10.5px;font-weight:800;color:var(--ink);background:var(--cream);
+    border:1.2px solid var(--line2);border-radius:7px;padding:4px 9px;flex-shrink:0}
+
+  /* ----- student: player ----- */
+  .sim-play{flex:1;min-height:0;display:flex;flex-direction:column;padding:16px 22px;transition:opacity .2s}
+  .sim-play.dim{opacity:.5}
+  .sim-play-id{flex:1;min-height:0;display:flex;align-items:center;gap:12px}
+  /* With a question open the player collapses to a strip: status, line, clock. It stays
+     on screen because the question belongs to the exact spot the audio stopped at. */
+  .sim-play.compact{flex:0 0 auto;display:grid;grid-template-columns:auto minmax(0,1fr) auto;
+    align-items:center;gap:14px;padding:11px 20px 12px}
+  .sim-play.compact .sim-play-id,.sim-play.compact .sim-ctrls{display:none}
+  .sim-play.compact .sim-statusrow{height:auto}
+  .sim-play.compact .sim-wave{height:34px}
+  .sim-play.compact .sim-times{margin-top:0;flex-direction:column;align-items:flex-end;line-height:1.3}
+  /* Cover art. Fixed widths so the row height is identical on every step; the aspect
+     ratio comes from the viewBox, so height never has to be restated. */
+  .sim-cover{display:block;width:100%;background:#fff;border:1.5px solid var(--ink);
+    border-radius:10px;box-shadow:0 3px 0 rgba(58,32,18,.14);flex-shrink:0}
+  .sim-cover.md{width:74px;border-radius:8px}
+  .sim-cover.sm{width:54px;border-radius:7px;box-shadow:0 2px 0 rgba(58,32,18,.16)}
+  .sim-play-id h4{font-size:15.5px;font-weight:800;letter-spacing:-.015em}
+  .sim-play-id p{font-size:11.5px;font-weight:600;color:var(--muted)}
+  .sim-statusrow{height:24px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+  .sim-pill{font-size:10.5px;font-weight:800;letter-spacing:.03em;padding:3px 11px;border-radius:999px;
+    border:1.5px solid var(--ink);background:var(--cream);white-space:nowrap}
+  .sim-pill.done{background:#2F7A4F;border-color:#2F7A4F;color:#fff}
+  .sim-wave{position:relative;height:46px;flex-shrink:0}
+  .sim-bars{position:absolute;inset:0;display:flex;align-items:center;gap:2px}
+  .sim-bars i{flex:1;border-radius:2px;background:var(--line2)}
+  .sim-bars.fill{clip-path:inset(0 calc(100% - var(--p1)) 0 0);z-index:2}
+  .sim-bars.fill i{background:var(--accent)}
+  .sim-mk{position:absolute;top:50%;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;
+    background:#fff;border:2px solid var(--ink);z-index:3;box-shadow:0 0 0 2px #fff;
+    transition:background .2s,border-color .2s}
+  .sim-mk.now{background:var(--accent);border-color:var(--ink);box-shadow:0 0 0 2px #fff,0 0 0 5px rgba(193,80,63,.22)}
+  .sim-mk.done{background:#2F7A4F;border-color:#2F7A4F;box-shadow:0 0 0 2px #fff}
+  .sim-mk.done::after{content:"";position:absolute;left:2.6px;top:.6px;width:3px;height:6px;
+    border-right:2px solid #fff;border-bottom:2px solid #fff;transform:rotate(42deg)}
+  .sim-ph{position:absolute;top:-5px;bottom:-5px;left:var(--p1);width:2.5px;margin-left:-1.25px;
+    border-radius:2px;background:var(--ink);z-index:4}
+  .sim-ph::after{content:"";position:absolute;top:-4px;left:50%;width:8px;height:8px;margin-left:-4px;
+    border-radius:50%;background:var(--ink)}
+  .sim-wave.anim .sim-bars.fill{animation:simFill var(--pdur) linear both}
+  .sim-wave.anim .sim-ph{animation:simPh var(--pdur) linear both}
+  @keyframes simFill{from{clip-path:inset(0 calc(100% - var(--p0)) 0 0)}
+                     to{clip-path:inset(0 calc(100% - var(--p1)) 0 0)}}
+  @keyframes simPh{from{left:var(--p0)}to{left:var(--p1)}}
+  .sim-times{display:flex;justify-content:space-between;margin-top:8px;flex-shrink:0;
+    font-size:10.5px;font-weight:800;color:var(--muted);font-variant-numeric:tabular-nums}
+  .sim-ctrls{flex:1;min-height:0;display:flex;align-items:center;justify-content:center}
+  .sim-pbtn{width:38px;height:38px;border-radius:50%;background:var(--accent);border:1.8px solid var(--ink);
+    display:flex;align-items:center;justify-content:center;box-shadow:0 3px 0 rgba(58,32,18,.18)}
+
+  /* ----- student: question panel, shared by checkpoints and the end quiz ----- */
+  /* The panel takes whatever the collapsed player leaves, so its height never has to be
+     guessed as a percentage and long feedback gets every pixel that is going spare. */
+  .sim-qp{flex:1;min-height:0;z-index:12;background:#fff;
+    border-top:2px solid var(--ink);border-radius:16px 16px 0 0;display:flex;flex-direction:column;
+    box-shadow:0 -6px 22px rgba(58,32,18,.12);animation:simUp .28s cubic-bezier(.22,.61,.36,1)}
+  @keyframes simUp{from{transform:translateY(16%);opacity:.35}to{transform:none;opacity:1}}
+  /* The question sits in the panel head, not in the scrolling body: the feedback argues
+     with the wording, so the wording has to stay on screen while the body scrolls. */
+  .sim-qp-head{flex-shrink:0;display:flex;flex-direction:column;gap:7px;padding:10px 16px 12px;
+    border-bottom:1.5px solid var(--line);background:#FCFAFF;border-radius:14px 14px 0 0}
+  .sim-qp-top{display:flex;align-items:center;gap:11px}
+  .sim-tag{font-size:9.5px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;flex-shrink:0;
+    background:var(--mustard);border:1.5px solid var(--ink);border-radius:6px;padding:3px 8px}
+  .sim-lead{font-size:11.5px;font-weight:600;color:var(--muted)}
+  .sim-qbody{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:12px 16px 14px;
+    display:flex;flex-direction:column;gap:7px;scrollbar-width:thin;scrollbar-gutter:stable}
+  .sim-qbody::-webkit-scrollbar{width:6px}
+  .sim-qbody::-webkit-scrollbar-thumb{background:var(--line2);border-radius:3px}
+  .sim-qbody>.sim-tag{align-self:flex-start}
+  .sim-stem{font-size:12px;line-height:1.6;font-weight:500;color:var(--ink2)}
+  .sim-q{font-size:13.5px;line-height:1.5;font-weight:800;letter-spacing:-.01em;margin-bottom:2px}
+  .sim-opt{display:flex;align-items:center;gap:9px;padding:8px 11px;border:1.5px solid var(--line2);
+    border-radius:10px;background:#fff;font-size:12px;font-weight:600;color:var(--ink2)}
+  .sim-opt-k{width:19px;height:19px;border-radius:6px;background:var(--cream);border:1.2px solid var(--line2);
+    font-size:9.5px;font-weight:800;color:var(--ink);flex-shrink:0;
+    display:flex;align-items:center;justify-content:center}
+  .sim-opt-t{flex:1;min-width:0}
+  .sim-opt.wrong{border-color:var(--accent);background:#FDF3F1;color:var(--ink);font-weight:700}
+  .sim-opt.wrong .sim-opt-k{background:var(--accent);border-color:var(--accent);color:#fff}
+  .sim-opt.right{border-color:#2F7A4F;background:#F1F7F3;color:var(--ink);font-weight:700}
+  .sim-opt.right .sim-opt-k{background:#2F7A4F;border-color:#2F7A4F;color:#fff}
+  .sim-mk-x,.sim-mk-v{font-size:12px;font-weight:800;flex-shrink:0}
+  .sim-mk-x{color:var(--accent)}.sim-mk-v{color:#2F7A4F}
+  .sim-fb{margin-top:4px;border:1.5px solid var(--line2);border-left:3px solid var(--accent);
+    border-radius:10px;background:#FCFAFF;padding:11px 13px;display:flex;flex-direction:column;gap:7px}
+  .sim-fb.ok{border-left-color:#2F7A4F}
+  .sim-fb p{font-size:11.5px;line-height:1.65;font-weight:500;color:var(--ink2)}
+  .sim-fb:not(.ok) p:first-child{font-weight:800;color:var(--ink)}
+  .sim-fb p.try{font-weight:700;color:var(--ink);border-top:1.2px dashed var(--line2);padding-top:8px}
+  .sim-qcta{align-self:flex-start;margin-top:3px;font-size:12px;font-weight:800;padding:8px 15px;
+    border-radius:999px;border:1.5px solid var(--ink);background:var(--accent);color:#fff;
+    box-shadow:0 2px 0 rgba(58,32,18,.18)}
+
+  /* ----- student: compressed checkpoints and end quiz ----- */
+  /* The flashed questions sit under the line, never over it: the point of the sped-up
+     stretch is watching each marker turn into a check as the playhead passes it. */
+  .sim-flash{position:absolute;left:18px;right:18px;bottom:16px;z-index:14;
+    background:#fff;border:2px solid var(--ink);border-radius:14px;box-shadow:0 5px 0 rgba(58,32,18,.16);
+    padding:12px 15px;display:flex;align-items:flex-start;gap:12px;animation:simPop .18s ease-out}
+  @keyframes simPop{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:none}}
+  .sim-flash p{font-size:12.5px;line-height:1.5;font-weight:700}
+  /* Rides in the fake window chrome: it is a note about the recording, not about the app,
+     and every screen keeps that strip free. */
+  .sim-speed{position:absolute;right:11px;top:6px;z-index:16;font-size:9px;font-weight:800;
+    letter-spacing:.07em;text-transform:uppercase;background:var(--ink);color:#fff;
+    padding:4px 9px;border-radius:6px}
+  .sim-quiz{flex:1;min-height:0;display:flex;flex-direction:column}
+  .sim-quiz-head{flex-shrink:0;display:flex;align-items:center;gap:12px;padding:12px 18px 10px;
+    border-bottom:1.5px solid var(--line)}
+  .sim-quiz-head h4{font-size:14.5px;font-weight:800;letter-spacing:-.015em}
+  .sim-quiz-head p{font-size:11.5px;font-weight:600;color:var(--muted)}
+  .sim-quiz-meta{margin-left:auto;display:flex;align-items:center;gap:10px;flex-shrink:0}
+  .sim-pips{display:flex;gap:5px;flex-shrink:0}
+  .sim-pip{width:22px;height:5px;border-radius:3px;background:var(--line2)}
+  .sim-pip.on{background:#2F7A4F}
+  .sim-pip.cur{background:var(--accent)}
+
+  /* ----- student: closing summary ----- */
+  .sim-sum{position:absolute;inset:0;background:#fff;padding:20px 22px 18px;display:flex;
+    flex-direction:column;gap:16px;overflow-y:auto}
+  /* Auto margins centre the block when it fits and collapse to zero when it does not, so a
+     narrow screen scrolls from the top instead of hiding the first rows above it. */
+  .sim-sum-cols{flex:0 0 auto;margin:auto 0;
+    display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px}
+  .sim-sum-col{border:1.5px solid var(--line2);border-radius:14px;background:#FCFAFF;padding:13px 15px;
+    display:flex;flex-direction:column;gap:8px}
+  /* The teacher column is the point of the whole flow, so it is the one in full colour. */
+  .sim-sum-col.live{border-color:var(--ink);background:#FFF7E7;box-shadow:0 4px 0 rgba(58,32,18,.16)}
+  .sim-sum-col h4{font-size:10px;font-weight:800;letter-spacing:.11em;text-transform:uppercase;color:var(--muted)}
+  .sim-sum-col.live h4{color:var(--accent)}
+  .sim-sum-sub{font-size:12.5px;font-weight:800;letter-spacing:-.01em}
+  .sim-sum-row{display:flex;gap:10px;padding-top:7px;border-top:1.2px dashed var(--line2);
+    font-size:11.5px;line-height:1.5}
+  .sim-sum-col.live .sim-sum-row{border-top-color:rgba(58,32,18,.24)}
+  .sim-sum-row b{width:112px;flex-shrink:0;font-weight:800;color:var(--ink)}
+  .sim-sum-row span{color:var(--ink2);font-weight:600}
+  .sim-sum-note{margin-top:auto;display:flex;align-items:flex-start;gap:9px;
+    font-size:11.5px;line-height:1.55;font-weight:700;color:var(--ink);
+    background:#fff;border:1.5px solid var(--ink);border-radius:10px;padding:9px 11px;
+    box-shadow:0 2px 0 rgba(58,32,18,.14)}
+  .sim-star{width:19px;height:19px;flex-shrink:0;margin-top:-1px;
+    filter:drop-shadow(0 0 3px rgba(232,196,104,.95));
+    animation:simTwinkle 1.9s ease-in-out infinite}
+  @keyframes simTwinkle{0%,100%{transform:scale(1) rotate(0deg);filter:drop-shadow(0 0 2px rgba(232,196,104,.6))}
+    50%{transform:scale(1.16) rotate(-9deg);filter:drop-shadow(0 0 7px rgba(232,196,104,1))}}
+
+  /* Narrow screens: 16:10 would squash the stage to ~200px, so the frame keeps a fixed
+     height instead of a fixed ratio. Height is still constant across steps. This block
+     sits after every base rule on purpose, so its overrides win on equal specificity. */
+  @media(max-width:760px){
+    .sim-frame{width:100%;aspect-ratio:auto;height:min(560px,74vh)}
+    .sim-gen{grid-template-columns:1fr}
+    .sim-gen-side{display:none}
+    .sim-gen-form{gap:6px;padding:10px 11px}
+    .sim-field{padding:6px 9px}
+    .sim-field-label{width:76px;font-size:9px}
+    .sim-field-value{font-size:11.5px}
+    .sim-drop{left:88px}
+    .sim-unit{display:none}
+    .sim-sub{margin-left:10px;gap:5px}
+    .sim-go{padding:8px 12px;font-size:12px}
+    .sim-chips{flex-wrap:wrap;gap:4px}
+    .sim-chip{padding:4px 7px;font-size:10px}
+    .sim-cap{font-size:11.5px;padding:8px 12px 0}
+    .sim-btn{padding:7px 12px}
+    .sim-dash{padding:11px 12px;gap:7px}
+    .sim-hi{font-size:16px}
+    .sim-play{padding:12px 14px}
+    .sim-play-id h4{font-size:13.5px}
+    .sim-cover.md{width:60px}
+    .sim-cover.sm{width:46px}
+    /* Narrow: the status pill takes a row of its own so the line keeps its full width. */
+    .sim-play.compact{padding:9px 12px 10px;gap:7px 10px;grid-template-columns:minmax(0,1fr) auto}
+    .sim-play.compact .sim-statusrow{grid-column:1/-1;justify-content:flex-start}
+    .sim-qp-head{padding:9px 12px 10px;gap:6px}
+    .sim-lead{display:none}
+    .sim-qbody{padding:10px 12px 12px}
+    .sim-q{font-size:12.5px}
+    .sim-stem{font-size:11.5px}
+    .sim-opt{font-size:11.5px;padding:7px 9px}
+    .sim-quiz-head{padding:10px 12px 8px;gap:8px}
+    .sim-quiz-head h4{font-size:13px}
+    .sim-quiz-head p{display:none}
+    .sim-flash{left:10px;right:10px;bottom:10px;padding:10px 12px;gap:9px}
+    .sim-sum{padding:14px}
+    .sim-sum-cols{grid-template-columns:1fr;gap:10px}
+  }
   @media(prefers-reduced-motion:reduce){
     .sim-cursor{transition:none}.sim-ring{display:none}
     .sim-shim{animation:none}.sim-toast{animation:none}
+    .sim-star{animation:none;filter:drop-shadow(0 0 4px rgba(232,196,104,.95))}
     .sim-bar-fill,.sim-tog,.sim-tog::after{transition:none}
+    .sim-qp,.sim-flash{animation:none}
+    .sim-play,.sim-asgn,.sim-mk{transition:none}
+    .sim-wave.anim .sim-bars.fill,.sim-wave.anim .sim-ph{animation:none}
   }
 
   /* ===== Lesson plan cards ===== */
@@ -749,7 +1048,7 @@
           <div class="id-card" onclick="openCase('podcast')" style="cursor:pointer">
             <div class="id-card-thumb pt-thumb">
               <svg class="pc-svg" viewBox="0 0 320 172" preserveAspectRatio="xMidYMid meet" role="img"
-                   aria-label="An AI audio lesson plays, pauses to ask the learner a comprehension question, shows that the answer is correct, then resumes.">
+                   aria-label="An AI podcast plays, pauses to ask the learner a comprehension question, shows that the answer is correct, then resumes.">
                 <defs>
                   <g id="pcBars">
                     <rect x="34" y="99" width="4" height="10" rx="2"/><rect x="41.4" y="95" width="4" height="18" rx="2"/>
@@ -792,8 +1091,8 @@
                     <path d="M52 64v5M47 69h10" stroke="#3A2A21" stroke-width="1.8" stroke-linecap="round"/>
                   </g>
 
-                  <text x="80" y="54" font-size="10.5" font-weight="800" fill="#3A2A21">Ep. 04 · Photosynthesis</text>
-                  <text x="80" y="68" font-size="8.5" font-weight="600" fill="#9C8879">Interactive audio lesson · Grade 6</text>
+                  <text x="80" y="54" font-size="10.5" font-weight="800" fill="#3A2A21">How a Leaf Eats Sunlight</text>
+                  <text x="80" y="68" font-size="8.5" font-weight="600" fill="#9C8879">Grade 6 · Science</text>
 
                   <!-- transport button -->
                   <circle cx="272" cy="58" r="13" fill="#C1503F" stroke="#3A2A21" stroke-width="1.6"/>
@@ -810,8 +1109,8 @@
                     <rect x="32.5" y="80" width="2.5" height="48" rx="1.25" fill="#3A2A21"/>
                     <circle cx="33.7" cy="78" r="3.6" fill="#3A2A21"/>
                   </g>
-                  <text x="34" y="140" font-size="8" font-weight="700" fill="#9C8879">04:12</text>
-                  <text x="286" y="140" font-size="8" font-weight="700" fill="#9C8879" text-anchor="end">09:05</text>
+                  <text x="34" y="140" font-size="8" font-weight="700" fill="#9C8879">01:48</text>
+                  <text x="286" y="140" font-size="8" font-weight="700" fill="#9C8879" text-anchor="end">04:12</text>
 
                   <!-- question overlay -->
                   <rect class="pc-scrim" width="320" height="172" fill="#fff" opacity="0"/>
@@ -835,7 +1134,7 @@
                       <circle cx="152" cy="100" r="9.5" fill="#2E7D5B" stroke="#fff" stroke-width="1.6"/>
                       <path d="M147.5 100l3 3 5.5-5.5" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                     </g>
-                    <text class="pc-ok" x="46" y="137" font-size="8.5" font-weight="800" fill="#2E7D5B" opacity="0">Correct · resuming the episode</text>
+                    <text class="pc-ok" x="46" y="137" font-size="8.5" font-weight="800" fill="#2E7D5B" opacity="0">Correct · resuming</text>
                     <g class="pc-cursor" opacity="0">
                       <path d="M104 106L104 122L108.2 118.2L111 124L114 122.6L111.2 116.9L116 116.6Z"
                             fill="#fff" stroke="#3A2A21" stroke-width="1.5" stroke-linejoin="round"/>
@@ -846,7 +1145,7 @@
             </div>
             <div class="id-card-body">
               <h4>Interactive Podcast</h4>
-              <p>Students listen, and the episode pauses at the points where understanding usually slips. They answer, get feedback written for the mistake they actually made, then the audio picks back up. A synthesis quiz closes the lesson.</p>
+              <p>Students listen, and the audio pauses at the points where understanding usually slips. They answer, get feedback written for the mistake they actually made, then the audio picks back up. A synthesis quiz closes the activity.</p>
             </div>
           </div>
         </div>
@@ -1285,25 +1584,22 @@
 <!-- ============ CASE STUDY ============ -->
 <div id="case-page" style="display:none">
   <div class="proj-back-bar"><div class="wrap">
-    <button class="proj-back-btn" onclick="closeCase()">← Back to Products &amp; Tools</button>
+    <button class="proj-back-btn" onclick="closeCase()">← Back</button>
   </div></div>
 
   <div class="case-wrap">
     <div class="case-head">
-      <span class="eyebrow" id="cs-eyebrow"></span>
       <h1 class="case-title" id="cs-title"></h1>
       <p class="case-sub" id="cs-sub"></p>
-      <div class="case-meta" id="cs-meta"></div>
     </div>
 
     <div class="case-sec">
       <div class="case-sec-title">Overview</div>
-      <div class="case-prose" id="cs-overview"></div>
-      <div id="cs-pull"></div>
+      <div class="case-prose" id="cs-intro"></div>
     </div>
 
     <div class="case-sec">
-      <div class="case-sec-title">See the flow</div>
+      <div class="case-sec-title">See the flow (product simulation)</div>
       <div class="sim-frame" id="sim-frame" role="region"
            aria-label="Interactive walkthrough of the Interactive Podcast flow">
         <div class="sim-head">
@@ -1333,6 +1629,15 @@
 
         <p class="sim-sr" id="sim-live" aria-live="polite"></p>
       </div>
+    </div>
+
+    <div class="case-sec">
+      <div class="case-prose" id="cs-owned"></div>
+    </div>
+
+    <div class="case-sec">
+      <div class="case-prose" id="cs-overview"></div>
+      <div id="cs-pull"></div>
     </div>
   </div>
 </div>
@@ -2041,29 +2346,69 @@ function closeLesson(){ goHome(); }
    so Back is a plain index change with nothing to unwind.                            */
 const PODCAST_FLOW = {
   meta:{
-    eyebrow:'Product · Madlen',
     title:'Interactive Podcast',
-    sub:'An audio lesson that stops to check whether it is landing.',
-    boxes:[
-      {label:'Role',    value:'Product Manager. Pedagogy, question design, prompt architecture, flow.'},
-      {label:'Users',   value:'Teachers and students in K12 schools.'},
-      {label:'Surface', value:'Web, inside the teacher tool suite.'}
-    ]
+    sub:'Teachers turn a learning outcome into a podcast in minutes, and can have it stop along the way to check whether it is landing.'
   },
+  /* The opening paragraphs sit straight under the "Overview" label, so they carry no
+     heading of their own. Everything after the simulator is headed. */
+  intro:[
+    'A teacher picks the grade, the subject, the curriculum topic and the exact learning outcome, and gets a finished listening activity back in a few minutes, written against that outcome rather than loosely around it.',
+    'Comprehension questions are optional. A teacher who wants some assessment out of the listening turns them on, and the podcast then pauses at as many checkpoints as they asked for and closes with a quiz. Even a small number of questions gives back something a play count never does: a first read on who was actually following while the audio ran.'
+  ],
   overview:[
-    {h:'What it is', p:[
-      'Teachers generate an audio lesson on any topic in their curriculum. Before they assign it, they can turn on comprehension checks: the episode then pauses at four points to ask a question, and closes with a quiz.'
+    {h:'Why it is called interactive', p:[
+      'The audio itself is not adaptive. Every student hears the same script in the same order, and the questions do not branch by learner. What makes it interactive is that a student cannot stay passive through it. The podcast stops, asks, and waits, so listening turns into answering several times before the end.',
+      'The other half of that is the feedback. When a student picks a wrong answer, the AI writes the explanation right there, against the misconception behind that specific choice rather than against the correct answer, so the student leaves the checkpoint with the faulty idea named and taken apart.'
     ]},
     {h:'The pedagogical logic', p:[
-      'Audio is a low-friction format for students and a high-risk one for teachers. It plays continuously, it does not wait, and a student can finish an eight-minute episode having processed almost none of it. Listening feels like learning while producing very little retrievable knowledge.',
-      'The design answer is retrieval, spaced across the episode rather than piled at the end. The four inline checkpoints are deliberately small: one idea each, answerable from the segment just heard, close enough to the source that a student can reconstruct the answer instead of guessing. Each one forces a retrieval attempt at the moment the material is still fresh, which is what turns passive listening into something that survives the walk home.',
+      'Audio is a low-friction format for students and a high-risk one for teachers. It plays continuously, it does not wait, and a student can finish eight minutes of it having processed almost none of it. Listening feels like learning while producing very little retrievable knowledge.',
+      'The design answer is retrieval, spaced across the activity rather than piled at the end. The inline checkpoints are deliberately small: one idea each, answerable from the segment just heard, close enough to the source that a student can reconstruct the answer instead of guessing. Each one forces a retrieval attempt at the moment the material is still fresh, which is what turns passive listening into something that survives the walk home.',
       'Feedback is written against the wrong answer, not the right one. Distractors are built from the misconceptions students in this age group actually hold, so when a student picks one, the explanation names the belief behind the choice and gives a counterexample that will not fit it. The student has to rebuild the idea, not just read the correct sentence.',
-      'The end quiz does different work. By then the four ideas exist separately in a student&rsquo;s head, so the questions are scenario-based and ask for transfer: apply the idea to an unfamiliar situation, compare two cases, predict an outcome, correct a plausible misstatement. That is where the separate pieces get assembled into something usable.'
+      'The end quiz does different work. By then the ideas exist separately in a student&rsquo;s head, so the questions are scenario-based and ask for transfer: apply the idea to an unfamiliar situation, compare two cases, predict an outcome, correct a plausible misstatement. That is where the separate pieces get assembled into something usable.'
     ]},
-    {h:'What I owned', p:[
-      'The question taxonomy and where checkpoints fall in an episode, the distractor and feedback design, the generation pipeline and prompt architecture behind both question layers, and the teacher-side assignment flow.'
-    ]}
   ],
+  /* "What I owned" is the densest part of the case study, so it runs as four cards with
+     a small animation each instead of four blocks of prose. Every card animation has a
+     meaningful static frame, because the stylesheet kills all motion under
+     prefers-reduced-motion. */
+  owned:{
+    h:'What I owned',
+    lead:'The podcast generator tool already turned a topic, a document or a video into a two-speaker audio track. What it did not have was any way of telling whether a student had understood it. I built the layer that made it measurable and designed the screens a student meets it on. The top row is how a question comes to exist, the bottom row is how it behaves once a student is wearing headphones.',
+    cards:[
+      {k:'anchor', h:'Anchored to the script, not the clock',
+       p:'Questions are written after the transcript exists, so a checkpoint attaches to a line of script rather than to a guessed second. The rules decide which line: spread across the run, far enough apart, and never asking about something that has not played yet.'},
+      {k:'ladder', h:'Difficulty is a ladder, not a dial',
+       p:'Each rung is tied to a level of Bloom&rsquo;s taxonomy and sets what the answer must demand, what a distractor there looks like, and how much reasoning the explanation rebuilds. Reading level comes from the grade and the subject on top of that.'},
+      {k:'options', h:'Options that do not give themselves away',
+       p:'Matched length and grammar, so the answer cannot be spotted by its shape. Distractors from the same category as the answer, built out of errors students actually make, and an answer key that is distributed rather than patterned.'},
+      {k:'guard', h:'Nothing broken reaches the teacher',
+       p:'A set counts as valid only when every item comes back in the shape its type requires. Anything outside it is generated again, and what passes is still swept for options that repeat each other and an answer key pointing at a choice that is not there.'},
+      {k:'inplace', h:'The question arrives where the audio stopped',
+       p:'The player does not disappear. It collapses to a strip and stays above the question, still showing the point on the line the audio paused at, so the student answers next to their place in the lesson instead of on a screen that arrived from nowhere.'},
+      {k:'feedback', h:'Feedback lands under the answer that caused it',
+       p:'No new screen, no verdict page. The explanation opens directly beneath the choice the student made and speaks to that choice, and the button back into the audio sits under it, so the whole correction happens in one place.'},
+      {k:'closeout', h:'The end is an end, not a fade out',
+       p:'When the last quiz question is answered the activity closes on a summary of what the student actually did, so the run finishes somewhere definite rather than dropping them back into a list with no idea whether they were finished.'}
+    ],
+    close:'The thread through the student half is that being wrong does not raise the stakes. A checkpoint is not a graded moment, nothing is lost by missing it, and the only thing a wrong answer produces is an explanation.'
+  },
+  tech:{
+    h:'How it runs',
+    steps:[
+      {h:'Source',       p:'A topic, a document or a video'},
+      {h:'Transcript',   p:'Two speakers, every line addressable'},
+      {h:'Question pass',p:'A second read of the settled transcript'},
+      {h:'Validation',   p:'Shape, answer key, duplicates'},
+      {h:'Teacher',      p:'Edits anything, then assigns'}
+    ],
+    /* Backticks become inline code tokens at render time, so the copy stays readable
+       here and the markup stays out of the strings. */
+    p:[
+      'The one decision the rest of it hangs on is that the questions are a second pass over a finished transcript rather than a by-product of writing one. Generating both together lets the script bend toward the questions the model already has in mind, and it leaves nothing stable to anchor a checkpoint to. With the transcript settled first every line carries an `id`, and a checkpoint binds to a `message_id` instead of to a second on the clock, so placement is a discrete integer the spacing rules can be checked against and it stays correct whatever happens to the recording afterwards.',
+      'The pass returns one strict `JSON` document holding `inlineQuestions` and `endQuizQuestions`, and every item carries a `type` discriminator, which is the question contract the rest of the platform already speaks, so these are not a special case anywhere downstream. Placement rules, difficulty and the requested counts all go in as parameters, and the rules outrank the counts: when a script is too short to hold the requested checkpoints at a legal spacing, the count is what gives way.',
+      'What comes back is validated in code rather than trusted. A response that will not parse is regenerated, `answer` is checked against the keys actually present in `options`, choices that repeat each other are collapsed, and missing defaults are filled in before any of it is stored. Because the two passes are independent, the question layer can be rebuilt without re-recording a second of audio, which is what made it cheap to tune the placement and distractor rules against real scripts instead of guessing them once and shipping.'
+    ]
+  },
   pullout:{
     h:'Checkpoint placement rule',
     p:'A checkpoint goes at the end of a concept, not at a time interval. If a segment introduced one idea and then used it, the question lands after the use, never in the middle of the explanation.'
@@ -2075,40 +2420,136 @@ const PODCAST_FLOW = {
     subject:['Science','Math','Social Studies','English'],
     topic:['Living Things and Life Cycles','States of Matter and Their Distinguishing Properties',
            'Light and Sound','Simple Electrical Circuits'],
+    outcome:['Classifies everyday substances as solid, liquid or gas',
+             'Explains that matter changes state when heated or cooled',
+             'Compares the shape and volume behaviour of the three states',
+             'Predicts the state of a substance from its properties'],
     assign:['Emma Smith','Liam Novak','Sofia Marín','Grade 4B (24 students)']
   },
   labels:{
     appTitle:'Podcast Generator',
-    fields:{grade:'Grade',subject:'Subject',topic:'Topic',lang:'Language',
-            checks:'Comprehension checks',assign:'Assign to'},
+    fields:{grade:'Grade',subject:'Subject',topic:'Topic',outcome:'Learning outcome',
+            lang:'Language',checks:'Comprehension questions',assign:'Assign to'},
     placeholder:'Select',
     langs:['TR','EN','ES','DE','IT'],
     checkpoints:'Inline checkpoints',
     endQuiz:'End quiz',
-    endQuizValue:'3 questions',
     generate:'Generate and assign',
     previewLabel:'Preview',
-    previewEmpty:'Your episode will appear here',
-    generating:'Writing the episode and placing checkpoints',
+    previewEmpty:'Your content will be generated here',
+    generating:'Writing the script and placing checkpoints',
     unitChip:'Unit 4 · national curriculum',
     initials:'ES',
-    episode:{title:'Ep. 04 · States of Matter',
-             sub:'Interactive audio lesson · Grade 4 · EN',
-             meta:'09:05 · 4 checkpoints · end quiz'},
+    podcast:{title:'The Same Stuff, Three Ways',
+             sub:'Grade 4 · Science · EN',
+             meta:'04:12 · 4 checkpoints · end quiz'},
     toast:'Assigned to Emma Smith.',
     interTitle:'Now from Emma&rsquo;s side.',
-    interSub:'Same episode, different screen.'
+    interSub:'The podcast has landed in her assignments. This is what happens while she works through it.'
+  },
+  /* ---- student side ---- */
+  student:{
+    appTitle:'My work',
+    greeting:'Hi Emma',
+    groups:[{label:'Assigned',n:'1',open:true},{label:'Late',n:'0',open:false},
+            {label:'Completed',n:'7',open:false}],
+    card:{title:'The Same Stuff, Three Ways',sub:'Grade 4 · Science · 04:12',due:'Due Friday'},
+    player:{title:'The Same Stuff, Three Ways',sub:'Grade 4 · Science'},
+    dur:252,                       // 04:12 in seconds; every clock label is derived from it
+    marks:[.22,.44,.66,.86],
+    status:{paused:'Paused for a quick question',resuming:'Resuming',
+            complete:'Listening complete',speed:'Checkpoints 2 to 4, sped up'},
+    keys:['A','B','C','D'],
+    cp1:{
+      tag:'Checkpoint 1 of 4',
+      lead:'The podcast just described solids.',
+      /* Options are matched for length and grammar on purpose: the case study claims a
+         correct answer is never the longest one, so the simulator has to obey it too. */
+      q:'A wooden block keeps its own shape no matter which container you put it in. What best explains why?',
+      opts:['Because its particles are too heavy to be pushed around',
+            'Because its particles are fixed in place and only vibrate',
+            'Because its particles are too cold to move out of place',
+            'Because its particles have no air between them to move into'],
+      right:1, picked:0,
+      fb:['Not quite, and this is a really common way to think about it.',
+          'Heaviness and shape are separate things. A full jug of water is heavy, but it still spreads out to fit whatever container you pour it into. A piece of styrofoam weighs almost nothing, and it still holds its shape on a shelf.',
+          'So weight cannot be what is doing the work here. In a solid, the particles are held in fixed positions and can only vibrate in place. They cannot slide past each other, which is why the block keeps its own shape instead of taking the container&rsquo;s.',
+          'Try this: which one is the odd one out, a heavy rock, a heavy jug of water, or a light plastic cube?'],
+      cta:'Continue listening'
+    },
+    flash:[
+      {tag:'Checkpoint 2 of 4',q:'Water poured from a jug into a bowl takes the shape of the bowl, but the amount stays the same. Which property changed?'},
+      {tag:'Checkpoint 3 of 4',q:'A small puff of perfume ends up filling the whole room. What does that tell you about how gas particles move?'},
+      {tag:'Checkpoint 4 of 4',q:'An ice cube left on a warm table turns into water. What happened to the particles?'}
+    ],
+    quiz:{
+      title:'End quiz · States of Matter',
+      sub:'These pull the whole activity together.',
+      done:'Quiz complete · 3 of 3',
+      items:[
+        {tag:'Question 1 of 3',
+         stem:'Two identical glasses sit on a table. One holds water, the other holds cooking oil. Both are colorless, both are filled to exactly the same line. Ayşe needs to tell them apart without touching or smelling them.',
+         q:'Which measurement would actually work?',
+         opts:['The temperature of the air in the room around them',
+               'The volume each liquid fills up to inside the glass',
+               'The mass of each glass, since their volumes are equal',
+               'The shape each liquid takes on inside its own container'],
+         right:2,
+         fb:'Yes. Equal volumes, different masses, so the difference is density, and density is a distinguishing property: it belongs to the substance itself. Shape and volume are not, because both liquids will do the same thing there.'},
+        {tag:'Question 2 of 3',
+         stem:'A syringe is sealed at the tip. Push the plunger hard. If the syringe is full of air, the plunger moves in a long way. If it is full of water, it barely moves at all.',
+         q:'Why?',
+         opts:['Air particles have space between them that can be closed up',
+               'Air is lighter than water, so it takes less force to push',
+               'Water is colder than air, so its particles resist being moved',
+               'The seal at the tip lets a little air escape under pressure'],
+         right:0,
+         fb:'Right. Compressibility comes down to how much empty space there is between particles. This is also why you can pump more air into a ball but you cannot squeeze more water into a full bottle.'},
+        {tag:'Question 3 of 3',
+         stem:'A classmate says: &ldquo;Ice, water and steam are three different substances.&rdquo;',
+         q:'What is the best correction?',
+         opts:['They are three different substances that happen to look alike',
+               'They are one substance, so there is no real difference between them',
+               'Ice and water are one substance, and steam is a different one',
+               'They are one substance in three states with different energy'],
+         right:3,
+         fb:'Exactly. The particles do not change, their arrangement and energy do. That is also why the changes run both ways: steam can condense, water can freeze, and you are back where you started.'}
+      ],
+      speed:'Questions 2 and 3, sped up'
+    },
+    summary:{
+      left:{h:'What Emma saw',rows:[
+        ['Podcast','04:12, completed'],
+        ['Checkpoints','4 of 4 answered, 3 correct, 1 incorrect'],
+        ['End quiz','3 of 3']]},
+      right:{h:'What the teacher sees',sub:'Emma Smith · The Same Stuff, Three Ways',rows:[
+        ['Checkpoint 1','incorrect'],
+        ['Checkpoints 2-4','correct'],
+        ['End quiz','3 / 3']],
+        note:'Class-wide: 11 of 24 students missed Checkpoint 1. Weight is being confused with rigidity.'}
+    }
   },
   captions:{
     s1:'The teacher starts from their curriculum, not from the tool.',
-    s2:'Grade sets reading level, episode length, and question difficulty.',
+    s2:'Grade sets reading level, run time, and question difficulty.',
     s3:'Subject narrows the topic list to what is actually in the syllabus.',
-    s4:'Topics map to curriculum units, so an episode drops straight into a lesson plan.',
-    s5:'The same episode and the same questions, generated in the language of instruction.',
-    s6:'This is the whole feature: four checkpoints inside the episode, one quiz at the end.',
-    s7:'Assign to one student, or to a whole class.',
-    s8:'Nine minutes of audio with four checkpoints already placed at concept boundaries.',
-    s9:''
+    s4:'Topics map to curriculum units, so the audio drops straight into a lesson plan.',
+    s5:'A topic holds several outcomes. The one picked here is what the audio teaches and what every question is written against.',
+    s6:'The same script and the same questions, generated in the language of instruction.',
+    s7:'This is the whole feature: the teacher chooses how many checkpoints sit inside the audio, and a quiz closes it.',
+    s8:'Assign to one student, or to a whole class.',
+    s9:'Four minutes of audio with the checkpoints already placed at concept boundaries.',
+    s10:'',
+    s11:'The podcast arrives in the same place as every other assignment.',
+    s12:'Four markers on the timeline. The student can see the questions coming.',
+    s13:'The audio pauses itself. The student is not asked to remember to stop.',
+    s14:'One idea, answerable from the minute that just played.',
+    s15:'Feedback targets the belief behind the wrong answer, then hands back a question rather than a conclusion.',
+    s16:'Checkpoint answered. The marker fills in so progress stays visible on the line.',
+    s17:'Same pattern three more times. Each checkpoint follows the segment that just taught the idea.',
+    s18:'The inline checkpoints asked Emma to recall. The end quiz asks her to apply.',
+    s19:'Every quiz question puts the idea in a situation the audio never mentioned.',
+    s20:'The teacher gets back something a listening log never gives them: where the class actually broke, and why.'
   },
   steps:[]
 };
@@ -2116,16 +2557,17 @@ const PODCAST_FLOW = {
 /* ---- step definitions (teacher phase) ---------------------------------------- */
 (function(){
   const F=PODCAST_FLOW, C=F.captions;
-  const blank={grade:'',subject:'',topic:'',unit:false,lang:'',checks:false,assign:'',
+  const blank={grade:'',subject:'',topic:'',unit:false,outcome:'',lang:'',checks:false,assign:'',
                open:null,preview:'empty',toast:false,ready:false,hot:''};
   // cumulative resolved states — each one is a complete screen state, not a diff to apply
   const g =o=>Object.assign({},blank,o);
   const A ={grade:'Grade 4'};
   const B =Object.assign({},A,{subject:'Science'});
   const Cc=Object.assign({},B,{topic:F.options.topic[1],unit:true});
-  const D =Object.assign({},Cc,{lang:'EN'});
-  const E =Object.assign({},D,{checks:true});
-  const G =Object.assign({},E,{assign:'Emma Smith',ready:true});
+  const D =Object.assign({},Cc,{outcome:F.options.outcome[1]});
+  const E =Object.assign({},D,{lang:'EN'});
+  const H =Object.assign({},E,{checks:true});
+  const G =Object.assign({},H,{assign:'Emma Smith',ready:true});
 
   F.steps=[
     {phase:'teacher',screen:'generator',caption:C.s1,frames:[g({})],cursor:[]},
@@ -2139,26 +2581,89 @@ const PODCAST_FLOW = {
     {phase:'teacher',screen:'generator',caption:C.s4,cursor:['f-topic','o-topic'],
      frames:[g(B), g(Object.assign({},B,{open:'topic'})), g(Object.assign({},Cc,{hot:'topic'}))]},
 
-    {phase:'teacher',screen:'generator',caption:C.s5,cursor:['c-en'],
-     frames:[g(Cc), g(Object.assign({},D,{hot:'lang'}))]},
+    {phase:'teacher',screen:'generator',caption:C.s5,cursor:['f-outcome','o-outcome'],
+     frames:[g(Cc), g(Object.assign({},Cc,{open:'outcome'})), g(Object.assign({},D,{hot:'outcome'}))]},
 
-    {phase:'teacher',screen:'generator',caption:C.s6,cursor:['f-checks'],
-     frames:[g(D), g(Object.assign({},E,{hot:'checks'}))]},
+    {phase:'teacher',screen:'generator',caption:C.s6,cursor:['c-en'],
+     frames:[g(D), g(Object.assign({},E,{hot:'lang'}))]},
 
-    {phase:'teacher',screen:'generator',caption:C.s7,cursor:['f-assign','o-assign'],
-     frames:[g(E), g(Object.assign({},E,{open:'assign'})), g(Object.assign({},G,{hot:'assign'}))]},
+    {phase:'teacher',screen:'generator',caption:C.s7,cursor:['f-checks'],
+     frames:[g(E), g(Object.assign({},H,{hot:'checks'}))]},
 
-    {phase:'teacher',screen:'generator',caption:C.s8,cursor:['f-go'],holds:[900],
+    {phase:'teacher',screen:'generator',caption:C.s8,cursor:['f-assign','o-assign'],
+     frames:[g(H), g(Object.assign({},H,{open:'assign'})), g(Object.assign({},G,{hot:'assign'}))]},
+
+    {phase:'teacher',screen:'generator',caption:C.s9,cursor:['f-go'],holds:[900],
      frames:[g(G), g(Object.assign({},G,{preview:'generating'})),
              g(Object.assign({},G,{preview:'done',toast:true}))]},
 
-    {phase:'transition',screen:'interstitial',caption:C.s9,frames:[{}],cursor:[]}
+    {phase:'transition',screen:'interstitial',caption:C.s10,frames:[{}],cursor:[]}
   ];
+
+  /* ---- student phase ----------------------------------------------------------
+     Same contract as above: every frame is a complete resolved screen. Player frames
+     carry the playhead as a fraction (p) plus an optional play:{from,ms} that tells the
+     paint which stretch of the line to animate into; marks[] is 0 pending, 1 current,
+     2 cleared. Frames may override the step's screen, so one step can cross screens. */
+  const S=F.student, MK=S.marks;
+  const dash=o=>Object.assign({hot:''},o);
+  const play=o=>Object.assign({screen:'player',p:0,playing:false,status:'',marks:[0,0,0,0],
+                               q:false,answered:false,flash:null,speed:false,done:false,play:null},o);
+  const quiz=o=>Object.assign({screen:'quiz',i:0,answered:false,speed:false},o);
+  const M1=[2,0,0,0], M2=[2,2,0,0], M3=[2,2,2,0], M4=[2,2,2,2];
+
+  F.steps=F.steps.concat([
+    {phase:'student',screen:'dash',caption:C.s11,frames:[dash({})],cursor:[]},
+
+    {phase:'student',screen:'dash',caption:C.s12,cursor:['s-card'],holds:[380],
+     frames:[dash({}), dash({hot:'card'}), play({})]},
+
+    {phase:'student',screen:'player',caption:C.s13,cursor:['s-play'],holds:[1800],
+     frames:[play({}),
+             play({p:MK[0],playing:true,play:{from:0,ms:1800}}),
+             play({p:MK[0],status:'paused',marks:[1,0,0,0]})]},
+
+    {phase:'student',screen:'player',caption:C.s14,cursor:[],
+     frames:[play({p:MK[0],status:'paused',marks:[1,0,0,0],q:true})]},
+
+    {phase:'student',screen:'player',caption:C.s15,cursor:['s-opt'],
+     frames:[play({p:MK[0],status:'paused',marks:[1,0,0,0],q:true}),
+             play({p:MK[0],status:'paused',marks:[1,0,0,0],q:true,answered:true})]},
+
+    {phase:'student',screen:'player',caption:C.s16,cursor:['s-cont'],holds:[520],
+     frames:[play({p:MK[0],status:'paused',marks:[1,0,0,0],q:true,answered:true}),
+             play({p:MK[0],marks:M1,status:'resuming'}),
+             play({p:.26,playing:true,marks:M1,status:'resuming',play:{from:MK[0],ms:700}})]},
+
+    {phase:'student',screen:'player',caption:C.s17,cursor:[],
+     holds:[260,900,640,220,840,640,220,780,640,220,700],
+     frames:[play({p:.26,playing:true,marks:M1,speed:true}),
+             play({p:MK[1],playing:true,marks:M1,speed:true,play:{from:.26,ms:900}}),
+             play({p:MK[1],marks:[2,1,0,0],speed:true,flash:0}),
+             play({p:MK[1],marks:M2,speed:true}),
+             play({p:MK[2],playing:true,marks:M2,speed:true,play:{from:MK[1],ms:840}}),
+             play({p:MK[2],marks:[2,2,1,0],speed:true,flash:1}),
+             play({p:MK[2],marks:M3,speed:true}),
+             play({p:MK[3],playing:true,marks:M3,speed:true,play:{from:MK[2],ms:780}}),
+             play({p:MK[3],marks:[2,2,2,1],speed:true,flash:2}),
+             play({p:MK[3],marks:M4,speed:true}),
+             play({p:1,playing:true,marks:M4,speed:true,play:{from:MK[3],ms:700}}),
+             play({p:1,marks:M4,done:true,status:'complete'})]},
+
+    {phase:'student',screen:'quiz',caption:C.s18,cursor:['s-qopt'],
+     frames:[quiz({}), quiz({answered:true})]},
+
+    {phase:'student',screen:'quiz',caption:C.s19,cursor:[],holds:[1200,900,1200],
+     frames:[quiz({i:1,speed:true}), quiz({i:1,answered:true,speed:true}),
+             quiz({i:2,speed:true}), quiz({i:2,answered:true,speed:true})]},
+
+    {phase:'student',screen:'summary',caption:C.s20,frames:[{}],cursor:[]}
+  ]);
 })();
 
 /* ---- screen renderers -------------------------------------------------------- */
-function simDrop(list,targetIndex,tkey){
-  return '<div class="sim-drop">'+list.map(function(o,i){
+function simDrop(list,targetIndex,tkey,up){
+  return '<div class="sim-drop'+(up?' up':'')+'">'+list.map(function(o,i){
     return '<div class="sim-drop-item"'+(i===targetIndex?' data-t="'+tkey+'"':'')+'>'+o+'</div>';
   }).join('')+'</div>';
 }
@@ -2178,7 +2683,7 @@ function simGenerator(s){
   let h='<div class="sim-app"><div class="sim-app-bar">'+
         '<span class="sim-tl"></span><span class="sim-tl"></span><span class="sim-tl"></span>'+
         '<span class="sim-app-title">'+L.appTitle+'</span></div><div class="sim-gen">'+
-        '<div class="sim-gen-form">';
+        '<div class="sim-gen-form sim-scroll">';
 
   h+=simField('grade',L.fields.grade,s.grade,
        {hot:s.hot==='grade', drop:s.open==='grade'?simDrop(O.grade,1,'o-grade'):''});
@@ -2186,6 +2691,8 @@ function simGenerator(s){
        {hot:s.hot==='subject', drop:s.open==='subject'?simDrop(O.subject,0,'o-subject'):''});
   h+=simField('topic',L.fields.topic,s.topic,
        {hot:s.hot==='topic', unit:s.unit, drop:s.open==='topic'?simDrop(O.topic,1,'o-topic'):''});
+  h+=simField('outcome',L.fields.outcome,s.outcome,
+       {hot:s.hot==='outcome', drop:s.open==='outcome'?simDrop(O.outcome,1,'o-outcome'):''});
 
   h+='<div class="sim-field'+(s.hot==='lang'?' hot':'')+'">'+
      '<span class="sim-field-label">'+L.fields.lang+'</span><div class="sim-chips">'+
@@ -2200,21 +2707,21 @@ function simGenerator(s){
     h+='<div class="sim-sub">'+
        '<div class="sim-subrow"><span>'+L.checkpoints+'</span>'+
        '<span class="sim-stepper"><span>&minus;</span>4<span>+</span></span></div>'+
-       '<div class="sim-subrow"><span>'+L.endQuiz+
-       ' <span style="color:var(--muted)">· '+L.endQuizValue+'</span></span>'+
+       '<div class="sim-subrow"><span>'+L.endQuiz+'</span>'+
        '<span class="sim-tog on"></span></div></div>';
   }
 
   h+=simField('assign',L.fields.assign,s.assign,
        {hot:s.hot==='assign', avatar:!!s.assign,
-        drop:s.open==='assign'?simDrop(O.assign,0,'o-assign'):''});
+        drop:s.open==='assign'?simDrop(O.assign,0,'o-assign',true):''});
 
   h+='<div class="sim-go'+(s.ready?'':' off')+'" data-t="f-go">'+L.generate+'</div></div>';
 
   h+='<div class="sim-gen-side"><div class="sim-prev-label">'+L.previewLabel+'</div>';
   if(s.preview==='done'){
-    h+='<div class="sim-prev done"><h5>'+L.episode.title+'</h5><p>'+L.episode.sub+'</p>'+
-       '<span class="sim-prev-meta">'+L.episode.meta+'</span></div>';
+    h+='<div class="sim-prev done">'+simCover('sim-cover')+
+       '<h5>'+L.podcast.title+'</h5><p>'+L.podcast.sub+'</p>'+
+       '<span class="sim-prev-meta">'+L.podcast.meta+'</span></div>';
   }else if(s.preview==='generating'){
     h+='<div class="sim-prev"><div class="sim-shim"></div><div class="sim-shim s2"></div>'+
        '<div class="sim-shim s3"></div><span class="sim-prev-empty">'+L.generating+'</span></div>';
@@ -2229,17 +2736,281 @@ function simInterstitial(){
   const L=PODCAST_FLOW.labels;
   return '<div class="sim-inter"><h3>'+L.interTitle+'</h3><p>'+L.interSub+'</p></div>';
 }
-const SIM_SCREENS={generator:simGenerator, interstitial:simInterstitial};
+
+/* Cover art for the generated podcast: gas, liquid and solid, in the site's ink-outline
+   style. One artwork, three sizes — teacher preview, student inbox card, student player.
+   The gas blob is painted twice (ink discs, then smaller fill discs) so the union of the
+   circles keeps a single outer outline instead of showing every internal seam. */
+const SIM_COVER=(function(){
+  const ink='#3A2A21';
+  const c=function(x,y,r,f,s){
+    return '<circle cx="'+x+'" cy="'+y+'" r="'+r+'" fill="'+f+'"'+
+           (s?' stroke="'+ink+'" stroke-width="'+s+'"':'')+'/>';
+  };
+  let h='';
+  // ---- gas: loose blob with particles flying free inside it
+  const blob=[[15,29,9],[23,24,10],[31,29,8.5],[23,34,9.5]];
+  h+='<g fill="'+ink+'">'+blob.map(function(b){return c(b[0],b[1],b[2]+1.3,ink);}).join('')+'</g>';
+  h+='<g fill="#D9EDBE">'+blob.map(function(b){return c(b[0],b[1],b[2],'#D9EDBE');}).join('')+'</g>';
+  h+=c(8,15,2.4,'#D9EDBE',1.2)+c(4.2,9,1.5,'#D9EDBE',1.1);
+  h+=[[14,28],[20,22],[26,25],[31,29],[16,34],[23,31],[28,34],[21,37]]
+     .map(function(p){return c(p[0],p[1],2,'#2E7D32');}).join('');
+  // ---- liquid: particles close together, still able to slide past each other
+  h+='<path d="M46,13 L46,42 Q46,47 51,47 L61,47 Q66,47 66,42 L66,13 Z" fill="#EAF6FC"/>';
+  h+='<path d="M46,23 L66,23 L66,42 Q66,47 61,47 L51,47 Q46,47 46,42 Z" fill="#A9D8F2"/>';
+  h+='<ellipse cx="56" cy="23" rx="10" ry="2.6" fill="#8CC8EC"/>';
+  h+=[[50,28],[57,27],[62,31],[48,33],[54,32],[60,36],[51,38],[57,41],[62,42],[49,43],[55,45]]
+     .map(function(p){return c(p[0],p[1],1.7,'#6B74C6',.7);}).join('');
+  h+='<path d="M46,13 L46,42 Q46,47 51,47 L61,47 Q66,47 66,42 L66,13" fill="none" stroke="'+ink+
+     '" stroke-width="1.4" stroke-linejoin="round"/>';
+  h+='<ellipse cx="56" cy="13" rx="10" ry="2.6" fill="#F2FAFE" stroke="'+ink+'" stroke-width="1.4"/>';
+  // ---- solid: particles locked into a lattice
+  const cube=function(x,y,s){
+    const o=s*.3, d=s*.09;
+    let g='<path d="M'+x+','+y+' L'+(x+o)+','+(y-o)+' L'+(x+s+o)+','+(y-o)+' L'+(x+s)+','+y+
+          ' Z" fill="#F0A6A6" stroke="'+ink+'" stroke-width="1.3" stroke-linejoin="round"/>'+
+          '<path d="M'+(x+s)+','+y+' L'+(x+s+o)+','+(y-o)+' L'+(x+s+o)+','+(y+s-o)+' L'+(x+s)+','+(y+s)+
+          ' Z" fill="#E28E8E" stroke="'+ink+'" stroke-width="1.3" stroke-linejoin="round"/>'+
+          '<rect x="'+x+'" y="'+y+'" width="'+s+'" height="'+s+'" fill="#F4B6B6" stroke="'+ink+
+          '" stroke-width="1.3"/>';
+    [.26,.5,.74].forEach(function(fy){
+      [.26,.5,.74].forEach(function(fx){ g+=c(x+s*fx,y+s*fy,d,'#C1272D'); });
+    });
+    return g;
+  };
+  h+=cube(72,32,15)+cube(91,32,15)+cube(81,17,15);
+  return h;
+})();
+function simCover(cls){
+  return '<svg class="'+cls+'" viewBox="0 0 116 55" aria-hidden="true">'+SIM_COVER+'</svg>';
+}
+
+/* ---- student screens --------------------------------------------------------- */
+const SIM_TL='<span class="sim-tl"></span><span class="sim-tl"></span><span class="sim-tl"></span>';
+const SIM_PLAY ='<svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true">'+
+  '<path d="M8 5l11 7-11 7z" fill="#fff"/></svg>';
+const SIM_PAUSE='<svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true">'+
+  '<rect x="7" y="5" width="4" height="14" rx="1.6" fill="#fff"/>'+
+  '<rect x="13" y="5" width="4" height="14" rx="1.6" fill="#fff"/></svg>';
+// A fixed, deterministic waveform: the same bars every paint, so the line never jitters.
+const SIM_WAVE=(function(){
+  let h='';
+  for(let i=0;i<72;i++){
+    const v=.30+.32*Math.abs(Math.sin(i*.55))+.26*Math.abs(Math.sin(i*1.9+1.2))
+             +.12*Math.abs(Math.sin(i*3.7+.4));
+    h+='<i style="height:'+Math.round(Math.min(1,v)*100)+'%"></i>';
+  }
+  return h;
+})();
+function simClock(sec){
+  sec=Math.max(0,Math.round(sec));
+  return String(Math.floor(sec/60)).padStart(2,'0')+':'+String(sec%60).padStart(2,'0');
+}
+function simDash(s){
+  const S=PODCAST_FLOW.student;
+  let h='<div class="sim-app"><div class="sim-app-bar">'+SIM_TL+
+        '<span class="sim-app-title">'+S.appTitle+'</span></div>'+
+        '<div class="sim-dash"><div class="sim-hi">'+S.greeting+'</div>';
+  S.groups.forEach(function(g){
+    h+='<div class="sim-grp'+(g.open?' open':'')+'"><div class="sim-grp-head">'+
+       '<span class="sim-chev"></span><span>'+g.label+'</span>'+
+       '<span class="sim-grp-n">('+g.n+')</span></div>';
+    if(g.open){
+      h+='<div class="sim-grp-body"><div class="sim-asgn'+(s.hot==='card'?' hot':'')+'" data-t="s-card">'+
+         simCover('sim-cover sm')+
+         '<div class="sim-asgn-t"><h5>'+S.card.title+'</h5><p>'+S.card.sub+'</p></div>'+
+         '<span class="sim-due">'+S.card.due+'</span></div></div>';
+    }
+    h+='</div>';
+  });
+  return h+'</div></div>';
+}
+function simCheckpointPanel(s){
+  const S=PODCAST_FLOW.student, c=S.cp1, K=S.keys;
+  let h='<div class="sim-qp"><div class="sim-qp-head">'+
+        '<div class="sim-qp-top"><span class="sim-tag">'+c.tag+'</span>'+
+        '<span class="sim-lead">'+c.lead+'</span></div>'+
+        '<p class="sim-q">'+c.q+'</p></div><div class="sim-qbody sim-scroll">';
+  c.opts.forEach(function(o,i){
+    const bad=s.answered&&i===c.picked, good=s.answered&&i===c.right;
+    h+='<div class="sim-opt'+(bad?' wrong sim-hot':good?' right':'')+'"'+
+       (i===c.picked?' data-t="s-opt"':'')+'><span class="sim-opt-k">'+K[i]+'</span>'+
+       '<span class="sim-opt-t">'+o+'</span>'+
+       (bad?'<span class="sim-mk-x">&#10005;</span>':good?'<span class="sim-mk-v">&#10003;</span>':'')+'</div>';
+  });
+  if(s.answered){
+    h+='<div class="sim-fb sim-hot">'+c.fb.map(function(t,i){
+         return '<p'+(i===c.fb.length-1?' class="try"':'')+'>'+t+'</p>';
+       }).join('')+'</div>'+
+       '<div class="sim-qcta" data-t="s-cont">'+c.cta+'</div>';
+  }
+  return h+'</div></div>';
+}
+function simPlayer(s){
+  const S=PODCAST_FLOW.student, P=S.player, st=S.status;
+  const anim=(s.play&&!simReduced())?' anim':'';
+  const style='--p0:'+((s.play?s.play.from:s.p)*100)+'%;--p1:'+(s.p*100)+'%;'+
+              '--pdur:'+((s.play&&s.play.ms)||0)+'ms';
+  let h='<div class="sim-app"><div class="sim-app-bar">'+SIM_TL+
+        '<span class="sim-app-title">'+P.title+'</span></div>'+
+        '<div class="sim-play'+(s.q?' dim compact':'')+'">'+
+        '<div class="sim-play-id">'+simCover('sim-cover md')+
+        '<div><h4>'+P.title+'</h4><p>'+P.sub+'</p></div></div>'+
+        '<div class="sim-statusrow">'+
+        (s.status?'<span class="sim-pill'+(s.done?' done':'')+'">'+st[s.status]+'</span>':'')+
+        '</div><div class="sim-wave'+anim+'" style="'+style+'">'+
+        '<div class="sim-bars base">'+SIM_WAVE+'</div>'+
+        '<div class="sim-bars fill">'+SIM_WAVE+'</div>';
+  S.marks.forEach(function(m,i){
+    h+='<span class="sim-mk'+[' ',' now',' done'][s.marks[i]]+'" style="left:'+(m*100)+'%"></span>';
+  });
+  h+='<span class="sim-ph"></span></div>'+
+     '<div class="sim-times"><span id="sim-clock">'+simClock(s.p*S.dur)+'</span>'+
+     '<span>'+simClock(S.dur)+'</span></div>'+
+     '<div class="sim-ctrls"><span class="sim-pbtn" data-t="s-play">'+
+     (s.playing?SIM_PAUSE:SIM_PLAY)+'</span></div></div>';
+  if(s.flash!==null&&s.flash!==undefined){
+    const f=S.flash[s.flash];
+    h+='<div class="sim-flash"><span class="sim-tag">'+f.tag+'</span><p>'+f.q+'</p></div>';
+  }
+  if(s.q) h+=simCheckpointPanel(s);
+  if(s.speed) h+='<div class="sim-speed">'+st.speed+'</div>';
+  return h+'</div>';
+}
+function simQuiz(s){
+  const S=PODCAST_FLOW.student, Q=S.quiz, K=S.keys, it=Q.items[s.i];
+  const finished=s.answered&&s.i===Q.items.length-1;
+  let h='<div class="sim-app"><div class="sim-app-bar">'+SIM_TL+
+        '<span class="sim-app-title">'+Q.title+'</span></div>'+
+        '<div class="sim-quiz"><div class="sim-quiz-head">'+
+        '<div><h4>'+Q.title+'</h4><p>'+Q.sub+'</p></div><div class="sim-quiz-meta">'+
+        (finished?'<span class="sim-pill done">'+Q.done+'</span>':'')+
+        '<span class="sim-tag">'+it.tag+'</span>'+
+        '<div class="sim-pips">'+Q.items.map(function(_,i){
+          return '<span class="sim-pip'+(i<s.i||(i===s.i&&s.answered)?' on':i===s.i?' cur':'')+'"></span>';
+        }).join('')+'</div></div></div>'+
+        '<div class="sim-qbody sim-scroll">'+
+        '<p class="sim-stem">'+it.stem+'</p><p class="sim-q">'+it.q+'</p>';
+  it.opts.forEach(function(o,i){
+    const good=s.answered&&i===it.right;
+    h+='<div class="sim-opt'+(good?' right sim-hot':'')+'"'+(i===it.right?' data-t="s-qopt"':'')+'>'+
+       '<span class="sim-opt-k">'+K[i]+'</span><span class="sim-opt-t">'+o+'</span>'+
+       (good?'<span class="sim-mk-v">&#10003;</span>':'')+'</div>';
+  });
+  if(s.answered) h+='<div class="sim-fb ok sim-hot"><p>'+it.fb+'</p></div>';
+  h+='</div></div>';
+  if(s.speed) h+='<div class="sim-speed">'+Q.speed+'</div>';
+  return h+'</div>';
+}
+/* The class-wide read is the payoff of the whole flow, so it gets a star that keeps
+   catching the eye. Twinkling is switched off under prefers-reduced-motion. */
+const SIM_STAR='<svg class="sim-star" viewBox="0 0 24 24" aria-hidden="true">'+
+  '<path d="M12,2.5 L14.35,8.76 L21.03,9.06 L15.8,13.24 L17.58,19.69 L12,16 '+
+  'L6.42,19.69 L8.2,13.24 L2.97,9.06 L9.65,8.76 Z" fill="#E8C468" stroke="#3A2A21" '+
+  'stroke-width="1.6" stroke-linejoin="round"/></svg>';
+function simSummary(){
+  const S=PODCAST_FLOW.student.summary;
+  const col=function(c,live){
+    return '<div class="sim-sum-col'+(live?' live':'')+'"><h4>'+c.h+'</h4>'+
+      (c.sub?'<div class="sim-sum-sub">'+c.sub+'</div>':'')+
+      c.rows.map(function(r){
+        return '<div class="sim-sum-row"><b>'+r[0]+'</b><span>'+r[1]+'</span></div>';
+      }).join('')+
+      (c.note?'<div class="sim-sum-note">'+SIM_STAR+'<span>'+c.note+'</span></div>':'')+'</div>';
+  };
+  return '<div class="sim-sum"><div class="sim-sum-cols">'+col(S.left)+col(S.right,true)+'</div></div>';
+}
+const SIM_SCREENS={generator:simGenerator, interstitial:simInterstitial,
+                   dash:simDash, player:simPlayer, quiz:simQuiz, summary:simSummary};
 
 /* ---- step machine ------------------------------------------------------------ */
-const SIM={i:0,timers:[],pt:null};
-function simClearTimers(){SIM.timers.forEach(clearTimeout);SIM.timers=[];}
+const SIM={i:0,timers:[],pt:null,scroll:0,raf:0};
+function simClearTimers(){
+  SIM.timers.forEach(clearTimeout);SIM.timers=[];
+  if(SIM.raf){cancelAnimationFrame(SIM.raf);SIM.raf=0;}
+}
 function simAt(ms,fn){SIM.timers.push(setTimeout(fn,ms));}
 function simReduced(){
   return !!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);
 }
+/* The form scrolls inside the frame, so every repaint has to put the scroll position
+   back — innerHTML replacement would otherwise snap it to the top mid-step. */
 function simPaint(step,frame){
-  document.getElementById('sim-screen').innerHTML=SIM_SCREENS[step.screen](frame);
+  const sc=document.getElementById('sim-screen');
+  sc.innerHTML=SIM_SCREENS[frame.screen||step.screen](frame);
+  if(SIM.scroll){
+    const host=sc.querySelector('.sim-scroll');
+    if(host) host.scrollTop=SIM.scroll;
+  }
+  simTick(frame);
+}
+/* The waveform fill and playhead are animated by CSS from --p0 to --p1; the clock has to
+   be counted up in step with them, so it runs off the same from/ms the frame carries. */
+function simTick(frame){
+  if(SIM.raf){cancelAnimationFrame(SIM.raf);SIM.raf=0;}
+  const el=document.getElementById('sim-clock');
+  if(!el||!frame.play||simReduced()) return;
+  const dur=PODCAST_FLOW.student.dur, a=frame.play.from*dur, b=frame.p*dur;
+  const ms=frame.play.ms||1, t0=performance.now();
+  SIM.raf=requestAnimationFrame(function loop(now){
+    const k=Math.min(1,(now-t0)/ms);
+    el.textContent=simClock(a+(b-a)*k);
+    SIM.raf=k<1?requestAnimationFrame(loop):0;
+  });
+}
+function simScrollHost(el){
+  let n=el.parentElement;
+  while(n&&!n.classList.contains('sim-screen')){
+    if(n.scrollHeight-n.clientHeight>2) return n;
+    n=n.parentElement;
+  }
+  return null;
+}
+/* Brings a step's target into view and reports how far it will travel, so the fake
+   cursor can be aimed at where the element lands rather than where it is now.
+   The field being acted on is part of the region that must stay visible: revealing a
+   dropdown may never push the row the viewer is watching off the top of the frame. */
+function simScrollBy(el){
+  const host=el&&simScrollHost(el);
+  if(!host) return 0;
+  const rects=[el.getBoundingClientRect()];
+  const field=el.closest('.sim-field, .sim-opt'), drop=el.closest('.sim-drop');
+  if(field) rects.push(field.getBoundingClientRect());
+  if(drop)  rects.push(drop.getBoundingClientRect());
+  // A toggle reveals its settings underneath; those count as part of the region too.
+  const sub=field&&field.nextElementSibling;
+  if(sub&&sub.classList.contains('sim-sub')) rects.push(sub.getBoundingClientRect());
+  // Answering lights up two things at once, the option that was clicked and the feedback
+  // it opened. Both belong to the region, so the answer never scrolls off its own reply.
+  if(el.classList.contains('sim-hot')){
+    host.querySelectorAll('.sim-hot').forEach(function(n){rects.push(n.getBoundingClientRect());});
+  }
+  const top    = Math.min.apply(null, rects.map(function(r){return r.top;}));
+  const bottom = Math.max.apply(null, rects.map(function(r){return r.bottom;}));
+  const hr=host.getBoundingClientRect(), pad=10;
+  let d=0;
+  if(top<hr.top+pad){
+    d=top-(hr.top+pad);                                  // pull the region down into view
+  }else if(bottom>hr.bottom-pad){
+    d=Math.min(bottom-(hr.bottom-pad), top-(hr.top+pad)); // never past the region's top
+    if(d<0) d=0;
+  }
+  d=Math.max(-host.scrollTop, Math.min(d, host.scrollHeight-host.clientHeight-host.scrollTop));
+  if(Math.abs(d)<1) return 0;
+  SIM.scroll=host.scrollTop+d;
+  host.scrollTo({top:SIM.scroll, behavior:simReduced()?'auto':'smooth'});
+  return d;
+}
+/* Run after a click repaints: the field just acted on may have grown, so bring the
+   result into view and carry the cursor along with it. */
+function simRevealHot(){
+  const el=document.getElementById('sim-stage').querySelector('.sim-field.hot, .sim-hot');
+  if(!el) return;
+  const d=simScrollBy(el);
+  if(!d||!SIM.pt) return;
+  SIM.pt.y-=d;
+  document.getElementById('sim-cursor').style.transform=
+    'translate('+SIM.pt.x+'px,'+SIM.pt.y+'px)';
 }
 function simCursorTo(key){
   const stage=document.getElementById('sim-stage');
@@ -2247,11 +3018,16 @@ function simCursorTo(key){
   const el=stage.querySelector('[data-t="'+key+'"]');
   if(!el){cur.style.opacity='0';return null;}
   const sr=stage.getBoundingClientRect(), er=el.getBoundingClientRect();
-  const pt={x:er.left-sr.left+Math.min(er.width*0.42,72), y:er.top-sr.top+er.height*0.62};
+  const d=simScrollBy(el);
+  const pt={x:er.left-sr.left+Math.min(er.width*0.42,72), y:er.top-sr.top+er.height*0.62-d};
   cur.style.opacity='1';
   cur.style.transform='translate('+pt.x+'px,'+pt.y+'px)';
   return pt;
 }
+// Viewers can scroll the form themselves; remember where they left it.
+document.getElementById('sim-stage').addEventListener('scroll',function(e){
+  if(e.target.classList&&e.target.classList.contains('sim-scroll')) SIM.scroll=e.target.scrollTop;
+},true);
 function simRingAt(pt){
   if(!pt) return;
   const r=document.getElementById('sim-ring');
@@ -2269,6 +3045,7 @@ function simDots(){
 }
 function simRender(){
   simClearTimers();
+  SIM.scroll=0;
   const F=PODCAST_FLOW, steps=F.steps, step=steps[SIM.i], total=steps.length;
   document.getElementById('sim-phase').textContent=F.phaseTag[step.phase];
   document.getElementById('sim-pov-text').textContent=F.phases[step.phase];
@@ -2283,17 +3060,22 @@ function simRender(){
 
   const frames=step.frames, hops=step.cursor||[], holds=step.holds||[];
   const cur=document.getElementById('sim-cursor');
-  if(simReduced()||!hops.length){
+  // A step with no click and a single frame is already at its end state; a step with no
+  // click but several frames still plays through them (the sped-up stretches).
+  if(simReduced()||(!hops.length&&frames.length===1)){
     simPaint(step,frames[frames.length-1]);
+    simRevealHot();
     cur.style.opacity='0';
     return;
   }
+  if(!hops.length) cur.style.opacity='0';
   simPaint(step,frames[0]);
+  simRevealHot();
   let t=0;
   hops.forEach(function(key,idx){
     const at=t, fi=Math.min(idx+1,frames.length-1);
     simAt(at,      function(){ SIM.pt=simCursorTo(key); });
-    simAt(at+440,  function(){ simRingAt(SIM.pt); simPaint(step,frames[fi]); });
+    simAt(at+440,  function(){ simRingAt(SIM.pt); simPaint(step,frames[fi]); simRevealHot(); });
     t=at+530;
   });
   let f=hops.length, hi=0;
@@ -2319,21 +3101,138 @@ document.addEventListener('keydown',function(e){
 });
 
 /* ---- case study page --------------------------------------------------------- */
+/* `token` in case-study copy renders as an inline code chip. */
+function caseCode(t){
+  return t.replace(/`([^`]+)`/g,'<code class="cs-code">$1</code>');
+}
+/* One figure per "What I owned" card. Keyed by the card's `k`, drawn in the site's
+   ink-outline style and animated entirely in CSS. */
+const CASE_FIG=(function(){
+  const ink='#3A2A21', lilac='#DCD2F0', dim='#EFEAFA';
+  let a='';
+  // ---- anchor: script lines, evidence behind, the checkpoint dropping into place
+  [[12,118,'ow-ev'],[26,96,'ow-ev'],[40,130,''],[54,104,''],[74,122,'dim'],[88,98,'dim']]
+    .forEach(function(l){
+      a+='<rect x="34" y="'+l[0]+'" width="'+l[1]+'" height="7" rx="3.5" fill="'+
+         (l[2]==='dim'?dim:lilac)+'"'+(l[2]==='ow-ev'?' class="ow-ev"':'')+'/>';
+    });
+  a+='<g class="ow-pin"><path d="M34,66.5 H148" stroke="#C1503F" stroke-width="2" '+
+     'stroke-linecap="round" stroke-dasharray="5 4"/>'+
+     '<circle cx="163" cy="66.5" r="9" fill="#C1503F" stroke="'+ink+'" stroke-width="1.6"/>'+
+     '<text x="163" y="70.8" font-size="11.5" font-weight="800" fill="#fff" '+
+     'text-anchor="middle" font-family="system-ui,sans-serif">?</text></g>';
+
+  // ---- ladder: five rungs of difficulty filling in order
+  let b='<path d="M12,93 H192" stroke="'+ink+'" stroke-width="1.6" stroke-linecap="round"/>';
+  [[18,16],[54,30],[90,44],[126,58],[162,72]].forEach(function(s,i){
+    const y=92-s[1];
+    b+='<rect x="'+s[0]+'" y="'+y+'" width="24" height="'+s[1]+'" rx="4" fill="'+dim+
+       '" stroke="'+ink+'" stroke-width="1.3"/>'+
+       '<rect class="ow-step" x="'+s[0]+'" y="'+y+'" width="24" height="'+s[1]+'" rx="4" '+
+       'fill="#C1503F" stroke="'+ink+'" stroke-width="1.3" style="animation-delay:'+(i*.16)+'s"/>';
+  });
+
+  // ---- options: four choices, one of which used to be spottable by its length
+  let c='';
+  ['A','B','C','D'].forEach(function(k,i){
+    const y=14+i*22, s=[.72,1.3,.62,.86][i];
+    c+='<rect x="18" y="'+y+'" width="15" height="13" rx="4" fill="#E8C468" stroke="'+ink+
+       '" stroke-width="1.3"/>'+
+       '<text x="25.5" y="'+(y+10)+'" font-size="9" font-weight="800" fill="'+ink+
+       '" text-anchor="middle" font-family="system-ui,sans-serif">'+k+'</text>'+
+       '<rect class="ow-opt" x="40" y="'+y+'" width="100" height="13" rx="6.5" fill="'+
+       (i===1?'#C1503F':lilac)+'" style="--s:'+s+'"/>';
+  });
+
+  // ---- guard: a generation rejected, retried, then accepted
+  let d='<rect class="ow-card" x="26" y="14" width="148" height="76" rx="12" fill="#fff" '+
+        'stroke-width="1.8"/>';
+  [[30,108],[46,84],[62,96]].forEach(function(r){
+    d+='<rect x="40" y="'+r[0]+'" width="'+r[1]+'" height="6" rx="3" fill="'+lilac+'"/>';
+  });
+  d+='<circle cx="160" cy="80" r="13" fill="#fff" stroke="'+ink+'" stroke-width="1.6"/>'+
+     '<g class="ow-bad-x" stroke="#C1503F" stroke-width="2.6" stroke-linecap="round">'+
+     '<path d="M155,75 L165,85"/><path d="M165,75 L155,85"/></g>'+
+     '<g class="ow-bad-r"><g class="ow-spin">'+
+     '<path d="M160,71.5 A8.5,8.5 0 1 1 152.4,76" fill="none" stroke="#E8C468" '+
+     'stroke-width="2.6" stroke-linecap="round"/></g></g>'+
+     '<path class="ow-bad-v" d="M154,80.3 L158.3,84.6 L166.4,75.8" fill="none" '+
+     'stroke="#2F7A4F" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>';
+
+  // ---- inplace: the player collapses to a strip and the question opens under it
+  let e='<rect x="16" y="12" width="168" height="24" rx="9" fill="#fff" stroke="'+ink+
+        '" stroke-width="1.6"/>'+
+        '<path d="M28,18.5 L36,24 L28,29.5 Z" fill="#C1503F"/>';
+  for(let i=0;i<16;i++){
+    const hh=4+((i*7)%9);
+    e+='<rect x="'+(46+i*8)+'" y="'+(24-hh/2)+'" width="3" height="'+hh+'" rx="1.5" fill="'+
+       (i<6?'#C1503F':lilac)+'"/>';
+  }
+  e+='<g class="ow-slide"><rect x="16" y="46" width="168" height="46" rx="11" fill="#fff" '+
+     'stroke="'+ink+'" stroke-width="1.6"/>'+
+     '<rect x="28" y="56" width="96" height="6" rx="3" fill="'+lilac+'"/>'+
+     '<rect x="28" y="70" width="66" height="12" rx="6" fill="'+dim+'" stroke="'+ink+
+     '" stroke-width="1.2"/>'+
+     '<rect x="102" y="70" width="66" height="12" rx="6" fill="'+dim+'" stroke="'+ink+
+     '" stroke-width="1.2"/></g>';
+
+  // ---- feedback: the explanation opens beneath the option the student picked
+  let f='';
+  [0,1,2].forEach(function(i){
+    const y=10+i*17, bad=i===1;
+    f+='<rect x="18" y="'+y+'" width="164" height="13" rx="6.5" fill="'+(bad?'#F7DDD8':lilac)+
+       '"'+(bad?' stroke="#C1503F" stroke-width="1.4"':'')+'/>';
+    if(bad) f+='<path d="M168,'+(y+3.5)+' l6,6 M174,'+(y+3.5)+' l-6,6" stroke="#C1503F" '+
+                'stroke-width="1.8" stroke-linecap="round"/>';
+  });
+  f+='<g class="ow-open"><rect x="18" y="62" width="164" height="30" rx="9" fill="#FDF6E6" '+
+     'stroke="'+ink+'" stroke-width="1.5"/>'+
+     '<rect x="28" y="70" width="120" height="5" rx="2.5" fill="#C9B48A"/>'+
+     '<rect x="28" y="80" width="88" height="5" rx="2.5" fill="#C9B48A"/></g>';
+
+  // ---- closeout: the run ends on a summary rather than trailing off
+  let j='<rect x="22" y="12" width="156" height="80" rx="12" fill="#fff" stroke="'+ink+
+        '" stroke-width="1.7"/>';
+  [[26,74],[44,58],[62,66]].forEach(function(r,i){
+    j+='<g class="ow-row" style="animation-delay:'+(i*.3)+'s">'+
+       '<rect x="34" y="'+r[0]+'" width="'+r[1]+'" height="6" rx="3" fill="'+lilac+'"/>'+
+       '<rect x="'+(166-34)+'" y="'+r[0]+'" width="34" height="6" rx="3" fill="'+dim+'"/></g>';
+  });
+  j+='<g class="ow-done"><rect x="34" y="76" width="62" height="14" rx="7" fill="#2F7A4F"/>'+
+     '<path d="M42,83 l3.4,3.4 l6.6,-7" fill="none" stroke="#fff" stroke-width="2" '+
+     'stroke-linecap="round" stroke-linejoin="round"/></g>';
+
+  const wrap=function(inner){
+    return '<svg class="case-fig" viewBox="0 0 200 104" aria-hidden="true">'+inner+'</svg>';
+  };
+  return {anchor:wrap(a), ladder:wrap(b), options:wrap(c), guard:wrap(d),
+          inplace:wrap(e), feedback:wrap(f), closeout:wrap(j)};
+})();
 function _showCase(id){
   if(id!=='podcast') return;
   const F=PODCAST_FLOW, M=F.meta;
-  document.getElementById('cs-eyebrow').textContent=M.eyebrow;
   document.getElementById('cs-title').textContent=M.title;
   document.getElementById('cs-sub').textContent=M.sub;
-  document.getElementById('cs-meta').innerHTML=M.boxes.map(function(b){
-    return '<div class="case-meta-box"><span class="case-meta-label">'+b.label+'</span>'+
-           '<span class="case-meta-value">'+b.value+'</span></div>';
-  }).join('');
+  document.getElementById('cs-intro').innerHTML=
+    F.intro.map(function(t){return '<p>'+t+'</p>';}).join('');
   document.getElementById('cs-overview').innerHTML=F.overview.map(function(s){
     return '<h3>'+s.h+'</h3>'+s.p.map(function(t){return '<p>'+t+'</p>';}).join('');
   }).join('');
   document.getElementById('cs-pull').innerHTML=
     '<div class="case-pull"><h4>'+F.pullout.h+'</h4><p>'+F.pullout.p+'</p></div>';
+  const O=F.owned, T=F.tech;
+  document.getElementById('cs-owned').innerHTML=
+    '<h3>'+O.h+'</h3><p>'+O.lead+'</p><div class="case-cards">'+
+    O.cards.map(function(c){
+      return '<div class="case-card">'+CASE_FIG[c.k]+
+             '<h4>'+c.h+'</h4><p>'+c.p+'</p></div>';
+    }).join('')+'</div><p>'+O.close+'</p>'+
+    '<h3>'+T.h+'</h3><div class="case-flow">'+
+    T.steps.map(function(s,i){
+      return '<div class="case-flow-step" style="animation-delay:'+(i*.42)+'s">'+
+             '<h5>'+s.h+'</h5><span>'+s.p+'</span></div>';
+    }).join('')+'</div>'+
+    T.p.map(function(t){return '<p>'+caseCode(t)+'</p>';}).join('');
 
   document.getElementById('home').style.display='none';
   document.getElementById('about-page').style.display='none';
