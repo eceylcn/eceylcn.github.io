@@ -51,12 +51,18 @@ The case-study simulator is a step machine. Its invariants matter more than its 
   are pinned with `minmax(0, …)` so long option text cannot widen the form column and
   squeeze the preview panel. Check this after adding any field or long string.
 - **The form owns its own scroll** (`.sim-gen-form` is `overflow-y:auto` with
-  `scrollbar-gutter:stable`). Content must never be clipped and unreachable. The
-  simulated cursor scrolls its target into view via `simScrollBy()`, and the viewer can
-  scroll the form by hand — `SIM.scroll` is restored after every repaint, so a repaint
-  never yanks the form back to the top.
-- Dropdowns are absolutely positioned, so an open one renders a `.sim-dropspace` filler
-  to give the scroll container room to reach it.
+  `scrollbar-gutter:stable`). Content must never be clipped and unreachable. The viewer
+  can scroll the form by hand at any point — `SIM.scroll` is restored after every
+  repaint, so a repaint never yanks the form back to the top.
+- **Auto-scroll follows the cursor but never hides what it just clicked.**
+  `simScrollBy()` scrolls the union of the target, its field, its open dropdown and any
+  settings the click revealed, and clamps so the field's own top stays inside the frame.
+  `simRevealHot()` runs after each click repaint to bring newly revealed rows into view
+  and carry the cursor with them. If a step ends with the acted-on row scrolled off,
+  that is a bug — the viewer has to see what changed.
+- Dropdowns are absolutely positioned. Fields low in the form pass `up` to `simDrop()`
+  so the list flips above the field, the way a real select does, instead of forcing a
+  scroll that would push the field out of the frame.
 - Captions are keyed `s1, s2, …` in step order. Renumber them when inserting a step;
   don't leave gaps.
 - Everything must still work with `prefers-reduced-motion: reduce`, which paints each

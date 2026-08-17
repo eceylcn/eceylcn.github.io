@@ -360,6 +360,9 @@
     border:1.2px solid var(--line2);border-radius:6px;padding:3px 7px;flex-shrink:0}
   .sim-drop{position:absolute;left:106px;right:8px;top:calc(100% + 5px);z-index:30;background:#fff;
     border:1.5px solid var(--ink);border-radius:10px;box-shadow:0 5px 0 rgba(58,32,18,.14);padding:5px}
+  /* Fields low in the form open upward, the way a real select flips, so the list never
+     needs the scroll container to push the field being clicked out of view. */
+  .sim-drop.up{top:auto;bottom:calc(100% + 5px);box-shadow:0 -5px 0 rgba(58,32,18,.14)}
   .sim-drop-item{font-size:11.5px;font-weight:600;padding:6px 9px;border-radius:7px;color:var(--ink2);
     overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .sim-drop-item.sel{background:var(--cream);color:var(--ink);font-weight:800}
@@ -386,9 +389,6 @@
     border:1.5px solid var(--ink);background:var(--accent);color:#fff;text-align:center;
     box-shadow:0 3px 0 rgba(58,32,18,.18)}
   .sim-go.off{background:var(--line);color:#A99CBC;border-color:var(--line2);box-shadow:none}
-  /* An open dropdown is absolutely positioned, so the scroll container needs room
-     underneath it to be able to scroll it into view instead of clipping it. */
-  .sim-dropspace{height:118px;flex-shrink:0}
   .sim-prev-label{font-size:9.5px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;
     color:var(--muted);margin-bottom:9px;flex-shrink:0}
   .sim-prev{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
@@ -2175,8 +2175,8 @@ const PODCAST_FLOW = {
 })();
 
 /* ---- screen renderers -------------------------------------------------------- */
-function simDrop(list,targetIndex,tkey){
-  return '<div class="sim-drop">'+list.map(function(o,i){
+function simDrop(list,targetIndex,tkey,up){
+  return '<div class="sim-drop'+(up?' up':'')+'">'+list.map(function(o,i){
     return '<div class="sim-drop-item"'+(i===targetIndex?' data-t="'+tkey+'"':'')+'>'+o+'</div>';
   }).join('')+'</div>';
 }
@@ -2227,11 +2227,9 @@ function simGenerator(s){
 
   h+=simField('assign',L.fields.assign,s.assign,
        {hot:s.hot==='assign', avatar:!!s.assign,
-        drop:s.open==='assign'?simDrop(O.assign,0,'o-assign'):''});
+        drop:s.open==='assign'?simDrop(O.assign,0,'o-assign',true):''});
 
-  h+='<div class="sim-go'+(s.ready?'':' off')+'" data-t="f-go">'+L.generate+'</div>';
-  if(s.open) h+='<div class="sim-dropspace"></div>';
-  h+='</div>';
+  h+='<div class="sim-go'+(s.ready?'':' off')+'" data-t="f-go">'+L.generate+'</div></div>';
 
   h+='<div class="sim-gen-side"><div class="sim-prev-label">'+L.previewLabel+'</div>';
   if(s.preview==='done'){
@@ -2279,22 +2277,45 @@ function simScrollHost(el){
   return null;
 }
 /* Brings a step's target into view and reports how far it will travel, so the fake
-   cursor can be aimed at where the element lands rather than where it is now. */
+   cursor can be aimed at where the element lands rather than where it is now.
+   The field being acted on is part of the region that must stay visible: revealing a
+   dropdown may never push the row the viewer is watching off the top of the frame. */
 function simScrollBy(el){
   const host=el&&simScrollHost(el);
   if(!host) return 0;
-  // For a dropdown item, bring the whole list into view, not just the one row.
-  const box=el.closest('.sim-drop')||el;
-  const hr=host.getBoundingClientRect(), er=el.getBoundingClientRect(),
-        br=box.getBoundingClientRect(), pad=14;
+  const rects=[el.getBoundingClientRect()];
+  const field=el.closest('.sim-field'), drop=el.closest('.sim-drop');
+  if(field) rects.push(field.getBoundingClientRect());
+  if(drop)  rects.push(drop.getBoundingClientRect());
+  // A toggle reveals its settings underneath; those count as part of the region too.
+  const sub=field&&field.nextElementSibling;
+  if(sub&&sub.classList.contains('sim-sub')) rects.push(sub.getBoundingClientRect());
+  const top    = Math.min.apply(null, rects.map(function(r){return r.top;}));
+  const bottom = Math.max.apply(null, rects.map(function(r){return r.bottom;}));
+  const hr=host.getBoundingClientRect(), pad=10;
   let d=0;
-  if(br.bottom>hr.bottom-pad)   d=br.bottom-(hr.bottom-pad);
-  else if(er.top<hr.top+pad)    d=er.top-(hr.top+pad);
+  if(top<hr.top+pad){
+    d=top-(hr.top+pad);                                  // pull the region down into view
+  }else if(bottom>hr.bottom-pad){
+    d=Math.min(bottom-(hr.bottom-pad), top-(hr.top+pad)); // never past the region's top
+    if(d<0) d=0;
+  }
   d=Math.max(-host.scrollTop, Math.min(d, host.scrollHeight-host.clientHeight-host.scrollTop));
   if(Math.abs(d)<1) return 0;
   SIM.scroll=host.scrollTop+d;
   host.scrollTo({top:SIM.scroll, behavior:simReduced()?'auto':'smooth'});
   return d;
+}
+/* Run after a click repaints: the field just acted on may have grown, so bring the
+   result into view and carry the cursor along with it. */
+function simRevealHot(){
+  const el=document.getElementById('sim-stage').querySelector('.sim-field.hot');
+  if(!el) return;
+  const d=simScrollBy(el);
+  if(!d||!SIM.pt) return;
+  SIM.pt.y-=d;
+  document.getElementById('sim-cursor').style.transform=
+    'translate('+SIM.pt.x+'px,'+SIM.pt.y+'px)';
 }
 function simCursorTo(key){
   const stage=document.getElementById('sim-stage');
@@ -2346,11 +2367,7 @@ function simRender(){
   const cur=document.getElementById('sim-cursor');
   if(simReduced()||!hops.length){
     simPaint(step,frames[frames.length-1]);
-    if(hops.length){
-      const last=document.getElementById('sim-stage')
-        .querySelector('[data-t="'+hops[hops.length-1]+'"]');
-      if(last) simScrollBy(last);
-    }
+    simRevealHot();
     cur.style.opacity='0';
     return;
   }
@@ -2359,7 +2376,7 @@ function simRender(){
   hops.forEach(function(key,idx){
     const at=t, fi=Math.min(idx+1,frames.length-1);
     simAt(at,      function(){ SIM.pt=simCursorTo(key); });
-    simAt(at+440,  function(){ simRingAt(SIM.pt); simPaint(step,frames[fi]); });
+    simAt(at+440,  function(){ simRingAt(SIM.pt); simPaint(step,frames[fi]); simRevealHot(); });
     t=at+530;
   });
   let f=hops.length, hi=0;
