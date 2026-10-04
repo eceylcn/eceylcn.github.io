@@ -140,10 +140,16 @@
   .proj-embed-notice .flag{font-size:17px;line-height:1;flex-shrink:0}
   .proj-embed-wrap{width:100%;height:min(860px,90vh);height:min(860px,90dvh)}
   .proj-embed-wrap iframe{width:100%;height:100%;border:none;display:block}
+  /* Landscape builds (Unity WebGL, Storyline) keep their own aspect ratio and
+     span the page width instead. A build with a fixed native size (Unity's
+     960x600 canvas) is rendered at that size and scaled down to fit. */
+  .proj-embed-outer.landscape{max-width:var(--embed-max,none)}
+  .proj-embed-outer.landscape .proj-embed-wrap{height:auto;aspect-ratio:var(--embed-ratio,16/9);position:relative;overflow:hidden}
+  .proj-embed-outer.native .proj-embed-wrap iframe{position:absolute;top:0;left:0;transform-origin:0 0}
   @media(max-width:480px){
-    .proj-embed-outer{max-width:none;margin-left:calc(50% - 50vw);margin-right:calc(50% - 50vw);
+    .proj-embed-outer:not(.landscape){max-width:none;margin-left:calc(50% - 50vw);margin-right:calc(50% - 50vw);
       border-radius:0;border-left:none;border-right:none;box-shadow:none}
-    .proj-embed-wrap{height:min(860px,94vh);height:min(860px,94dvh)}
+    .proj-embed-outer:not(.landscape) .proj-embed-wrap{height:min(860px,94vh);height:min(860px,94dvh)}
   }
   /* Project details box (above iframe) */
   .proj-details-box{width:100%;margin-bottom:28px;display:flex;flex-direction:column;gap:16px}
@@ -1551,7 +1557,7 @@
       <p class="proj-page-desc" id="pp-desc"></p>
     </div>
     <div class="proj-details-box" id="pp-details" style="display:none"></div>
-    <div class="proj-embed-outer">
+    <div class="proj-embed-outer" id="pp-embed-outer">
       <div class="proj-embed-notice" id="pp-embed-notice" style="display:none"></div>
       <div class="proj-embed-wrap">
         <iframe id="pp-iframe" src="" allowfullscreen></iframe>
@@ -1664,6 +1670,31 @@ function _showAbout(){
     els.forEach(el=>el.classList.add('vis'));
   }));
 }
+/* p.embed = {ratio:'16/9'} for a landscape build that scales itself, or
+   {native:[w,h]} for one with a fixed pixel size that has to be scaled from outside. */
+let _embedRO=null;
+function _layoutEmbed(p){
+  const outer=document.getElementById('pp-embed-outer');
+  const wrap=outer.querySelector('.proj-embed-wrap');
+  const iframe=document.getElementById('pp-iframe');
+  if(_embedRO){_embedRO.disconnect();_embedRO=null;}
+  iframe.style.width=iframe.style.height=iframe.style.transform='';
+  outer.style.removeProperty('--embed-ratio');outer.style.removeProperty('--embed-max');
+  const e=p.embed;
+  outer.classList.toggle('landscape',!!e);
+  outer.classList.toggle('native',!!(e&&e.native));
+  if(!e) return;
+  if(e.native){
+    const [w,h]=e.native;
+    outer.style.setProperty('--embed-ratio',w+'/'+h);
+    outer.style.setProperty('--embed-max',(w+3)+'px'); // +3 for the 1.5px border
+    iframe.style.width=w+'px';iframe.style.height=h+'px';
+    const fit=()=>{iframe.style.transform='scale('+Math.min(1,wrap.clientWidth/w)+')';};
+    _embedRO=new ResizeObserver(fit);_embedRO.observe(wrap);fit();
+  }else if(e.ratio){
+    outer.style.setProperty('--embed-ratio',e.ratio);
+  }
+}
 function _showProject(id){
   const p=projects[id]; if(!p) return;
   document.getElementById('pp-title').textContent=p.title;
@@ -1688,6 +1719,7 @@ function _showProject(id){
   if(p.extraHTML){extraBox.innerHTML=p.extraHTML;extraBox.style.display='block';}
   else{extraBox.innerHTML='';extraBox.style.display='none';}
   const iframe=document.getElementById('pp-iframe');
+  _layoutEmbed(p);
   iframe.src=p.src;
   // Prevent Articulate/Unity from adding entries to the joint session history
   iframe.onload=function(){
@@ -2028,6 +2060,7 @@ const projects = {
     title: 'Where is the Toy Treasure?',
     desc: 'Where is the Toy Treasure? is an escape-room science courseware built in Unity (C#), teaching the states of matter and their distinguishing properties through an interactive treasure hunt. Learners move through a park and a multi-room building, solving science puzzles rooted in real experiments (melting, freezing, evaporation, condensation, sublimation, deposition) to recover a hidden toy chest. The courseware was designed for 5th grade, then evaluated with 4th grade students so that any measured impact could be isolated from prior classroom exposure to the topic.',
     src: 'oyuncakhazinesi/index.html',
+    embed: {native:[960,638]}, // Unity desktop template: 960x600 canvas + 38px footer
     detailsHTML: `
       <div class="pd-title">Project Details</div>
       <div class="pd-row">
@@ -2105,6 +2138,7 @@ const projects = {
     title: 'Project Entropy: A Scenario-Based Corporate Mission',
     desc: 'Developed in Articulate Storyline 360, this project tackles a highly complex and abstract scientific concept, Entropy (Thermodynamics), and transforms it into an engaging, scenario-based corporate simulation. Set in a futuristic research facility in the year 2098, learners step into the role of a lead scientist tasked with investigating a critical system error (ERR3743) within a simulation habitat.',
     src: 'entropy/story.html',
+    embed: {ratio:'16/9'},
     detailsHTML: `
       <div class="pd-title">Project Details</div>
       <div class="pd-row">
@@ -2162,6 +2196,7 @@ const projects = {
     title: 'Spatial Concepts Adventure',
     desc: 'This interactive e-learning module was developed using Articulate Storyline 360 to teach foundational spatial relationships (Left/Right, Over/Under, Inside/Outside) to early elementary students (1st Grade). By integrating a compelling narrative featuring familiar animated characters, the module transforms abstract spatial concepts into an engaging, problem-solving adventure. Because 1st graders are not yet reading or writing independently, the module was designed to be facilitated by the teacher and completed together as a whole-class activity, with the teacher guiding navigation and reading prompts aloud.',
     src: 'sinif1-yeryon/story.html',
+    embed: {ratio:'16/9'},
     detailsHTML: `
       <div class="pd-title">Project Details</div>
       <div class="pd-row">
